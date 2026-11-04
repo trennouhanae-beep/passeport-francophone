@@ -1,0 +1,1573 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Le Passeport francophone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Direction visuelle : un passeport. Couverture bleu nuit et or, pages en papier de sécurité,
+   une encre de tampon par escale. Une colonne de lecture (~68 caractères). */
+:root {
+  --nuit: #15233f; --nuit-2: #1e3158; --or: #b08326; --or-clair: #e2c27a;
+  --papier: #eff3ee; --papier-2: #e2e9e1; --carte: #f8faf7;
+  --encre: #18202e; --encre-douce: #4b5666; --trait: #c5d0c7;
+  --ok: #1d7347; --ok-fond: #dcefe3; --erreur: #a8281f; --erreur-fond: #f8e1de; --surligne: #fbe9a6;
+  --mer: #dfe9ef; --mer-trait: #bfd0db;
+  --f-titre: "Fraunces", Georgia, "Times New Roman", serif;
+  --f-texte: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-code: "IBM Plex Mono", ui-monospace, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --nuit: #0c1528; --nuit-2: #16233f; --or: #d6ab52; --or-clair: #e9cd8c;
+    --papier: #111a29; --papier-2: #182336; --carte: #1a2539;
+    --encre: #e6eaf1; --encre-douce: #a4aebd; --trait: #2c3a52;
+    --ok: #5fc792; --ok-fond: #15352a; --erreur: #f0837a; --erreur-fond: #3d1c1d; --surligne: #4a3f17;
+    --mer: #142033; --mer-trait: #24344f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --nuit: #0c1528; --nuit-2: #16233f; --or: #d6ab52; --or-clair: #e9cd8c;
+  --papier: #111a29; --papier-2: #182336; --carte: #1a2539;
+  --encre: #e6eaf1; --encre-douce: #a4aebd; --trait: #2c3a52;
+  --ok: #5fc792; --ok-fond: #15352a; --erreur: #f0837a; --erreur-fond: #3d1c1d; --surligne: #4a3f17;
+  --mer: #142033; --mer-trait: #24344f;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--papier);
+  background-image:
+    repeating-radial-gradient(circle at 20% 30%, transparent 0 14px, color-mix(in srgb, var(--trait) 35%, transparent) 14px 15px),
+    repeating-radial-gradient(circle at 80% 70%, transparent 0 18px, color-mix(in srgb, var(--trait) 25%, transparent) 18px 19px);
+  color: var(--encre); font-family: var(--f-texte); font-size: 1.05rem; line-height: 1.6; min-height: 100vh;
+}
+h1, h2, h3 { font-family: var(--f-titre); line-height: 1.15; text-wrap: balance; margin: 0; font-weight: 700; }
+p { margin: 0; }
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--or); outline-offset: 2px; }
+
+/* Barre */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--nuit); }
+.barre { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--nuit); color: #f3efe4; padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); border-bottom: 2px solid var(--or); }
+.barre-in { max-width: 1040px; margin: 0 auto; display: flex; align-items: center; gap: 10px 16px; flex-wrap: wrap; }
+.marque { font-family: var(--f-titre); font-size: 1.05rem; color: var(--or-clair); background: none; border: 0; padding: 0; }
+.nav { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+.nav button, .icone-btn { background: transparent; color: #f3efe4; border: 1px solid color-mix(in srgb, var(--or-clair) 45%, transparent); border-radius: 999px; padding: 4px 14px; font-size: .92rem; }
+.nav button[aria-current="true"] { background: var(--or-clair); color: #15233f; border-color: var(--or-clair); }
+.icone-btn { padding: 4px 10px; }
+.chrono { font-family: var(--f-code); font-size: 1.05rem; font-variant-numeric: tabular-nums; padding: 3px 10px; border-radius: 6px; background: var(--nuit-2); color: #f3efe4; }
+.chrono.urgent { background: #b3261e; color: #fff; }
+.chrono small { font-family: var(--f-texte); font-size: .75rem; opacity: .8; margin-right: 6px; }
+
+main { max-width: 1040px; margin: 0 auto; padding-block: 28px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 24px; }
+.colonne { max-width: 720px; width: 100%; margin: 0 auto; display: grid; gap: 22px; }
+main section, .lexique, .question { scroll-margin-top: 120px; }
+@media print { .barre, footer, .btn, .nav { display: none !important; } body { background: #fff; } .page { break-inside: avoid; } }
+.page { background: var(--carte); border: 1px solid var(--trait); border-radius: 10px; padding: clamp(18px, 4vw, 30px); display: grid; gap: 16px; min-width: 0; }
+.etiquette { font-family: var(--f-code); font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; color: var(--encre-douce); }
+.doux { color: var(--encre-douce); }
+.petit { font-size: .9rem; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 2px solid var(--nuit); background: var(--nuit); color: #f6f2e6; padding: 10px 20px; border-radius: 8px; font-weight: 700; letter-spacing: .02em; }
+.btn:hover:not(:disabled) { background: var(--nuit-2); }
+.btn.second { background: transparent; color: var(--encre); border-color: var(--trait); }
+.btn.second:hover:not(:disabled) { border-color: var(--encre-douce); background: var(--papier-2); }
+.btn.or { background: var(--or); border-color: var(--or); color: #1a1408; }
+.btn.or:hover:not(:disabled) { background: var(--or-clair); border-color: var(--or-clair); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.rangee { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+/* Couverture */
+.couverture { background: radial-gradient(120% 90% at 50% 0%, var(--nuit-2), var(--nuit)); color: #f3efe4; border-radius: 14px 28px 28px 14px; border-left: 14px solid color-mix(in srgb, var(--nuit) 70%, #000); padding: clamp(28px, 6vw, 56px) clamp(20px, 5vw, 48px); display: grid; justify-items: center; text-align: center; gap: 18px; box-shadow: 0 18px 40px -20px rgba(10,18,35,.55); max-width: 560px; width: 100%; margin: 0 auto; }
+.couverture .pays { font-family: var(--f-code); letter-spacing: .32em; font-size: .8rem; color: var(--or-clair); }
+.couverture h1 { font-size: clamp(2rem, 7vw, 3rem); color: var(--or-clair); letter-spacing: .03em; }
+.couverture .sous { font-family: var(--f-titre); font-style: italic; color: #d9d3c1; }
+.globe { width: 130px; height: 130px; }
+.bienvenue { font-family: var(--f-code); letter-spacing: .12em; font-size: 1.15rem; color: var(--or); text-align: center; }
+
+.message { border-left: 4px solid var(--or); padding: 4px 0 4px 18px; font-family: var(--f-titre); font-style: italic; font-size: 1.12rem; display: grid; gap: 10px; }
+.regles { margin: 0; padding-left: 1.4em; display: grid; gap: 6px; }
+.regles li::marker { font-family: var(--f-code); color: var(--or); font-weight: 600; }
+.champ { display: grid; gap: 6px; }
+.champ label { font-weight: 700; font-size: .95rem; }
+input[type="text"], input[type="password"], textarea, select { font: inherit; color: var(--encre); background: var(--papier); border: 1.5px solid var(--trait); border-radius: 8px; padding: 10px 12px; width: 100%; min-width: 0; }
+textarea { min-height: 80px; resize: vertical; }
+input:focus, textarea:focus, select:focus { border-color: var(--or); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--or) 30%, transparent); }
+.voyageurs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.roles { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.roles li { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; padding: 10px 12px; background: var(--papier-2); border-radius: 8px; }
+.roles strong { min-width: 7em; }
+.role-tag { font-family: var(--f-code); font-size: .82rem; letter-spacing: .06em; text-transform: uppercase; color: var(--or); }
+
+/* Compagnons (tirage du guide) */
+.guides { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.guide { --g: #555; border: 2px solid var(--trait); border-radius: 10px; padding: 12px 8px; display: grid; justify-items: center; gap: 6px; text-align: center; background: var(--papier); transition: transform .12s, border-color .12s, opacity .2s; }
+.guide .av { width: 58px; height: 58px; border-radius: 50%; background: var(--g); color: #fff; display: grid; place-items: center; font-family: var(--f-titre); font-size: 1.5rem; }
+.guide strong { font-size: .92rem; line-height: 1.2; }
+.guide span { font-size: .78rem; color: var(--encre-douce); line-height: 1.3; }
+.guide.vise { border-color: var(--or); transform: scale(1.04); }
+.guide.choisi { border-color: var(--g); background: color-mix(in srgb, var(--g) 12%, var(--carte)); }
+.guides.fini .guide:not(.choisi) { opacity: .4; }
+.bulle { --g: #555; display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 12px; align-items: start; background: color-mix(in srgb, var(--g) 10%, var(--carte)); border: 1px solid color-mix(in srgb, var(--g) 40%, var(--trait)); border-radius: 10px; padding: 12px 14px; }
+.bulle .av { width: 48px; height: 48px; border-radius: 50%; background: var(--g); color: #fff; display: grid; place-items: center; font-family: var(--f-titre); font-size: 1.2rem; }
+.bulle p { font-style: italic; }
+
+/* Carte de vol */
+.carte-vol { width: 100%; height: auto; display: block; background: var(--mer); border-radius: 10px; border: 1px solid var(--trait); }
+.carte-vol .grille { stroke: var(--mer-trait); stroke-width: .6; fill: none; }
+.carte-vol .route { fill: none; stroke: var(--encre-douce); stroke-width: 1.2; stroke-dasharray: 3 4; opacity: .7; }
+.carte-vol .route.faite { stroke: var(--or); opacity: 1; stroke-dasharray: none; }
+.carte-vol text { font-family: var(--f-texte); font-size: 10px; fill: var(--encre); font-weight: 700; paint-order: stroke; stroke: var(--mer); stroke-width: 3px; }
+.carte-vol .pt { cursor: pointer; }
+.carte-vol .pt circle.halo { fill: transparent; }
+.carte-vol .pt:hover circle.halo, .carte-vol .pt:focus circle.halo { fill: color-mix(in srgb, var(--or) 25%, transparent); }
+.avion { transition: none; }
+
+/* Pages du passeport */
+.pages { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+.feuillet { --c: #333; text-align: left; background: var(--carte); border: 1px solid var(--trait); border-top: 6px solid var(--c); border-radius: 8px; padding: 14px; display: grid; gap: 8px; align-content: start; color: var(--encre); min-width: 0; transition: transform .15s, border-color .15s; }
+.feuillet:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--c) 60%, var(--trait)); border-top-color: var(--c); }
+.feuillet .num { font-family: var(--f-code); font-size: .75rem; color: var(--encre-douce); letter-spacing: .1em; }
+.feuillet h3 { font-size: 1.15rem; color: color-mix(in srgb, var(--c) 70%, var(--encre)); }
+.feuillet .reg { font-size: .85rem; color: var(--encre-douce); }
+.emplacement { width: 88px; height: 88px; justify-self: center; display: grid; place-items: center; border: 2px dashed var(--trait); border-radius: 50%; font-family: var(--f-code); font-size: 1.6rem; color: var(--encre-douce); }
+.code-ligne { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.case { width: 48px; height: 58px; display: grid; place-items: center; border: 2px solid var(--trait); border-radius: 8px; font-family: var(--f-code); font-size: 1.6rem; font-weight: 600; background: var(--carte); }
+.case.pleine { border-color: var(--or); }
+.mrz { font-family: var(--f-code); font-size: .8rem; letter-spacing: .12em; color: var(--encre-douce); background: var(--papier-2); padding: 10px 12px; border-radius: 6px; overflow-x: auto; white-space: pre; }
+
+/* Tampon */
+.tampon { --c: #333; width: 96px; height: 96px; justify-self: center; border-radius: 50%; border: 3px double var(--c); display: grid; place-content: center; text-align: center; transform: rotate(-9deg); font-family: var(--f-code); line-height: 1.05; background: color-mix(in srgb, var(--c) 7%, transparent); color: color-mix(in srgb, var(--c) 75%, var(--encre)); }
+.tampon .t-code { font-size: .7rem; letter-spacing: .16em; }
+.tampon .t-chiffre { font-size: 2.2rem; font-weight: 600; }
+.tampon .t-nom { font-size: .6rem; letter-spacing: .06em; text-transform: uppercase; }
+.tampon.grand { width: 150px; height: 150px; border-width: 5px; }
+.tampon.grand .t-chiffre { font-size: 3.4rem; }
+.tampon.grand .t-nom { font-size: .78rem; }
+.tampon.anime { animation: tamponner .55s cubic-bezier(.2,1.4,.4,1) both; }
+@keyframes tamponner { 0% { transform: scale(1.9) rotate(-2deg); opacity: 0; } 60% { opacity: 1; } 100% { transform: scale(1) rotate(-9deg); opacity: 1; } }
+
+/* Transit (repris du Genially : « arrivée à destination… 00:03 ») */
+.transit { display: grid; justify-items: center; gap: 18px; text-align: center; padding-block: 20px; }
+.transit .compte { font-family: var(--f-code); font-size: 2.6rem; font-weight: 600; color: var(--or); font-variant-numeric: tabular-nums; }
+.transit .ambiance { font-family: var(--f-titre); font-style: italic; font-size: 1.2rem; max-width: 34em; }
+
+/* Escale */
+.entete-escale { --c: #333; border-radius: 10px; padding: clamp(18px, 4vw, 28px); background: color-mix(in srgb, var(--c) 12%, var(--carte)); border: 1px solid color-mix(in srgb, var(--c) 35%, var(--trait)); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px 18px; align-items: center; }
+.entete-escale > div { display: grid; gap: 8px; }
+.entete-escale h2 { font-size: clamp(1.7rem, 5vw, 2.3rem); color: color-mix(in srgb, var(--c) 70%, var(--encre)); }
+.embleme { width: 92px; height: 92px; color: var(--c); }
+.accroche { font-family: var(--f-titre); font-style: italic; font-size: 1.1rem; }
+.etapes { display: flex; gap: 6px; flex-wrap: wrap; }
+.etapes span { font-family: var(--f-code); font-size: .75rem; letter-spacing: .04em; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--trait); background: var(--carte); color: var(--encre-douce); }
+.etapes span.ok { border-color: var(--ok); background: var(--ok-fond); color: var(--encre); }
+.document { display: grid; gap: 10px; }
+.para { display: grid; grid-template-columns: 2.2em minmax(0, 1fr); gap: 8px; padding: 8px 10px; border-radius: 8px; transition: background .3s; }
+.para .n { font-family: var(--f-code); font-weight: 600; color: color-mix(in srgb, var(--c, var(--or)) 75%, var(--encre)); }
+.para.surligne { background: var(--surligne); }
+.para.lu { background: color-mix(in srgb, var(--or) 12%, transparent); }
+.question { display: grid; gap: 10px; padding-top: 14px; border-top: 1px solid var(--trait); }
+.question:first-of-type { border-top: 0; padding-top: 0; }
+.question h3 { font-family: var(--f-texte); font-size: 1.05rem; }
+.options { display: grid; gap: 8px; }
+.option { display: grid; grid-template-columns: 2em minmax(0, 1fr) auto; align-items: center; gap: 8px; text-align: left; background: var(--papier); color: var(--encre); border: 1.5px solid var(--trait); border-radius: 8px; padding: 10px 12px; }
+.option:hover:not(:disabled) { border-color: var(--encre-douce); }
+.option .l { font-family: var(--f-code); font-weight: 600; }
+.option.juste { background: var(--ok-fond); border-color: var(--ok); }
+.option.faux { background: var(--erreur-fond); border-color: var(--erreur); }
+.option:disabled { cursor: default; }
+.option .marque-etat { font-family: var(--f-code); font-size: .8rem; font-weight: 600; }
+.option.juste .marque-etat { color: var(--ok); }
+.option.faux .marque-etat { color: var(--erreur); }
+.retour { font-size: .95rem; padding: 8px 12px; border-radius: 6px; }
+.retour.faux { background: var(--erreur-fond); border-left: 4px solid var(--erreur); }
+.retour.juste { background: var(--ok-fond); border-left: 4px solid var(--ok); }
+
+/* Lexique : associer */
+.lexique { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 10px 14px; }
+.lexique .col { display: grid; gap: 8px; align-content: start; }
+.tuile { text-align: left; background: var(--papier); color: var(--encre); border: 1.5px solid var(--trait); border-radius: 8px; padding: 10px 12px; min-height: 48px; }
+.tuile.mot { font-weight: 700; }
+.tuile[aria-pressed="true"] { border-color: var(--or); background: color-mix(in srgb, var(--or) 16%, var(--carte)); }
+.tuile.trouve { background: var(--ok-fond); border-color: var(--ok); cursor: default; }
+.tuile.secoue { animation: secouer .35s; border-color: var(--erreur); background: var(--erreur-fond); }
+@keyframes secouer { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+.carnet-mini { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+details summary { cursor: pointer; font-weight: 700; }
+details[open] summary { margin-bottom: 12px; }
+.condition { display: flex; gap: 8px; align-items: center; font-size: .92rem; }
+.condition .puce { width: 1.3em; height: 1.3em; border-radius: 50%; border: 2px solid var(--trait); display: inline-grid; place-items: center; font-size: .75rem; flex: none; }
+.condition.ok .puce { background: var(--ok); border-color: var(--ok); color: #fff; }
+.recompense { display: grid; justify-items: center; gap: 14px; text-align: center; }
+
+/* Carnet */
+.fiches { display: grid; gap: 16px; }
+.fiche { --c: #333; border-left: 6px solid var(--c); }
+.fiche h3 { color: color-mix(in srgb, var(--c) 70%, var(--encre)); font-size: 1.25rem; }
+.fiche-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.fiche-grille .large { grid-column: 1 / -1; }
+.suggestions { display: flex; gap: 6px; flex-wrap: wrap; }
+.suggestions button { font-size: .82rem; padding: 2px 10px; border-radius: 999px; border: 1px dashed var(--trait); background: transparent; color: var(--encre-douce); }
+
+/* Coffre */
+.coffre { display: grid; justify-items: center; gap: 18px; text-align: center; }
+.cadran { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.cadran label { display: grid; gap: 4px; justify-items: center; font-family: var(--f-code); font-size: .75rem; letter-spacing: .1em; color: var(--encre-douce); }
+.cadran input { width: 56px; height: 68px; text-align: center; font-family: var(--f-code); font-size: 2rem; font-weight: 600; padding: 0; }
+.serrure { width: 74px; height: 74px; }
+.msg-coffre { padding: 10px 14px; border-radius: 8px; max-width: 520px; background: var(--erreur-fond); border-left: 4px solid var(--erreur); text-align: left; }
+.fin { font-family: var(--f-titre); font-style: italic; font-size: 1.12rem; text-align: left; border-left: 4px solid var(--or); padding-left: 18px; }
+
+/* Mission */
+.sujets { display: grid; gap: 8px; }
+.sujet { text-align: left; background: var(--papier); color: var(--encre); border: 1.5px solid var(--trait); border-radius: 8px; padding: 12px 14px; display: grid; grid-template-columns: 2em minmax(0, 1fr); gap: 8px; }
+.sujet[aria-pressed="true"] { border-color: var(--or); background: color-mix(in srgb, var(--or) 14%, var(--carte)); }
+.sujet .l { font-family: var(--f-code); font-weight: 600; color: var(--or); }
+.choix-escale { display: flex; gap: 8px; flex-wrap: wrap; }
+.choix-escale button { --c: #333; border: 1.5px solid var(--trait); border-radius: 999px; padding: 4px 14px; background: var(--papier); color: var(--encre); }
+.choix-escale button[aria-pressed="true"] { border-color: var(--c); background: color-mix(in srgb, var(--c) 15%, var(--carte)); font-weight: 700; }
+.face-a-face { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.face-a-face > div { background: var(--papier-2); border-radius: 8px; padding: 12px 14px; display: grid; gap: 6px; align-content: start; font-size: .95rem; }
+.face-a-face h3 { font-family: var(--f-texte); font-size: .95rem; }
+.minuteurs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.minuteur { background: var(--nuit); color: #f3efe4; border-radius: 10px; padding: 16px; display: grid; gap: 10px; justify-items: center; text-align: center; }
+.minuteur .temps { font-family: var(--f-code); font-size: clamp(2.2rem, 8vw, 3rem); font-variant-numeric: tabular-nums; font-weight: 600; color: var(--or-clair); }
+.minuteur .temps.fini { color: #ff9b90; }
+.minuteur .btn.second { color: #f3efe4; border-color: #47577a; }
+.minuteur .btn.second:hover:not(:disabled) { background: var(--nuit-2); }
+.minuteur .phase { font-size: .9rem; color: #cfd6e4; min-height: 1.4em; }
+.tableau { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--trait); vertical-align: top; }
+th { font-family: var(--f-code); font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; color: var(--encre-douce); font-weight: 600; }
+td.num { font-family: var(--f-code); font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr.actif td { background: color-mix(in srgb, var(--or) 16%, transparent); }
+.outils { display: flex; flex-wrap: wrap; gap: 8px; }
+.outils button { background: var(--papier-2); border: 1px solid var(--trait); border-radius: 999px; padding: 4px 12px; font-size: .95rem; color: var(--encre); }
+.coches { display: grid; gap: 8px; }
+.coches label { display: flex; gap: 10px; align-items: flex-start; }
+.coches input { width: 1.2em; height: 1.2em; margin-top: .25em; accent-color: var(--or); flex: none; }
+.avis { background: color-mix(in srgb, var(--or) 14%, var(--carte)); border: 1px solid color-mix(in srgb, var(--or) 45%, var(--trait)); border-radius: 8px; padding: 12px 14px; }
+
+/* Enseignante */
+.etat-pill { display: inline-block; font-family: var(--f-code); font-size: .78rem; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--trait); }
+.etat-pill.ok { background: var(--ok-fond); border-color: var(--ok); }
+.etat-pill.faux { background: var(--erreur-fond); border-color: var(--erreur); }
+.confirmer { background: var(--erreur-fond); border-left: 4px solid var(--erreur); padding: 12px 14px; border-radius: 6px; display: grid; gap: 10px; }
+.copie-secours { min-height: 160px; font-family: var(--f-code); font-size: .82rem; }
+
+footer { max-width: 1040px; margin: 0 auto; padding-block: 0 32px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; gap: 12px; flex-wrap: wrap; justify-content: space-between; color: var(--encre-douce); font-size: .88rem; }
+.lien { background: none; border: 0; padding: 0; color: var(--encre-douce); text-decoration: underline; text-underline-offset: 3px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+@media (max-width: 900px) {
+  .pages { grid-template-columns: minmax(0, 1fr); }
+  .feuillet { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+  .feuillet .emplacement, .feuillet .tampon { grid-row: 1 / span 4; grid-column: 2; width: 78px; height: 78px; }
+  .feuillet .tampon .t-chiffre { font-size: 1.8rem; }
+  .feuillet .tampon .t-nom { font-size: .5rem; letter-spacing: 0; }
+  .guides { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .voyageurs, .carnet-mini, .fiche-grille, .minuteurs, .lexique, .face-a-face { grid-template-columns: minmax(0, 1fr); }
+  .entete-escale { grid-template-columns: minmax(0, 1fr); }
+  .embleme { display: none; }
+  .case { width: 42px; height: 52px; }
+  .cadran input { width: 46px; height: 58px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<header class="barre"><div class="barre-in" id="barre"></div></header>
+<main id="app"></main>
+<div id="annonce" class="sr" aria-live="polite"></div>
+<footer id="pied"></footer>
+
+<script>
+/* =====================================================================
+   RÉGLAGES · à modifier ici seulement
+   ===================================================================== */
+const REGLAGES = {
+  // Laisser vide pour jouer sans envoi en ligne (sauvegarde dans le navigateur seulement).
+  SUPABASE_URL: "",             // ex. "https://abcdefgh.supabase.co"
+  SUPABASE_CLE: "",             // clé publique « anon » ou « publishable », JAMAIS la clé secrète
+  CODE_ENSEIGNANTE: "prof2026", // code de l'espace enseignante : à changer
+  DUREE_JEU_MIN: 45,
+  PREPARATION_MIN: 4,
+  PRESENTATION_MIN: 2,
+};
+
+/* =====================================================================
+   CONTENU PÉDAGOGIQUE · repris du prototype Word (à faire valider)
+   ===================================================================== */
+const ROLES = [
+  { id: "lecteur", nom: "Lecteur", tache: "lit le document à voix haute à l'équipe" },
+  { id: "navigateur", nom: "Navigateur", tache: "manipule l'écran et clique sur les réponses choisies ensemble" },
+  { id: "gardien", nom: "Gardien du temps", tache: "surveille le chronomètre et fait avancer l'équipe" },
+  { id: "secretaire", nom: "Secrétaire", tache: "remplit le carnet de voyage" },
+];
+
+// Compagnons de voyage : le « Companion Randomizer » du modèle Genially, adapté.
+// Le guide tiré au sort donne l'indice de chaque escale, avec sa propre voix.
+const GUIDES = [
+  { id: "aminata", nom: "Aminata", metier: "la cartographe", couleur: "#00785a", initiale: "A",
+    devise: "Un bon voyageur lit la carte… et le texte, paragraphe par paragraphe.",
+    intro: "Aminata déplie sa carte et pose le doigt sur le document :" },
+  { id: "leon", nom: "Léon", metier: "le reporter", couleur: "#9c4a12", initiale: "L",
+    devise: "Qui ? Quoi ? Quand ? Un journaliste cherche toujours les mots-clés.",
+    intro: "Léon sort son carnet de reporter :" },
+  { id: "mireille", nom: "Mireille", metier: "la conteuse", couleur: "#7a3e9d", initiale: "M",
+    devise: "Chaque histoire a un début, un milieu et une fin : écoutez-la bien.",
+    intro: "Mireille baisse la voix, comme pour raconter un secret :" },
+  { id: "tahina", nom: "Tahina", metier: "l'explorateur", couleur: "#1f5fa8", initiale: "T",
+    devise: "Prenez votre temps, observez, et la piste apparaîtra.",
+    intro: "Tahina pointe sa boussole vers le texte :" },
+];
+
+const REGLES = [
+  "Jouez en équipe de 3 ou 4, avec un rôle chacun : lecteur, navigateur, gardien du temps, secrétaire.",
+  "Le français est la seule langue du passeport.",
+  "Lisez le document, discutez, puis répondez ensemble.",
+  "Une réponse fausse ? Relisez et réessayez : il n'y a aucune pénalité.",
+  "Vous avez droit à un indice par escale : votre guide vous le donne.",
+  "Avant de quitter une escale, répondez à la question « Et chez toi ? » dans le carnet.",
+];
+
+// Escale 0 : « votre culture est votre première escale » (écran d'accueil du prototype)
+const CHEZ_NOUS = [
+  { id: "fete", q: "Une fête ou un moment de l'année qui rassemble les gens chez vous" },
+  { id: "plat", q: "Un plat important pour votre communauté, et quand on le mange" },
+  { id: "accueil", q: "Comment on accueille un invité chez vous" },
+  { id: "famille", q: "La place de la famille, des grands-parents ou des ancêtres" },
+];
+
+const EMBLEMES = {
+  quebec: `<path d="M50 8 56 26 66 20 63 40 78 32 74 46 90 48 76 60 80 70 56 64 54 92H46L44 64 20 70 24 60 10 48 26 46 22 32 37 40 34 20 44 26Z" fill="currentColor" opacity=".9"/>`,
+  senegal: `<path d="M10 60h80l-10 14H22Z" fill="currentColor"/><path d="M50 58V18l24 34Z" fill="currentColor" opacity=".55"/><path d="M50 22 30 52h20" fill="currentColor" opacity=".35"/><path d="M8 84q10-6 20 0t20 0 20 0 20 0" stroke="currentColor" stroke-width="3" fill="none"/>`,
+  martinique: `<g fill="currentColor">${[0,72,144,216,288].map((a) => `<ellipse cx="50" cy="28" rx="15" ry="22" transform="rotate(${a} 50 50)" opacity=".8"/>`).join("")}</g><circle cx="50" cy="50" r="7" fill="#f6d36b"/><path d="M50 50 62 30" stroke="#f6d36b" stroke-width="3"/>`,
+  madagascar: `<path d="M44 92V48h12v44Z" fill="currentColor"/><path d="M44 50 30 30M56 50 70 30M50 48V26" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><ellipse cx="50" cy="22" rx="30" ry="11" fill="currentColor" opacity=".6"/>`,
+  reunion: `<path d="M6 90 38 34h24l32 56Z" fill="currentColor" opacity=".85"/><path d="M40 34q4-14 10-6 4-16 12-2" stroke="currentColor" stroke-width="4" fill="none" opacity=".6"/><path d="M44 34l-8 20 10-6 4 14" stroke="#f08a3c" stroke-width="4" fill="none"/>`,
+  moi: `<path d="M50 14 86 44v42H14V44Z" fill="currentColor" opacity=".85"/><rect x="42" y="60" width="16" height="26" fill="var(--carte)"/>`,
+};
+
+const ESCALES = [
+  {
+    id: "quebec", code: "QC", nom: "Québec", region: "Canada", couleur: "#1f5fa8", voix: "fr-CA",
+    lon: -71.2, lat: 46.8, contact: "Élodie, guide à Montréal", chiffre: 2,
+    ambiance: "La neige fond, les érables coulent, et une odeur de sirop flotte dans l'air…",
+    accroche: "« Bienvenue ! Ici, on parle français depuis plus de quatre siècles. Lisez bien : mon chiffre se mérite. »",
+    document: [
+      "Au Québec, le français est la langue officielle de la province, alors que le Canada a deux langues officielles : le français et l'anglais.",
+      "Au printemps, quand la neige fond, c'est le « temps des sucres » : on récolte la sève des érables pour fabriquer le sirop d'érable. Les familles et les amis se retrouvent alors à la cabane à sucre pour partager un repas copieux, avec des œufs, des fèves au lard et de la tire d'érable versée sur la neige.",
+      "En hiver, le Carnaval de Québec anime la ville avec son personnage célèbre, Bonhomme. Le 24 juin, la Fête nationale du Québec réunit les Québécois autour de feux, de spectacles et de chansons.",
+    ],
+    questions: [
+      { q: "Quand va-t-on à la cabane à sucre ?", options: ["Au printemps", "En hiver", "En été"], correcte: 0, paragraphe: 2 },
+      { q: "Qu'est-ce que le « temps des sucres » ?", options: ["La fête nationale", "La récolte de la sève des érables", "Un dessert au sirop"], correcte: 1, paragraphe: 2 },
+      { q: "Que célèbre-t-on le 24 juin ?", options: ["Le Carnaval de Québec", "La fin de l'hiver", "La Fête nationale du Québec"], correcte: 2, paragraphe: 3 },
+    ],
+    lexique: [
+      ["la cabane à sucre", "le lieu où l'on partage un repas copieux au temps des sucres"],
+      ["la tire d'érable", "du sirop d'érable versé sur la neige"],
+      ["Bonhomme", "le personnage célèbre du Carnaval de Québec"],
+    ],
+    indice: "Les réponses se trouvent dans les deuxième et troisième paragraphes.",
+    chezToi: "Quelle fête ou quel moment de l'année rassemble ta famille autour d'un repas ?",
+  },
+  {
+    id: "senegal", code: "SN", nom: "Sénégal", region: "Afrique de l'Ouest", couleur: "#00853f", voix: "fr-FR",
+    lon: -16.5, lat: 16.0, contact: "Moussa, pêcheur à Saint-Louis", chiffre: 9,
+    ambiance: "Les pirogues colorées rentrent au port de Saint-Louis, et quelqu'un vous fait signe de venir manger…",
+    accroche: "« Nanga def ? Chez nous, l'invité est roi. Comprenez ce mot wolof et je vous donne mon chiffre. »",
+    document: [
+      "Au Sénégal, le français est la langue officielle, mais le wolof est la langue la plus parlée au quotidien, à côté du pulaar, du sérère, du diola et d'autres langues nationales.",
+      "Les Sénégalais sont fiers de la teranga, un mot wolof qui désigne l'hospitalité : on accueille l'invité, on partage le repas avec lui et on lui offre le meilleur. Le plat national est le thiéboudiène, du riz cuit avec du poisson et des légumes, souvent mangé autour d'un grand plat commun.",
+      "La Tabaski, nom donné à l'Aïd el-Kébir, est l'une des fêtes les plus importantes : les familles se réunissent, portent de nouveaux habits et partagent la viande du mouton.",
+    ],
+    questions: [
+      { q: "Que signifie le mot « teranga » ?", options: ["La fête", "L'hospitalité", "La pêche"], correcte: 1, paragraphe: 2 },
+      { q: "Comment mange-t-on souvent le thiéboudiène ?", options: ["Autour d'un grand plat commun", "Seul, à table", "Debout, dans la rue"], correcte: 0, paragraphe: 2 },
+      { q: "À quelle fête correspond la Tabaski ?", options: ["La fête de l'indépendance", "Le Nouvel An", "L'Aïd el-Kébir"], correcte: 2, paragraphe: 3 },
+    ],
+    lexique: [
+      ["le wolof", "la langue la plus parlée au quotidien"],
+      ["le thiéboudiène", "du riz cuit avec du poisson et des légumes"],
+      ["la teranga", "l'hospitalité : on offre le meilleur à l'invité"],
+    ],
+    indice: "Cherchez dans le deuxième paragraphe, puis dans le dernier.",
+    chezToi: "Comment accueille-t-on un invité dans ta communauté ? Que lui sert-on ?",
+  },
+  {
+    id: "martinique", code: "MQ", nom: "Martinique", region: "Caraïbes", couleur: "#c2185b", voix: "fr-FR",
+    lon: -61.0, lat: 14.6, contact: "Le Botaniste des Tropiques", chiffre: 4,
+    ambiance: "Des tambours au loin, des costumes partout dans les rues : le carnaval commence…",
+    accroche: "« Entre deux fleurs d'hibiscus, je garde un chiffre. Suivez-moi au carnaval ! »",
+    document: [
+      "En Martinique, île française des Caraïbes, on parle le français et le créole martiniquais. La culture martiniquaise est née du métissage d'héritages africains, européens, indiens et caribéens.",
+      "Le carnaval est la grande fête de l'année : pendant plusieurs jours, les rues s'animent de défilés, de costumes et de musique. Le mercredi des Cendres, on brûle Vaval, le roi du carnaval, et les participants s'habillent en noir et blanc.",
+      "En cuisine, le colombo, un plat épicé venu de l'héritage indien, et les accras, de petits beignets, sont très appréciés. Le madras, un tissu à carreaux colorés, fait partie du costume traditionnel.",
+    ],
+    questions: [
+      { q: "Que fait-on le mercredi des Cendres ?", options: ["On mange des accras", "On brûle Vaval", "On plante des fleurs"], correcte: 1, paragraphe: 2 },
+      { q: "D'où vient le colombo ?", options: ["De l'héritage indien", "De la cuisine française", "De la cuisine caribéenne"], correcte: 0, paragraphe: 3 },
+      { q: "Qu'est-ce que le madras ?", options: ["Une danse", "Un plat épicé", "Un tissu à carreaux colorés"], correcte: 2, paragraphe: 3 },
+    ],
+    lexique: [
+      ["Vaval", "le roi du carnaval, brûlé le mercredi des Cendres"],
+      ["les accras", "de petits beignets"],
+      ["le créole martiniquais", "la langue parlée avec le français sur l'île"],
+    ],
+    indice: "Le carnaval est dans le deuxième paragraphe, la cuisine et le costume dans le troisième.",
+    chezToi: "Quelle fête de ta communauté se vit dans la rue, avec de la musique et des costumes ?",
+  },
+  {
+    id: "madagascar", code: "MG", nom: "Madagascar", region: "Océan Indien", couleur: "#c05a00", voix: "fr-FR",
+    lon: 47.5, lat: -18.9, contact: "Hery, guide à Antananarivo", chiffre: 7,
+    ambiance: "Des rizières en terrasses, des baobabs à l'horizon… ici, rien ne presse.",
+    accroche: "« Mora mora… Prenez votre temps, lisez doucement, et le chiffre viendra. »",
+    document: [
+      "Madagascar est une grande île de l'océan Indien. Les langues officielles sont le malgache et le français. L'expression « mora mora », qui signifie « doucement, doucement », résume une manière de vivre : on prend le temps.",
+      "La famille et le respect des ancêtres occupent une place centrale. Sur les Hautes Terres, le famadihana, ou « retournement des morts », est une cérémonie familiale : on ouvre le tombeau des ancêtres, on change leur linceul, puis on danse et on partage un repas.",
+      "Le riz est au cœur de chaque repas. Le romazava, un bouillon de viande et de brèdes (des feuilles vertes), est souvent présenté comme le plat national.",
+    ],
+    questions: [
+      { q: "Que signifie « mora mora » ?", options: ["Doucement, doucement", "Bonjour à tous", "Merci beaucoup"], correcte: 0, paragraphe: 1 },
+      { q: "Qu'est-ce que le famadihana ?", options: ["Un marché du dimanche", "Une danse de mariage", "Une cérémonie familiale en l'honneur des ancêtres"], correcte: 2, paragraphe: 2 },
+      { q: "Quel aliment est au cœur de chaque repas ?", options: ["Le pain", "Le riz", "La semoule"], correcte: 1, paragraphe: 3 },
+    ],
+    lexique: [
+      ["le romazava", "un bouillon de viande et de brèdes"],
+      ["les brèdes", "des feuilles vertes"],
+      ["le malgache", "une langue officielle, avec le français"],
+    ],
+    indice: "Chaque réponse se trouve dans un paragraphe différent, dans l'ordre.",
+    chezToi: "Quelle place les grands-parents et les ancêtres occupent-ils dans ta communauté ?",
+  },
+  {
+    id: "reunion", code: "RE", nom: "La Réunion", region: "Océan Indien", couleur: "#7a3e9d", voix: "fr-FR",
+    lon: 55.5, lat: -21.1, contact: "Le Gardien du Volcan", chiffre: 1,
+    ambiance: "Le sol tremble un peu sous vos pieds : le Piton de la Fournaise veille sur l'île…",
+    accroche: "« Du haut du Piton de la Fournaise, je surveille le dernier chiffre. Écoutez l'histoire de mon île. »",
+    document: [
+      "La Réunion est une île française de l'océan Indien, connue pour son volcan, le Piton de la Fournaise. On y parle le français et le créole réunionnais. La société réunionnaise réunit des populations d'origine africaine, malgache, européenne, indienne et chinoise.",
+      "Le 20 décembre, on célèbre la fête de l'abolition de l'esclavage, la « Fèt Kaf », avec des concerts et des défilés. Le maloya, une musique et une danse héritées des esclaves, est inscrit au patrimoine culturel immatériel de l'UNESCO.",
+      "Le plat le plus courant est le cari : de la viande ou du poisson cuits avec des épices, servis avec du riz et des grains, comme des haricots ou des lentilles.",
+    ],
+    questions: [
+      { q: "Que célèbre-t-on le 20 décembre ?", options: ["La fête du volcan", "L'abolition de l'esclavage", "Le Nouvel An créole"], correcte: 1, paragraphe: 2 },
+      { q: "Qu'est-ce que le maloya ?", options: ["Une musique et une danse", "Un plat épicé", "Un sommet du volcan"], correcte: 0, paragraphe: 2 },
+      { q: "Avec quoi sert-on le cari ?", options: ["Avec du pain", "Avec des frites", "Avec du riz et des grains"], correcte: 2, paragraphe: 3 },
+    ],
+    lexique: [
+      ["le Piton de la Fournaise", "le volcan de l'île"],
+      ["la Fèt Kaf", "la fête de l'abolition de l'esclavage, le 20 décembre"],
+      ["le cari", "de la viande ou du poisson cuits avec des épices"],
+    ],
+    indice: "La fête et la musique sont dans le deuxième paragraphe, le cari dans le dernier.",
+    chezToi: "Quelle musique traditionnelle de ta communauté raconte son histoire ?",
+  },
+];
+const CODE_COFFRE = ESCALES.map((e) => e.chiffre).join("");
+const PARIS = { lon: 2.35, lat: 48.85 };
+
+const COLONNES_CARNET = [
+  { id: "fete", nom: "Une fête ou une tradition" },
+  { id: "plat", nom: "Un plat ou une habitude alimentaire" },
+  { id: "pratique", nom: "Un lieu ou une pratique quotidienne" },
+  { id: "mots", nom: "Trois mots nouveaux" },
+  { id: "chezMoi", nom: "Et chez moi ?" },
+];
+
+const SUJETS = [
+  "Quelles traditions ou fêtes rassemblent les gens dans une communauté francophone découverte pendant le voyage et dans la vôtre ?",
+  "Quel rôle la gastronomie joue-t-elle dans l'identité d'une communauté francophone découverte pendant le voyage et de la vôtre ?",
+  "Comment accueille-t-on un invité dans une communauté francophone découverte pendant le voyage et dans la vôtre ?",
+  "Quelle place la famille et les ancêtres occupent-ils dans une communauté francophone découverte pendant le voyage et dans la vôtre ?",
+];
+const SUJET_VERS_CHEZ_NOUS = ["fete", "plat", "accueil", "famille"];
+
+const CANEVAS = [
+  ["Introduction", "15 s", "Le sujet et les deux communautés comparées", 15],
+  ["La communauté francophone", "35 s", "Une pratique précise découverte pendant le voyage", 35],
+  ["Ma communauté", "35 s", "Une pratique comparable", 35],
+  ["Comparaison", "25 s", "Une ressemblance, une différence, et ce qui les explique", 25],
+  ["Conclusion", "10 s", "Ce que cette comparaison m'a appris", 10],
+];
+
+const OUTILS = ["comme…", "de même que…", "tout comme…", "alors que…", "tandis que…", "contrairement à…", "à la différence de…", "plus / moins / aussi… que…", "en revanche…", "cela s'explique par…", "ce qui m'a surpris(e), c'est que…"];
+
+const AUTO_EVAL = [
+  "J'ai présenté le sujet et les deux communautés dans l'introduction.",
+  "J'ai décrit une pratique précise de la communauté francophone.",
+  "J'ai décrit une pratique comparable de ma communauté.",
+  "J'ai donné une ressemblance ET une différence, avec une explication.",
+  "J'ai utilisé au moins trois expressions de la boîte à outils.",
+  "J'ai tenu dans les 2 minutes et j'ai conclu.",
+];
+
+const TEXTE_FIN = "À l'intérieur, une clé USB. Grâce aux informations qu'elle contient, la police retrouve Raoul, sain et sauf, à l'aéroport de Dakar. Il vous remercie : « Vous avez voyagé dans cinq communautés francophones. Il vous reste une dernière mission : raconter ce que vous avez découvert, et le comparer avec votre propre communauté. »";
+
+/* =====================================================================
+   ÉTAT ET SAUVEGARDE (compatible avec schema.sql de la version en ligne)
+   ===================================================================== */
+const CLE_SAUVEGARDE = "passeport-francophone-v3";
+
+function nouvelId() {
+  try { if (crypto.randomUUID) return crypto.randomUUID(); } catch (e) {}
+  const o = crypto.getRandomValues(new Uint8Array(16));
+  o[6] = (o[6] & 0x0f) | 0x40; o[8] = (o[8] & 0x3f) | 0x80;
+  const h = [...o].map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+}
+function classeDepuisUrl() {
+  try { return new URLSearchParams(location.search).get("classe") || null; } catch (e) { return null; }
+}
+function etatInitial() {
+  return {
+    partieId: nouvelId(), classe: classeDepuisUrl(), ecran: "accueil", escaleActive: null,
+    equipe: { nom: "", membres: ["", "", "", ""], roles: {} },
+    guide: null,
+    chezNous: { fete: "", plat: "", accueil: "", famille: "", tamponne: false },
+    debutJeu: null,
+    escales: Object.fromEntries(ESCALES.map((e) => [e.id, { reponses: [null, null, null], essais: [0, 0, 0], indiceVu: false, lexique: [], lexiqueEssais: 0, ecoute: 0, tamponne: false, debut: null, fin: null }])),
+    carnet: Object.fromEntries(ESCALES.map((e) => [e.id, { fete: "", plat: "", pratique: "", mots: "", chezMoi: "" }])),
+    coffreOuvert: false, coffreEssais: 0,
+    sujetTire: null,
+    preparation: { escale: null, ressemblance: "", difference: "", explication: "" },
+    autoEval: [],
+    son: true,
+  };
+}
+function charger() {
+  try {
+    const brut = localStorage.getItem(CLE_SAUVEGARDE);
+    if (!brut) return null;
+    const lu = JSON.parse(brut);
+    const base = etatInitial();
+    const escales = { ...base.escales };
+    for (const k of Object.keys(escales)) escales[k] = { ...escales[k], ...(lu.escales || {})[k] };
+    return { ...base, ...lu, equipe: { ...base.equipe, ...lu.equipe }, chezNous: { ...base.chezNous, ...lu.chezNous }, escales, carnet: { ...base.carnet, ...lu.carnet }, preparation: { ...base.preparation, ...lu.preparation } };
+  } catch (e) { return null; }
+}
+let etat = charger() || etatInitial();
+const sauvegardeTrouvee = Boolean(etat.debutJeu);
+
+function sauver() {
+  try { localStorage.setItem(CLE_SAUVEGARDE, JSON.stringify(etat)); } catch (e) {}
+  programmerEnvoi();
+}
+function maj(modif, { rendu = true } = {}) {
+  etat = { ...etat, ...modif };
+  sauver();
+  if (rendu) afficher();
+}
+function majEscale(id, modif, opts) { maj({ escales: { ...etat.escales, [id]: { ...etat.escales[id], ...modif } } }, opts); }
+
+const ui = {
+  erreurs: {}, tamponAnime: null, coffreMsg: null,
+  enseignanteOk: false, enseignanteErreur: false, corrigeVisible: false, confirmerReset: false,
+  copieSecours: null, messageCopie: null,
+  envoi: { statut: "inactif", dernier: null },
+  tirage: null,          // animation du tirage du guide
+  transit: null,         // { vers, depuis, debut }
+  lexSel: null,          // index du mot sélectionné
+  lexOrdre: {},          // ordre mélangé des définitions par escale
+  lexSecoue: null,
+  lecture: null,         // { escale, para }
+  minuteurs: {
+    prep: { duree: REGLAGES.PREPARATION_MIN * 60, debut: null, ecoule: 0 },
+    pres: { duree: REGLAGES.PRESENTATION_MIN * 60, debut: null, ecoule: 0 },
+  },
+};
+
+/* =====================================================================
+   ENVOI SUPABASE (optionnel, identique à la version en ligne)
+   ===================================================================== */
+const supabaseActif = Boolean(REGLAGES.SUPABASE_URL && REGLAGES.SUPABASE_CLE);
+if (supabaseActif) ui.envoi.statut = "en attente";
+let minuteurEnvoi = null, dernierEnvoye = "";
+function donneesAEnvoyer() { const { ecran, escaleActive, son, ...d } = etat; return d; }
+async function envoyer({ keepalive = false } = {}) {
+  if (!supabaseActif || !etat.debutJeu) return;
+  const donnees = donneesAEnvoyer();
+  const texte = JSON.stringify(donnees);
+  if (texte === dernierEnvoye) return;
+  const entetes = { "Content-Type": "application/json", apikey: REGLAGES.SUPABASE_CLE };
+  if (REGLAGES.SUPABASE_CLE.startsWith("eyJ")) entetes.Authorization = "Bearer " + REGLAGES.SUPABASE_CLE;
+  try {
+    const rep = await fetch(REGLAGES.SUPABASE_URL.replace(/\/$/, "") + "/rest/v1/rpc/enregistrer_partie", {
+      method: "POST", headers: entetes, keepalive, body: JSON.stringify({ p_id: etat.partieId, p_etat: donnees }),
+    });
+    if (rep.ok) { dernierEnvoye = texte; ui.envoi = { statut: "envoye", dernier: new Date() }; }
+    else ui.envoi = { ...ui.envoi, statut: "erreur" };
+  } catch (e) { ui.envoi = { ...ui.envoi, statut: "erreur" }; }
+  const zone = document.getElementById("statut-envoi");
+  if (zone) zone.innerHTML = texteStatutEnvoi();
+}
+function programmerEnvoi() {
+  if (!supabaseActif || !etat.debutJeu) return;
+  clearTimeout(minuteurEnvoi);
+  minuteurEnvoi = setTimeout(() => envoyer(), 3000);
+}
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") envoyer({ keepalive: true }); });
+window.addEventListener("pagehide", () => envoyer({ keepalive: true }));
+window.addEventListener("online", () => envoyer());
+
+/* =====================================================================
+   SONS (générés, aucun fichier externe) ET LECTURE À VOIX HAUTE
+   ===================================================================== */
+let ctxAudio = null;
+function bip(notes, { type = "sine", vol = 0.12 } = {}) {
+  if (!etat.son) return;
+  try {
+    ctxAudio = ctxAudio || new (window.AudioContext || window.webkitAudioContext)();
+    let t = ctxAudio.currentTime;
+    for (const [f, d] of notes) {
+      const o = ctxAudio.createOscillator(), g = ctxAudio.createGain();
+      o.type = type; o.frequency.value = f;
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + d);
+      o.connect(g).connect(ctxAudio.destination); o.start(t); o.stop(t + d);
+      t += d * 0.8;
+    }
+  } catch (e) {}
+}
+const son = {
+  juste: () => bip([[660, .12], [880, .18]]),
+  faux: () => bip([[220, .22]], { type: "triangle", vol: .1 }),
+  tampon: () => bip([[110, .08], [70, .2]], { type: "square", vol: .08 }),
+  clic: () => bip([[520, .05]], { vol: .05 }),
+  coffre: () => bip([[523, .14], [659, .14], [784, .14], [1047, .4]]),
+  avion: () => bip([[300, .5], [380, .6]], { type: "sawtooth", vol: .03 }),
+};
+
+const ttsOk = "speechSynthesis" in window;
+function voixPour(lang) {
+  const v = speechSynthesis.getVoices();
+  return v.find((x) => x.lang.replace("_", "-") === lang) || v.find((x) => x.lang.startsWith("fr"));
+}
+function lireDocument(e) {
+  if (!ttsOk) return;
+  speechSynthesis.cancel();
+  if (ui.lecture && ui.lecture.escale === e.id) { ui.lecture = null; afficherLecture(); return; }
+  ui.lecture = { escale: e.id, para: 0 };
+  majEscale(e.id, { ecoute: (etat.escales[e.id].ecoute || 0) + 1 }, { rendu: false });
+  e.document.forEach((p, k) => {
+    const u = new SpeechSynthesisUtterance(p);
+    u.lang = e.voix; const v = voixPour(e.voix); if (v) u.voice = v;
+    u.rate = 0.9;
+    u.onstart = () => { if (ui.lecture) { ui.lecture.para = k + 1; afficherLecture(); } };
+    if (k === e.document.length - 1) u.onend = () => { ui.lecture = null; afficherLecture(); };
+    speechSynthesis.speak(u);
+  });
+  afficherLecture();
+}
+function afficherLecture() {
+  document.querySelectorAll(".para").forEach((p) => p.classList.toggle("lu", Boolean(ui.lecture && +p.dataset.n === ui.lecture.para)));
+  const b = document.getElementById("btn-lire");
+  if (b) b.textContent = ui.lecture ? "Arrêter la lecture" : "Écouter le document";
+}
+function arreterLecture() { if (ttsOk) speechSynthesis.cancel(); ui.lecture = null; }
+
+/* =====================================================================
+   OUTILS
+   ===================================================================== */
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const lettre = (i) => "ABC"[i];
+const escaleParId = (id) => ESCALES.find((e) => e.id === id);
+const guideActuel = () => GUIDES.find((g) => g.id === etat.guide);
+function annoncer(t) { const a = document.getElementById("annonce"); if (a) { a.textContent = ""; setTimeout(() => (a.textContent = t), 30); } }
+function mmss(s) { s = Math.max(0, Math.ceil(s)); return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); }
+function resteJeu() { return etat.debutJeu ? REGLAGES.DUREE_JEU_MIN * 60 - (Date.now() - etat.debutJeu) / 1000 : REGLAGES.DUREE_JEU_MIN * 60; }
+function questionJuste(e, i) { return etat.escales[e.id].reponses[i] === e.questions[i].correcte; }
+function toutJuste(e) { return e.questions.every((_, i) => questionJuste(e, i)); }
+function lexiqueFini(e) { return etat.escales[e.id].lexique.length === e.lexique.length; }
+function chezToiRempli(e) { return (etat.carnet[e.id].chezMoi || "").trim().length > 0; }
+function nbTampons() { return ESCALES.filter((e) => etat.escales[e.id].tamponne).length; }
+function membresInscrits() { return etat.equipe.membres.map((m) => m.trim()).filter(Boolean); }
+function rolesTires() { return Object.keys(etat.equipe.roles).length > 0; }
+function rolesDuMembre(i) { return etat.equipe.roles[i] || []; }
+function chezNousRemplis() { return CHEZ_NOUS.filter((c) => (etat.chezNous[c.id] || "").trim()).length; }
+function melanger(t) { const a = [...t]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+function aller(ecran, extra = {}) {
+  arreterLecture();
+  ui.coffreMsg = null; ui.copieSecours = null; ui.messageCopie = null; ui.confirmerReset = false; ui.lexSel = null;
+  maj({ ecran, ...extra });
+  window.scrollTo({ top: 0 });
+  const h = document.querySelector("main h1, main h2");
+  if (h) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); }
+}
+
+function carnetEnTexte() {
+  const l = [`# Carnet de voyage · ${etat.equipe.nom || "Équipe"}`, ""];
+  if (membresInscrits().length) l.push("Voyageurs : " + membresInscrits().join(", "), "");
+  l.push("## Chez nous (escale 0)");
+  for (const c of CHEZ_NOUS) l.push(`- **${c.q}** : ${etat.chezNous[c.id] || "…"}`);
+  l.push("");
+  for (const e of ESCALES) {
+    l.push(`## ${e.nom} (${e.region})`);
+    for (const c of COLONNES_CARNET) l.push(`- **${c.nom}** : ${etat.carnet[e.id][c.id] || "…"}`);
+    l.push("");
+  }
+  const p = etat.preparation;
+  if (etat.sujetTire !== null) {
+    l.push("## Préparation de l'exposé", `- **Sujet** : ${SUJETS[etat.sujetTire]}`);
+    if (p.escale) l.push(`- **Communauté comparée** : ${escaleParId(p.escale).nom}`);
+    l.push(`- **Ressemblance** : ${p.ressemblance || "…"}`, `- **Différence** : ${p.difference || "…"}`, `- **Explication** : ${p.explication || "…"}`);
+  }
+  return l.join("\n");
+}
+async function copier(texte, message) {
+  try { await navigator.clipboard.writeText(texte); ui.messageCopie = message; ui.copieSecours = null; }
+  catch (e) { ui.copieSecours = texte; ui.messageCopie = "La copie automatique est bloquée ici : sélectionnez le texte ci-dessous et copiez-le."; }
+  afficher();
+}
+function blocCopie() {
+  if (!ui.messageCopie) return "";
+  return `<p class="doux petit" role="status">${esc(ui.messageCopie)}</p>
+    ${ui.copieSecours ? `<textarea class="copie-secours" readonly>${esc(ui.copieSecours)}</textarea>` : ""}`;
+}
+
+/* =====================================================================
+   GRAPHISMES
+   ===================================================================== */
+const GLOBE = `<svg class="globe" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="color: var(--or-clair)">
+  <circle cx="60" cy="60" r="44"/><ellipse cx="60" cy="60" rx="20" ry="44"/><ellipse cx="60" cy="60" rx="36" ry="44" opacity=".55"/>
+  <path d="M16 60h88M22 38h76M22 82h76"/><circle cx="60" cy="60" r="54" stroke-width="1" stroke-dasharray="2 5"/></svg>`;
+const embleme = (id, couleur) => `<svg class="embleme" viewBox="0 0 100 100" style="--c:${couleur}; color:${couleur}" aria-hidden="true">${EMBLEMES[id]}</svg>`;
+
+// Projection équirectangulaire, recadrée sur l'Atlantique et l'océan Indien
+const proj = ({ lon, lat }) => [(lon + 180) / 360 * 1000, (90 - lat) / 180 * 500];
+function arc(a, b) {
+  const [x1, y1] = proj(a), [x2, y2] = proj(b);
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2 - Math.hypot(x2 - x1, y2 - y1) * 0.22;
+  return `M${x1.toFixed(1)} ${y1.toFixed(1)}Q${mx.toFixed(1)} ${my.toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}`;
+}
+function carteVol({ avion = null } = {}) {
+  let grille = "";
+  for (let lon = -90; lon <= 90; lon += 15) { const [x] = proj({ lon, lat: 0 }); grille += `M${x} 60V360`; }
+  for (let lat = 60; lat >= -40; lat -= 15) { const [, y] = proj({ lon: 0, lat }); grille += `M240 ${y}H730`; }
+  const [px, py] = proj(PARIS);
+  const routes = ESCALES.map((e) => `<path class="route${etat.escales[e.id].tamponne ? " faite" : ""}" d="${arc(PARIS, e)}"/>`).join("");
+  const points = ESCALES.map((e) => {
+    const [x, y] = proj(e); const s = etat.escales[e.id];
+    const dx = e.id === "reunion" ? 10 : e.id === "madagascar" ? -12 : 9;
+    const anchor = e.id === "reunion" ? "middle" : e.id === "madagascar" || e.id === "martinique" || e.id === "quebec" ? "end" : "start";
+    const tx = anchor === "end" ? x - 9 : anchor === "middle" ? x : x + dx;
+    const ty = e.id === "reunion" ? y + 14 : e.id === "martinique" ? y + 4 : y + 4;
+    return `<g class="pt" data-action="ouvrir-escale" data-id="${e.id}" tabindex="0" role="button" aria-label="Escale ${esc(e.nom)}${s.tamponne ? ", tamponnée" : ""}">
+      <circle class="halo" cx="${x}" cy="${y}" r="13"/>
+      <circle cx="${x}" cy="${y}" r="5.5" fill="${s.tamponne ? e.couleur : "var(--carte)"}" stroke="${e.couleur}" stroke-width="2.5"/>
+      <text x="${tx}" y="${ty}" text-anchor="${anchor}">${esc(e.nom)}${s.tamponne ? " · " + e.chiffre : ""}</text></g>`;
+  }).join("");
+  const av = avion ? `<g class="avion" id="avion"><path d="M0-6 2-1 8 1V3L2 2 1 6 3 7.5V9L0 8-3 9V7.5L-1 6-2 2-8 3V1L-2-1Z" fill="var(--or)" stroke="var(--nuit)" stroke-width=".8"/></g>
+    <path id="trajet" d="${avion}" fill="none" stroke="var(--or)" stroke-width="2"/>` : "";
+  return `<svg class="carte-vol" viewBox="240 60 490 300" role="img" aria-label="Carte de vol au départ de Paris vers les cinq escales">
+    <path class="grille" d="${grille}"/>
+    ${routes}
+    <circle cx="${px}" cy="${py}" r="4" fill="var(--nuit)"/><text x="${px + 7}" y="${py - 5}">Paris</text>
+    ${points}${av}</svg>`;
+}
+
+function tamponHTML(e, { grand = false, anime = false } = {}) {
+  return `<div class="tampon${grand ? " grand" : ""}${anime ? " anime" : ""}" style="--c:${e.couleur}" aria-label="Tampon ${esc(e.nom)} : chiffre ${e.chiffre}">
+    <span class="t-code">${e.code}</span><span class="t-chiffre">${e.chiffre}</span><span class="t-nom">${esc(e.nom)}</span></div>`;
+}
+const TAMPON_CHEZ_NOUS = (grand, anime) => `<div class="tampon${grand ? " grand" : ""}${anime ? " anime" : ""}" style="--c:var(--or)" aria-label="Tampon Chez nous">
+  <span class="t-code">ESC 0</span><span class="t-chiffre">★</span><span class="t-nom">Chez nous</span></div>`;
+
+function mrz() {
+  const nom = (etat.equipe.nom || "EQUIPE").normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/[^A-Z0-9]+/g, "<");
+  const code = ESCALES.map((e) => (etat.escales[e.id].tamponne ? e.chiffre : "<")).join("");
+  const l1 = ("P<FRA<PASSEPORT<<FRANCOPHONE<<" + nom).padEnd(44, "<").slice(0, 44);
+  const l2 = ("RAOUL<<" + code + "<<" + ESCALES.map((e) => e.code).join("") + "<<45MIN").padEnd(44, "<").slice(0, 44);
+  return l1 + "\n" + l2;
+}
+function bulleGuide(texte, intro = true) {
+  const g = guideActuel(); if (!g) return `<p class="indice">${esc(texte)}</p>`;
+  return `<div class="bulle" style="--g:${g.couleur}"><span class="av" aria-hidden="true">${g.initiale}</span>
+    <div><strong>${esc(g.nom)}, ${esc(g.metier)}</strong>${intro ? `<p class="doux petit">${esc(g.intro)}</p>` : ""}<p>« ${esc(texte)} »</p></div></div>`;
+}
+
+/* =====================================================================
+   ÉCRANS
+   ===================================================================== */
+function ecranAccueil() {
+  return `<div class="colonne">
+    <section class="couverture" aria-label="Couverture du passeport">
+      <span class="pays">MONDE FRANCOPHONE</span>${GLOBE}
+      <h1>PASSEPORT<br>FRANCOPHONE</h1>
+      <p class="sous">Québec · Sénégal · Martinique · Madagascar · La Réunion</p>
+      <button class="btn or" data-action="embarquer">${sauvegardeTrouvee || etat.debutJeu ? "REPRENDRE LE VOYAGE" : "ON EMBARQUE ?"}</button>
+    </section>
+    <section class="page">
+      <p class="bienvenue">B I E N V E N U E !</p>
+      <p>Attachez vos ceintures : le Passeport francophone est verrouillé, et l'avion décolle dans 45 minutes.</p>
+      <p>Avant de partir, présentez-vous : votre culture est votre première escale. Ensuite, à chaque destination, lisez le document, discutez en équipe et répondez aux questions pour gagner un chiffre.</p>
+      <p>Une erreur ? Pas de panique : le jeu vous dit pourquoi, et un indice vous attend. Réunissez les cinq chiffres pour ouvrir le coffre… et préparer votre dernière mission !</p>
+    </section>
+  </div>`;
+}
+
+function ecranCapitaine() {
+  const m = etat.equipe.membres;
+  const inscrits = membresInscrits().length;
+  const tires = rolesTires();
+  const peutPartir = inscrits >= 3 && tires && etat.equipe.nom.trim() && etat.guide;
+  let listeRoles = "";
+  if (tires) {
+    listeRoles = `<ul class="roles">${m.map((nom, i) => {
+      if (!nom.trim()) return "";
+      const r = rolesDuMembre(i).map((id) => ROLES.find((x) => x.id === id));
+      return `<li><strong>${esc(nom)}</strong><span class="role-tag">${r.map((x) => x.nom).join(" + ")}</span><span class="doux petit">${r.map((x) => x.tache).join(" ; ")}</span></li>`;
+    }).join("")}</ul>${inscrits === 3 ? `<p class="doux petit">Vous êtes trois : le navigateur surveille aussi le temps.</p>` : ""}`;
+  }
+  const t = ui.tirage;
+  const g = guideActuel();
+  return `<div class="colonne">
+    <section class="page">
+      <span class="etiquette">Message du Capitaine · cockpit, Paris</span>
+      <div class="message">
+        <p>Raoul, l'agent chargé du Passeport francophone, a disparu. Avant de partir, il a verrouillé le coffre qui contient la clé de son enquête. Pour l'ouvrir, il faut un code à 5 chiffres.</p>
+        <p>Chaque chiffre est gardé par un contact, dans une communauté francophone : au Québec, au Sénégal, en Martinique, à Madagascar et à La Réunion. Pour l'obtenir, lisez le document de chaque escale et répondez à ses questions. Notez aussi ce que vous découvrez dans votre carnet de voyage : il vous servira pour votre dernière mission.</p>
+        <p>L'avion décolle dans 45 minutes. Embarquez !</p>
+      </div>
+    </section>
+    <section class="page"><h2>Règles du voyage</h2><ol class="regles">${REGLES.map((r) => `<li>${esc(r)}</li>`).join("")}</ol></section>
+    <section class="page">
+      <span class="etiquette">Étape 1 · l'équipage</span>
+      <h2>Votre équipe</h2>
+      <div class="champ"><label for="equipe-nom">Nom de l'équipe</label>
+        <input type="text" id="equipe-nom" data-equipe="nom" maxlength="60" value="${esc(etat.equipe.nom)}" placeholder="Les Baobabs, Les Érables…"></div>
+      <div class="voyageurs">
+        ${m.map((nom, i) => `<div class="champ"><label for="membre-${i}">Voyageur ${i + 1}${i === 3 ? " (facultatif)" : ""}</label>
+          <input type="text" id="membre-${i}" data-membre="${i}" maxlength="40" value="${esc(nom)}" placeholder="Prénom"></div>`).join("")}
+      </div>
+      <p class="doux petit">Prénoms seulement, pas de nom de famille.</p>
+      <div class="rangee">
+        <button class="btn second" data-action="tirer-roles" id="btn-tirer" ${inscrits >= 3 ? "" : "disabled"}>Tirer les rôles au sort</button>
+        <span class="doux petit" id="aide-tirage">${inscrits >= 3 ? "Chaque voyageur reçoit un rôle au hasard." : "Inscrivez au moins 3 voyageurs."}</span>
+      </div>
+      <div id="liste-roles">${listeRoles}</div>
+    </section>
+    <section class="page">
+      <span class="etiquette">Étape 2 · le compagnon de voyage</span>
+      <h2>Tirez votre guide au sort</h2>
+      <p class="doux">Votre guide vous accompagne pendant tout le voyage. À chaque escale, il ou elle peut vous donner un indice, un seul.</p>
+      <div class="guides${g && !t ? " fini" : ""}">
+        ${GUIDES.map((x, i) => `<div class="guide${t && t.vise === i ? " vise" : ""}${g && !t && g.id === x.id ? " choisi" : ""}" style="--g:${x.couleur}">
+          <span class="av" aria-hidden="true">${x.initiale}</span><strong>${esc(x.nom)}</strong><span>${esc(x.metier)}</span></div>`).join("")}
+      </div>
+      ${g && !t ? bulleGuide(g.devise, false) : ""}
+      <div><button class="btn second" data-action="tirer-guide" ${t ? "disabled" : ""}>${g ? "Tirer un autre guide" : "Tirer notre guide"}</button></div>
+    </section>
+    <section class="page">
+      <div class="rangee">
+        <button class="btn or" data-action="decoller" id="btn-decoller" ${peutPartir ? "" : "disabled"}>Décoller</button>
+        <span class="doux petit" id="aide-decoller">${peutPartir ? `Le chronomètre de ${REGLAGES.DUREE_JEU_MIN} minutes démarre au décollage.` : "Il faut un nom d'équipe, au moins 3 voyageurs, les rôles et un guide."}</span>
+      </div>
+    </section>
+  </div>`;
+}
+
+function ecranChezNous() {
+  const n = chezNousRemplis();
+  const t = etat.chezNous.tamponne;
+  return `<div class="colonne">
+    <section class="entete-escale" style="--c:var(--or)">
+      <div><span class="etiquette">Escale 0 · votre communauté</span><h2>Chez nous</h2>
+      <p class="accroche">« Votre culture est votre première escale. »</p></div>${embleme("moi", "var(--or)")}
+    </section>
+    ${bulleGuide("Avant de découvrir les autres, parlez de vous. Ces notes vous serviront pour l'exposé final.", false)}
+    <section class="page">
+      <span class="etiquette">Discutez en équipe · le secrétaire écrit</span>
+      <p class="doux">Répondez en français, en une ou deux phrases. Remplissez au moins deux cases pour obtenir le tampon.</p>
+      ${CHEZ_NOUS.map((c) => `<div class="champ"><label for="cn-${c.id}">${esc(c.q)}</label>
+        <textarea id="cn-${c.id}" data-cheznous="${c.id}" placeholder="Chez nous, …">${esc(etat.chezNous[c.id])}</textarea></div>`).join("")}
+    </section>
+    ${t ? `<section class="page recompense">${TAMPON_CHEZ_NOUS(true, ui.tamponAnime === "moi")}
+        <p>Votre premier tampon ! Direction le reste du monde francophone.</p>
+        <button class="btn or" data-action="aller" data-ecran="carte">Ouvrir le passeport</button></section>`
+      : `<section class="page"><div class="condition${n >= 2 ? " ok" : ""}" id="cond-cn"><span class="puce">${n >= 2 ? "✓" : ""}</span><span id="cond-cn-txt">${n} case${n > 1 ? "s" : ""} remplie${n > 1 ? "s" : ""} sur 4</span></div>
+        <div><button class="btn or" data-action="tamponner-cheznous" id="btn-cn" ${n >= 2 ? "" : "disabled"}>Obtenir le tampon</button></div></section>`}
+  </div>`;
+}
+
+function ecranCarte() {
+  const n = nbTampons();
+  return `<section class="page">
+      <div class="rangee" style="justify-content: space-between">
+        <div style="display:grid; gap:4px"><span class="etiquette">Passeport de l'équipe</span><h2>${esc(etat.equipe.nom || "Votre équipe")}</h2></div>
+        <span class="doux">${n} tampon${n > 1 ? "s" : ""} sur 5</span>
+      </div>
+      ${carteVol()}
+      <p class="doux">Choisissez une escale sur la carte ou dans le passeport. L'ordre de jeu est libre, mais le code du coffre suit l'ordre des pages.</p>
+    </section>
+    <div class="pages">
+      ${ESCALES.map((e, i) => {
+        const s = etat.escales[e.id];
+        return `<button class="feuillet" style="--c:${e.couleur}" data-action="ouvrir-escale" data-id="${e.id}">
+          <span class="num">ESCALE ${i + 1} · ${e.code}</span><h3>${esc(e.nom)}</h3>
+          <span class="reg">${esc(e.region)}<br>${esc(e.contact)}</span>
+          ${s.tamponne ? tamponHTML(e) : `<span class="emplacement" aria-label="Pas encore de tampon">?</span>`}
+        </button>`;
+      }).join("")}
+    </div>
+    <section class="page">
+      <span class="etiquette">Code du coffre</span>
+      <div class="code-ligne">
+        ${ESCALES.map((e) => `<span class="case${etat.escales[e.id].tamponne ? " pleine" : ""}" aria-label="${esc(e.nom)}">${etat.escales[e.id].tamponne ? e.chiffre : ""}</span>`).join("")}
+        ${n === 5 ? `<button class="btn or" data-action="aller" data-ecran="coffre">Ouvrir le coffre</button>` : ""}
+      </div>
+      <div class="mrz" aria-hidden="true">${esc(mrz())}</div>
+      ${etat.chezNous.tamponne ? "" : `<p class="doux petit">Vous n'avez pas encore le tampon « Chez nous ». <button class="lien" data-action="aller" data-ecran="cheznous">Retourner à l'escale 0</button></p>`}
+    </section>`;
+}
+
+function ecranTransit() {
+  const t = ui.transit;
+  const dest = t.vers === "cheznous" ? null : escaleParId(t.vers);
+  const reste = Math.max(0, 3 - (Date.now() - t.debut) / 1000);
+  return `<div class="colonne"><section class="page transit">
+      <span class="etiquette">${dest ? "Arrivée à destination…" : "Embarquement…"}</span>
+      ${dest ? carteVol({ avion: arc(t.depuis, dest) }) : GLOBE.replace('style="color: var(--or-clair)"', 'style="color: var(--or)"')}
+      <p class="compte" id="compte">00:0${Math.ceil(reste)}</p>
+      <p class="ambiance">${esc(dest ? dest.ambiance : "Les moteurs chauffent. Mais avant de partir, une première escale vous attend : chez vous.")}</p>
+      <button class="btn second" data-action="fin-transit">Passer</button>
+    </section></div>`;
+}
+
+function ecranEscale() {
+  const e = escaleParId(etat.escaleActive);
+  if (!e) return ecranCarte();
+  const s = etat.escales[e.id];
+  const erreurs = ui.erreurs[e.id] || {};
+  const parasSurlignes = new Set(Object.keys(erreurs).filter((i) => !questionJuste(e, +i)).map((i) => e.questions[+i].paragraphe));
+  const index = ESCALES.indexOf(e);
+  const pret = toutJuste(e) && lexiqueFini(e) && chezToiRempli(e);
+
+  const etapes = [["Document", true], ["Quiz", toutJuste(e)], ["Lexique", lexiqueFini(e)], ["Et chez toi ?", chezToiRempli(e)], ["Tampon", s.tamponne]];
+
+  const questions = e.questions.map((q, i) => {
+    const juste = questionJuste(e, i);
+    const faux = !juste && erreurs[i] !== undefined ? erreurs[i] : null;
+    return `<div class="question">
+      <h3>${i + 1}. ${esc(q.q)}</h3>
+      <div class="options">
+        ${q.options.map((o, j) => {
+          const cls = juste && j === q.correcte ? " juste" : faux === j ? " faux" : "";
+          const marque = juste && j === q.correcte ? "Juste" : faux === j ? "Pas encore" : "";
+          return `<button class="option${cls}" data-action="repondre" data-q="${i}" data-o="${j}" ${juste ? "disabled" : ""}>
+            <span class="l">${lettre(j)}.</span><span>${esc(o)}</span><span class="marque-etat">${marque}</span></button>`;
+        }).join("")}
+      </div>
+      ${juste ? `<p class="retour juste">Bravo, c'est la bonne réponse.</p>`
+        : faux !== null ? `<p class="retour faux">Ce n'est pas encore ça. Relisez le paragraphe ${q.paragraphe}, surligné dans le document, puis réessayez.</p>` : ""}
+    </div>`;
+  }).join("");
+
+  if (!ui.lexOrdre[e.id]) ui.lexOrdre[e.id] = melanger(e.lexique.map((_, i) => i));
+  const trouves = new Set(s.lexique);
+  const lexique = `<div class="lexique">
+      <div class="col" role="group" aria-label="Mots">${e.lexique.map(([mot], i) => `<button class="tuile mot${trouves.has(i) ? " trouve" : ""}" data-action="lex-mot" data-i="${i}" aria-pressed="${ui.lexSel === i}" ${trouves.has(i) ? "disabled" : ""}>${esc(mot)}</button>`).join("")}</div>
+      <div class="col" role="group" aria-label="Définitions">${ui.lexOrdre[e.id].map((i) => `<button class="tuile def${trouves.has(i) ? " trouve" : ""}${ui.lexSecoue === i ? " secoue" : ""}" data-action="lex-def" data-i="${i}" ${trouves.has(i) ? "disabled" : ""}>${esc(e.lexique[i][1])}</button>`).join("")}</div>
+    </div>
+    <p class="doux petit" id="lex-aide">${lexiqueFini(e) ? "Lexique complet ! Les trois mots sont proposés dans votre carnet." : ui.lexSel !== null ? `Choisissez la définition de « ${esc(e.lexique[ui.lexSel][0])} ».` : "Cliquez sur un mot, puis sur sa définition."}</p>`;
+
+  const recompense = s.tamponne ? `<section class="page recompense">
+      <span class="etiquette">${esc(e.contact)} tamponne votre passeport</span>
+      ${tamponHTML(e, { grand: true, anime: ui.tamponAnime === e.id })}
+      <p>Chiffre gagné : <strong style="font-family: var(--f-code); font-size: 1.3rem">${e.chiffre}</strong></p>
+      <div class="rangee" style="justify-content:center">${prochaineEscaleBouton(e)}</div>
+    </section>` : `<section class="page">
+      <h2>Le tampon</h2>
+      ${[["Les trois réponses du quiz sont justes", toutJuste(e)], ["Le lexique est complet", lexiqueFini(e)], ["« Et chez toi ? » est rempli", chezToiRempli(e)]].map(([t, ok], k) =>
+        `<div class="condition${ok ? " ok" : ""}" id="cond-${k}"><span class="puce">${ok ? "✓" : ""}</span>${t}</div>`).join("")}
+      <div><button class="btn or" data-action="tamponner" id="btn-tampon" ${pret ? "" : "disabled"}>Obtenir le tampon</button></div>
+    </section>`;
+
+  return `<div class="colonne" style="--c:${e.couleur}">
+    <section class="entete-escale" style="--c:${e.couleur}">
+      <div><span class="etiquette">Escale ${index + 1} sur 5 · ${esc(e.region)}</span>
+      <h2>${esc(e.nom)}</h2>
+      <p><strong>Votre contact :</strong> ${esc(e.contact)}</p>
+      <p class="accroche">${esc(e.accroche)}</p></div>
+      ${embleme(e.id, e.couleur)}
+    </section>
+    <div class="etapes" aria-label="Progression de l'escale">${etapes.map(([t, ok]) => `<span class="${ok ? "ok" : ""}">${ok ? "✓ " : ""}${t}</span>`).join("")}</div>
+    <section class="page">
+      <div class="rangee" style="justify-content:space-between"><span class="etiquette">Le document · le lecteur lit à voix haute</span>
+        ${ttsOk ? `<button class="btn second" data-action="lire" id="btn-lire">${ui.lecture ? "Arrêter la lecture" : "Écouter le document"}</button>` : ""}</div>
+      <div class="document">
+        ${e.document.map((p, k) => `<div class="para${parasSurlignes.has(k + 1) ? " surligne" : ""}" data-n="${k + 1}" id="para-${k + 1}"><span class="n">§${k + 1}</span><p>${esc(p)}</p></div>`).join("")}
+      </div>
+    </section>
+    <section class="page">
+      <span class="etiquette">Épreuve 1 · le quiz · discutez, puis répondez ensemble</span>
+      ${questions}
+      <div>${s.indiceVu ? bulleGuide(e.indice) : `<button class="btn second" data-action="indice">Demander l'indice à ${esc(guideActuel()?.nom || "votre guide")} (un seul par escale)</button>`}</div>
+    </section>
+    <section class="page">
+      <span class="etiquette">Épreuve 2 · le lexique du contact</span>
+      <h2>Associez chaque mot à sa définition</h2>
+      ${lexique}
+    </section>
+    <section class="page">
+      <span class="etiquette">Épreuve 3 · interculturel</span>
+      <h2>Et chez toi ?</h2>
+      <div class="champ"><label for="cheztoi">${esc(e.chezToi)}</label>
+        <textarea id="cheztoi" data-carnet="${e.id}" data-col="chezMoi" placeholder="Chez moi, … Comme au ${esc(e.nom)}, … / Alors qu'au ${esc(e.nom)}, …">${esc(etat.carnet[e.id].chezMoi)}</textarea></div>
+      <details id="details-carnet" ${ui.detailsOuvert ? "open" : ""}>
+        <summary>Le carnet de cette escale (secrétaire)</summary>
+        <div class="carnet-mini">
+          ${COLONNES_CARNET.filter((c) => c.id !== "chezMoi").map((c) => champCarnet(e, c, "mini")).join("")}
+        </div>
+      </details>
+    </section>
+    ${recompense}
+    <div class="rangee"><button class="btn second" data-action="aller" data-ecran="carte">Retour au passeport</button></div>
+  </div>`;
+}
+function champCarnet(e, c, prefixe) {
+  const sugg = c.id === "mots" && lexiqueFini(e) && !etat.carnet[e.id].mots.trim()
+    ? `<div class="suggestions"><button data-action="mots-lexique" data-id="${e.id}">+ ajouter les mots du lexique</button></div>` : "";
+  return `<div class="champ${c.id === "chezMoi" ? " large" : ""}"><label for="${prefixe}-${e.id}-${c.id}">${esc(c.nom)}</label>
+    <textarea id="${prefixe}-${e.id}-${c.id}" data-carnet="${e.id}" data-col="${c.id}">${esc(etat.carnet[e.id][c.id])}</textarea>${sugg}</div>`;
+}
+function prochaineEscaleBouton(e) {
+  const i = ESCALES.indexOf(e);
+  const suite = [...ESCALES.slice(i + 1), ...ESCALES.slice(0, i)].find((x) => !etat.escales[x.id].tamponne);
+  if (suite) return `<button class="btn" data-action="ouvrir-escale" data-id="${suite.id}" data-depuis="${e.id}">Escale suivante : ${esc(suite.nom)}</button>
+    <button class="btn second" data-action="aller" data-ecran="carte">Voir le passeport</button>`;
+  return `<button class="btn or" data-action="aller" data-ecran="coffre">Les cinq chiffres sont réunis : ouvrir le coffre</button>`;
+}
+
+function ecranCarnet() {
+  return `<section class="page">
+      <span class="etiquette">Carnet de voyage · ${esc(etat.equipe.nom || "Équipe")}</span>
+      <h2>Ce que vous avez découvert</h2>
+      <p class="doux">À remplir à chaque escale. Il vous servira à préparer l'exposé de la dernière mission.</p>
+      <div class="rangee"><button class="btn second" data-action="copier-carnet">Copier le carnet</button>
+        <button class="btn second" data-action="imprimer">Imprimer</button></div>
+      ${blocCopie()}
+    </section>
+    <div class="fiches">
+      <section class="page fiche" style="--c:var(--or)">
+        <h3>Chez nous <span class="doux petit" style="font-family: var(--f-texte); font-weight: 400">escale 0</span></h3>
+        <div class="fiche-grille">${CHEZ_NOUS.map((c) => `<div class="champ"><label for="f-cn-${c.id}">${esc(c.q)}</label>
+          <textarea id="f-cn-${c.id}" data-cheznous="${c.id}">${esc(etat.chezNous[c.id])}</textarea></div>`).join("")}</div>
+      </section>
+      ${ESCALES.map((e) => `<section class="page fiche" style="--c:${e.couleur}">
+        <h3>${esc(e.nom)} <span class="doux petit" style="font-family: var(--f-texte); font-weight: 400">${esc(e.region)}</span></h3>
+        <div class="fiche-grille">${COLONNES_CARNET.map((c) => champCarnet(e, c, "c")).join("")}</div>
+      </section>`).join("")}
+    </div>`;
+}
+
+const SERRURE = (ouverte) => `<svg class="serrure" viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="4" aria-hidden="true" style="color: var(--or)">
+  <path d="${ouverte ? "M26 36V24a14 14 0 0 1 27-5" : "M26 36V24a14 14 0 0 1 28 0v12"}" stroke-linecap="round"/>
+  <rect x="16" y="36" width="48" height="34" rx="6" fill="color-mix(in srgb, currentColor 18%, transparent)"/>
+  <circle cx="40" cy="50" r="5" fill="currentColor" stroke="none"/><path d="M40 54v8" stroke-linecap="round"/></svg>`;
+function ecranCoffre() {
+  if (etat.coffreOuvert) {
+    return `<div class="colonne"><section class="page coffre">${SERRURE(true)}
+      <h2>Le coffre est ouvert !</h2>
+      <p class="fin">${esc(TEXTE_FIN)}</p>
+      <button class="btn or" data-action="aller" data-ecran="mission">Découvrir la dernière mission</button>
+    </section></div>`;
+  }
+  return `<div class="colonne"><section class="page coffre">${SERRURE(false)}
+      <h2>Le coffre du passeport</h2>
+      <p class="doux">Entrez les cinq chiffres dans l'ordre des escales du passeport.</p>
+      <form class="cadran" id="form-coffre" autocomplete="off">
+        ${ESCALES.map((e, i) => `<label for="chiffre-${i}">${e.code}<input type="text" inputmode="numeric" maxlength="1" id="chiffre-${i}" data-chiffre="${i}" aria-label="Chiffre ${i + 1}, ${esc(e.nom)}"></label>`).join("")}
+      </form>
+      <button class="btn or" data-action="valider-coffre">Ouvrir</button>
+      ${ui.coffreMsg ? `<p class="msg-coffre" role="alert">${esc(ui.coffreMsg)}</p>` : ""}
+      <p class="doux petit">${nbTampons()} tampon${nbTampons() > 1 ? "s" : ""} sur 5 dans votre passeport.</p>
+    </section></div>`;
+}
+
+function ecranMission() {
+  const t = etat.sujetTire;
+  const p = etat.preparation;
+  const ec = p.escale ? escaleParId(p.escale) : null;
+  const cleCN = t !== null ? SUJET_VERS_CHEZ_NOUS[t] : null;
+  const faceAFace = ec ? `<div class="face-a-face">
+      <div style="border-top: 4px solid ${ec.couleur}"><h3>${esc(ec.nom)} · votre carnet</h3>
+        ${COLONNES_CARNET.filter((c) => c.id !== "chezMoi").map((c) => `<p><strong>${esc(c.nom)} :</strong> ${esc(etat.carnet[ec.id][c.id]) || "<span class='doux'>…</span>"}</p>`).join("")}</div>
+      <div style="border-top: 4px solid var(--or)"><h3>Chez nous · votre carnet</h3>
+        ${cleCN ? `<p><strong>${esc(CHEZ_NOUS.find((c) => c.id === cleCN).q)} :</strong> ${esc(etat.chezNous[cleCN]) || "<span class='doux'>…</span>"}</p>` : ""}
+        <p><strong>Votre réponse à « Et chez toi ? » :</strong> ${esc(etat.carnet[ec.id].chezMoi) || "<span class='doux'>…</span>"}</p></div>
+    </div>` : `<p class="doux">Choisissez la communauté francophone à comparer : vos notes s'afficheront côte à côte.</p>`;
+  return `<div class="colonne">
+    <section class="page">
+      <span class="etiquette">Dernière mission · l'exposé</span>
+      <h2>Comparez deux communautés</h2>
+      <p>Vous allez faire un exposé oral. Vous aurez ${REGLAGES.PREPARATION_MIN} minutes pour le préparer et ${REGLAGES.PRESENTATION_MIN} minutes pour le présenter. Comparez votre propre communauté avec une communauté francophone découverte pendant le voyage, ou avec celle de votre partenaire. Montrez votre compréhension de ses réalités culturelles et organisez clairement votre exposé.</p>
+    </section>
+    <section class="page">
+      <h2>1. Le sujet</h2>
+      <p class="doux">Choisissez un sujet ou tirez-le au sort.</p>
+      <div class="sujets">${SUJETS.map((s, i) => `<button class="sujet" data-action="choisir-sujet" data-i="${i}" aria-pressed="${t === i}"><span class="l">${i + 1}</span><span>${esc(s)}</span></button>`).join("")}</div>
+      <div><button class="btn second" data-action="tirer-sujet">Tirer un sujet au sort</button></div>
+    </section>
+    <section class="page">
+      <h2>2. La fiche de préparation</h2>
+      <div class="choix-escale" role="group" aria-label="Communauté francophone comparée">
+        ${ESCALES.map((e) => `<button style="--c:${e.couleur}" data-action="choisir-comparaison" data-id="${e.id}" aria-pressed="${p.escale === e.id}">${esc(e.nom)}</button>`).join("")}
+      </div>
+      ${faceAFace}
+      <div class="champ"><label for="prep-r">Une ressemblance <span class="doux petit">(comme… / tout comme… / de même que…)</span></label>
+        <textarea id="prep-r" data-prep="ressemblance">${esc(p.ressemblance)}</textarea></div>
+      <div class="champ"><label for="prep-d">Une différence <span class="doux petit">(alors que… / tandis que… / contrairement à…)</span></label>
+        <textarea id="prep-d" data-prep="difference">${esc(p.difference)}</textarea></div>
+      <div class="champ"><label for="prep-e">Ce qui l'explique <span class="doux petit">(cela s'explique par…)</span></label>
+        <textarea id="prep-e" data-prep="explication">${esc(p.explication)}</textarea></div>
+      <div><p class="petit" style="margin-bottom:6px"><strong>Boîte à outils</strong> · cliquez pour insérer dans le dernier champ utilisé</p>
+        <div class="outils">${OUTILS.map((o) => `<button data-action="outil" data-t="${esc(o)}">${esc(o)}</button>`).join("")}</div></div>
+    </section>
+    <section class="minuteurs">${minuteurHTML("prep", "Préparation")}${minuteurHTML("pres", "Présentation")}</section>
+    <section class="page">
+      <h2>3. Canevas (2 minutes)</h2>
+      <div class="tableau"><table>
+        <thead><tr><th>Partie</th><th>Durée</th><th>Contenu</th></tr></thead>
+        <tbody>${CANEVAS.map(([pa, d, c], k) => `<tr id="canevas-${k}"><td><strong>${esc(pa)}</strong></td><td class="num">${d}</td><td>${esc(c)}</td></tr>`).join("")}</tbody>
+      </table></div>
+      <p class="avis">Enregistrez votre exposé avec un téléphone pendant les 2 minutes de présentation. Le minuteur « Présentation » surligne la partie du canevas en cours.</p>
+    </section>
+    <section class="page">
+      <h2>4. Auto-évaluation</h2>
+      <p class="doux">Après l'exposé, écoutez l'enregistrement et cochez ce qui est réussi.</p>
+      <div class="coches">${AUTO_EVAL.map((a, i) => `<label><input type="checkbox" data-autoeval="${i}" ${etat.autoEval.includes(i) ? "checked" : ""}><span>${esc(a)}</span></label>`).join("")}</div>
+      <p class="doux petit" id="score-ae">${etat.autoEval.length} critère${etat.autoEval.length > 1 ? "s" : ""} réussi${etat.autoEval.length > 1 ? "s" : ""} sur ${AUTO_EVAL.length}.</p>
+    </section>
+  </div>`;
+}
+function resteMinuteur(m) { return m.duree - (m.ecoule + (m.debut ? (Date.now() - m.debut) / 1000 : 0)); }
+function phasePresentation() {
+  const m = ui.minuteurs.pres; const ecoule = m.duree - resteMinuteur(m);
+  if (!m.debut && ecoule <= 0) return -1;
+  let cumul = 0;
+  for (let k = 0; k < CANEVAS.length; k++) { cumul += CANEVAS[k][3]; if (ecoule < cumul) return k; }
+  return -1;
+}
+function minuteurHTML(id, nom) {
+  const m = ui.minuteurs[id]; const r = resteMinuteur(m);
+  return `<div class="minuteur">
+    <span class="etiquette" style="color:#cfd6e4">${nom} · ${m.duree / 60} min</span>
+    <span class="temps${r <= 0 ? " fini" : ""}" id="min-${id}">${r <= 0 ? "00:00" : mmss(r)}</span>
+    ${id === "pres" ? `<span class="phase" id="phase-pres"></span>` : ""}
+    <div class="rangee" style="justify-content:center">
+      <button class="btn or" data-action="minuteur" data-id="${id}" data-op="${m.debut ? "pause" : "go"}">${m.debut ? "Pause" : r < m.duree && r > 0 ? "Reprendre" : "Démarrer"}</button>
+      <button class="btn second" data-action="minuteur" data-id="${id}" data-op="reset">Remettre à zéro</button>
+    </div></div>`;
+}
+
+function texteStatutEnvoi() {
+  const s = ui.envoi.statut;
+  if (s === "inactif") return `<span class="etat-pill">Envoi en ligne désactivé</span> <span class="doux petit">Les données restent dans ce navigateur. Voir le guide pour brancher Supabase.</span>`;
+  if (s === "en attente") return `<span class="etat-pill">En attente du décollage</span>`;
+  if (s === "envoye") return `<span class="etat-pill ok">Reçu par Supabase à ${ui.envoi.dernier.toLocaleTimeString("fr-FR")}</span>`;
+  return `<span class="etat-pill faux">Échec de l'envoi</span> <span class="doux petit">Nouvel essai au prochain changement. Vérifiez l'URL, la clé et la connexion.</span>`;
+}
+function ecranEnseignante() {
+  if (!ui.enseignanteOk) {
+    return `<div class="colonne"><section class="page">
+      <span class="etiquette">Espace enseignante</span><h2>Code d'accès</h2>
+      <form id="form-code" class="rangee" autocomplete="off">
+        <input type="password" id="code-ens" style="max-width: 240px" aria-label="Code enseignante">
+        <button class="btn" type="submit">Entrer</button>
+      </form>
+      ${ui.enseignanteErreur ? `<p class="retour faux" role="alert">Code incorrect.</p>` : ""}
+      <button class="btn second" data-action="aller" data-ecran="${etat.debutJeu ? "carte" : "accueil"}" style="justify-self:start">Retour au jeu</button>
+    </section></div>`;
+  }
+  const duree = (s) => (s.debut && s.fin ? mmss((s.fin - s.debut) / 1000) : "—");
+  const g = guideActuel();
+  return `<section class="page">
+      <span class="etiquette">Espace enseignante</span>
+      <h2>Suivi de l'équipe ${esc(etat.equipe.nom || "(sans nom)")}</h2>
+      <p class="doux">${membresInscrits().map((nom) => {
+        const i = etat.equipe.membres.findIndex((x) => x.trim() === nom);
+        return `${esc(nom)} (${rolesDuMembre(i).map((id) => ROLES.find((x) => x.id === id).nom).join(" + ") || "pas de rôle"})`;
+      }).join(" · ") || "Aucun voyageur inscrit."}</p>
+      <p class="petit">Guide : ${g ? esc(g.nom) : "—"} · Décollage : ${etat.debutJeu ? new Date(etat.debutJeu).toLocaleTimeString("fr-FR") : "pas encore"} · Tampons : ${nbTampons()}/5 · « Chez nous » : ${chezNousRemplis()}/4 · Essais au coffre : ${etat.coffreEssais} · Coffre : ${etat.coffreOuvert ? "ouvert" : "fermé"} · Auto-évaluation : ${etat.autoEval.length}/${AUTO_EVAL.length}${etat.classe ? " · Classe : " + esc(etat.classe) : ""}</p>
+      <div id="statut-envoi">${texteStatutEnvoi()}</div>
+      <div class="tableau"><table>
+        <thead><tr><th>Escale</th><th>Tampon</th><th>Q1</th><th>Q2</th><th>Q3</th><th>Lexique (erreurs)</th><th>Indice</th><th>Écoute</th><th>Durée</th><th>Et chez toi ?</th></tr></thead>
+        <tbody>${ESCALES.map((e) => {
+          const s = etat.escales[e.id];
+          return `<tr><td><strong>${esc(e.nom)}</strong></td><td>${s.tamponne ? "Oui" : "Non"}</td>
+            ${s.essais.map((n) => `<td class="num">${n}</td>`).join("")}
+            <td class="num">${s.lexique.length}/3 (${s.lexiqueEssais})</td>
+            <td>${s.indiceVu ? "Utilisé" : "—"}</td><td class="num">${s.ecoute || 0}</td><td class="num">${duree(s)}</td><td>${esc(etat.carnet[e.id].chezMoi) || "—"}</td></tr>`;
+        }).join("")}</tbody>
+      </table></div>
+      <p class="doux petit">Q1 à Q3 : nombre d'essais (1 = juste du premier coup). Lexique : paires trouvées et associations erronées.</p>
+      <div class="rangee">
+        <button class="btn second" data-action="copier-carnet">Copier le carnet</button>
+        <button class="btn second" data-action="copier-donnees">Copier les données (JSON)</button>
+      </div>
+      ${blocCopie()}
+    </section>
+    <section class="page">
+      <h2>Corrigé et code</h2>
+      ${ui.corrigeVisible ? `<div class="tableau"><table>
+          <thead><tr><th>Escale</th><th>Bonnes réponses</th><th>Chiffre</th></tr></thead>
+          <tbody>${ESCALES.map((e) => `<tr><td><strong>${esc(e.nom)}</strong></td><td>${e.questions.map((q) => esc(q.options[q.correcte])).join(" · ")}</td><td class="num">${e.chiffre}</td></tr>`).join("")}</tbody>
+        </table></div>
+        <p>Code du coffre : <strong style="font-family: var(--f-code); letter-spacing: .3em">${CODE_COFFRE.split("").join(" ")}</strong></p>
+        <div><button class="btn second" data-action="corrige">Masquer le corrigé</button></div>`
+      : `<div><button class="btn second" data-action="corrige">Afficher le corrigé</button></div>`}
+    </section>
+    <section class="page">
+      <h2>Avant l'usage en classe</h2>
+      <ul class="regles">
+        <li>Faire valider les contenus culturels, en particulier la Martinique avec la collègue partenaire (documents et lexique).</li>
+        <li>Remplacer les documents de travail par des documents authentiques (textes, images, audios).</li>
+        <li>Sans Supabase, les progrès sont gardés seulement dans le navigateur utilisé : une équipe par poste.</li>
+        <li>Changer le code de cet espace dans les réglages du fichier (il est visible dans le code source).</li>
+      </ul>
+    </section>
+    <section class="page">
+      <h2>Nouvelle partie</h2>
+      <p class="doux">Efface la progression de ce poste pour accueillir une nouvelle équipe.${supabaseActif ? " Les données déjà envoyées à Supabase sont conservées." : " Copiez les données avant, elles ne sont gardées nulle part ailleurs."}</p>
+      ${ui.confirmerReset ? `<div class="confirmer"><strong>Effacer toute la partie de l'équipe ${esc(etat.equipe.nom || "")} ?</strong>
+          <div class="rangee"><button class="btn" data-action="reset-oui" style="background: var(--erreur); border-color: var(--erreur)">Oui, effacer</button>
+          <button class="btn second" data-action="reset-non">Annuler</button></div></div>`
+        : `<div><button class="btn second" data-action="reset">Réinitialiser la partie</button></div>`}
+      <div><button class="btn second" data-action="sortir-enseignante">Fermer l'espace enseignante</button></div>
+    </section>`;
+}
+
+/* =====================================================================
+   AFFICHAGE
+   ===================================================================== */
+function afficherBarre() {
+  const enJeu = Boolean(etat.debutJeu);
+  const actif = (ec) => (etat.ecran === ec || (ec === "carte" && etat.ecran === "escale") ? "true" : "false");
+  document.getElementById("barre").innerHTML = `
+    <button class="marque" data-action="aller" data-ecran="${enJeu ? "carte" : "accueil"}">Passeport francophone</button>
+    ${enJeu ? `<nav class="nav" aria-label="Navigation du jeu">
+      <button data-action="aller" data-ecran="carte" aria-current="${actif("carte")}">Passeport</button>
+      <button data-action="aller" data-ecran="carnet" aria-current="${actif("carnet")}">Carnet</button>
+      <button data-action="aller" data-ecran="coffre" aria-current="${actif("coffre")}">Coffre</button>
+      ${etat.coffreOuvert ? `<button data-action="aller" data-ecran="mission" aria-current="${actif("mission")}">Mission</button>` : ""}
+    </nav><span class="chrono" id="chrono" role="timer"></span>` : `<span style="margin-left:auto"></span>`}
+    <button class="icone-btn" data-action="son" aria-pressed="${etat.son}" title="Sons">${etat.son ? "Son : oui" : "Son : non"}</button>`;
+  majChrono();
+}
+function majChrono() {
+  const el = document.getElementById("chrono"); if (!el) return;
+  const r = resteJeu();
+  el.classList.toggle("urgent", r < 300);
+  el.innerHTML = r > 0 ? `<small>Décollage dans</small>${mmss(r)}` : `L'avion décolle !`;
+}
+function afficher() {
+  const ecrans = { accueil: ecranAccueil, capitaine: ecranCapitaine, cheznous: ecranChezNous, carte: ecranCarte, escale: ecranEscale, carnet: ecranCarnet, coffre: ecranCoffre, mission: ecranMission, enseignante: ecranEnseignante };
+  const fn = ui.transit ? ecranTransit : ecrans[etat.ecran] || ecranAccueil;
+  document.getElementById("app").innerHTML = fn();
+  afficherBarre();
+  document.getElementById("pied").innerHTML = `<span>Escape game de FLE · Prototype 2 · contenus culturels à valider</span>
+    <button class="lien" data-action="aller" data-ecran="enseignante">Espace enseignante</button>`;
+  if (ui.transit) animerAvion();
+}
+
+/* Transit animé entre deux escales */
+function lancerTransit(vers, depuisId) {
+  arreterLecture();
+  const depuis = depuisId && escaleParId(depuisId) ? escaleParId(depuisId) : PARIS;
+  ui.transit = { vers, depuis, debut: Date.now() };
+  son.avion();
+  window.scrollTo({ top: 0 });
+  afficher();
+}
+function finTransit() {
+  if (!ui.transit) return;
+  const vers = ui.transit.vers; ui.transit = null;
+  if (vers === "cheznous") { aller("cheznous"); return; }
+  const s = etat.escales[vers];
+  ui.tamponAnime = null;
+  aller("escale", { escaleActive: vers, escales: s.debut ? etat.escales : { ...etat.escales, [vers]: { ...s, debut: Date.now() } } });
+}
+function animerAvion() {
+  const av = document.getElementById("avion"), tr = document.getElementById("trajet");
+  const reduit = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const L = tr ? tr.getTotalLength() : 0;
+  if (tr) { tr.style.strokeDasharray = L; tr.style.strokeDashoffset = L; }
+  const pas = () => {
+    if (!ui.transit) return;
+    const k = Math.min(1, (Date.now() - ui.transit.debut) / 3000);
+    const c = document.getElementById("compte");
+    if (c) c.textContent = "00:0" + Math.max(0, Math.ceil(3 - k * 3));
+    if (av && tr) {
+      const e = reduit ? 1 : k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      const p = tr.getPointAtLength(L * e), q = tr.getPointAtLength(Math.min(L, L * e + 1));
+      const ang = Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI + 90;
+      av.setAttribute("transform", `translate(${p.x} ${p.y}) rotate(${ang})`);
+      tr.style.strokeDashoffset = L * (1 - e);
+    }
+    if (k < 1) requestAnimationFrame(pas); else setTimeout(finTransit, 250);
+  };
+  requestAnimationFrame(pas);
+}
+
+/* =====================================================================
+   ACTIONS
+   ===================================================================== */
+const actions = {
+  embarquer() { if (!etat.debutJeu) aller("capitaine"); else aller(etat.ecran === "accueil" ? "carte" : etat.ecran); },
+  aller(b) { aller(b.dataset.ecran); },
+  son() { etat.son = !etat.son; sauver(); afficherBarre(); son.clic(); },
+  "tirer-roles"() {
+    const idx = etat.equipe.membres.map((m, i) => (m.trim() ? i : -1)).filter((i) => i >= 0);
+    if (idx.length < 3) return;
+    const roles = {}; const ordre = melanger(idx);
+    let distribues = ROLES.map((r) => r.id);
+    if (idx.length === 3) distribues = distribues.filter((r) => r !== "gardien");
+    melanger(distribues).forEach((r, k) => { roles[ordre[k]] = [r]; });
+    if (idx.length === 3) { const nav = ordre.find((i) => roles[i][0] === "navigateur"); roles[nav].push("gardien"); }
+    son.clic();
+    maj({ equipe: { ...etat.equipe, roles } });
+  },
+  "tirer-guide"() {
+    const cible = Math.floor(Math.random() * GUIDES.length);
+    const total = GUIDES.length * 3 + cible;
+    ui.tirage = { vise: 0, n: 0 };
+    const pas = () => {
+      ui.tirage.vise = ui.tirage.n % GUIDES.length;
+      son.clic(); afficher();
+      if (ui.tirage.n++ < total) setTimeout(pas, 60 + ui.tirage.n * 12);
+      else { const id = GUIDES[ui.tirage.vise].id; ui.tirage = null; son.juste(); maj({ guide: id }); annoncer("Votre guide est " + guideActuel().nom + ", " + guideActuel().metier); }
+    };
+    pas();
+  },
+  decoller() {
+    if (membresInscrits().length < 3 || !rolesTires() || !etat.guide) return;
+    if (supabaseActif) ui.envoi.statut = "en attente";
+    etat = { ...etat, debutJeu: Date.now(), ecran: "cheznous" };
+    sauver();
+    lancerTransit("cheznous");
+  },
+  "tamponner-cheznous"() {
+    if (chezNousRemplis() < 2) return;
+    ui.tamponAnime = "moi"; son.tampon();
+    maj({ chezNous: { ...etat.chezNous, tamponne: true } });
+    annoncer("Tampon Chez nous obtenu");
+  },
+  "ouvrir-escale"(b) {
+    const id = b.dataset.id;
+    if (etat.escales[id].tamponne || (etat.ecran === "escale" && etat.escaleActive === id)) {
+      ui.tamponAnime = null; aller("escale", { escaleActive: id }); return;
+    }
+    lancerTransit(id, b.dataset.depuis || null);
+  },
+  "fin-transit"() { finTransit(); },
+  lire() { lireDocument(escaleParId(etat.escaleActive)); },
+  repondre(b) {
+    const e = escaleParId(etat.escaleActive);
+    const i = +b.dataset.q, o = +b.dataset.o;
+    const s = etat.escales[e.id];
+    if (questionJuste(e, i)) return;
+    const reponses = [...s.reponses]; reponses[i] = o;
+    const essais = [...s.essais]; essais[i] += 1;
+    ui.erreurs[e.id] = { ...(ui.erreurs[e.id] || {}) };
+    const bon = o === e.questions[i].correcte;
+    if (bon) delete ui.erreurs[e.id][i]; else ui.erreurs[e.id][i] = o;
+    bon ? son.juste() : son.faux();
+    const y = window.scrollY;
+    majEscale(e.id, { reponses, essais });
+    window.scrollTo({ top: y });
+    annoncer(bon ? "Bonne réponse" : `Pas encore. Relisez le paragraphe ${e.questions[i].paragraphe}.`);
+    const q = document.querySelectorAll(".question")[i];
+    if (q) q.querySelector(bon ? ".option.juste" : ".option.faux")?.focus({ preventScroll: true });
+  },
+  indice() { son.clic(); const y = window.scrollY; majEscale(etat.escaleActive, { indiceVu: true }); window.scrollTo({ top: y }); },
+  "lex-mot"(b) { ui.lexSel = +b.dataset.i; ui.lexSecoue = null; son.clic(); const y = window.scrollY; afficher(); window.scrollTo({ top: y }); document.querySelector(`.tuile.def:not(.trouve)`)?.focus({ preventScroll: true }); },
+  "lex-def"(b) {
+    const e = escaleParId(etat.escaleActive);
+    const i = +b.dataset.i; const y = window.scrollY;
+    if (ui.lexSel === null) { annoncer("Choisissez d'abord un mot."); document.getElementById("lex-aide").textContent = "Choisissez d'abord un mot à gauche."; return; }
+    const s = etat.escales[e.id];
+    if (i === ui.lexSel) {
+      son.juste(); ui.lexSel = null; ui.lexSecoue = null;
+      majEscale(e.id, { lexique: [...s.lexique, i] });
+      annoncer("Bonne association");
+    } else {
+      son.faux(); ui.lexSecoue = i;
+      majEscale(e.id, { lexiqueEssais: s.lexiqueEssais + 1 });
+      annoncer("Ce n'est pas la bonne définition. Relisez le document.");
+      setTimeout(() => { ui.lexSecoue = null; document.querySelectorAll(".secoue").forEach((x) => x.classList.remove("secoue")); }, 400);
+    }
+    window.scrollTo({ top: y });
+    document.querySelector(`.tuile.mot:not(.trouve)`)?.focus({ preventScroll: true });
+  },
+  "mots-lexique"(b) {
+    const e = escaleParId(b.dataset.id); const y = window.scrollY;
+    maj({ carnet: { ...etat.carnet, [e.id]: { ...etat.carnet[e.id], mots: e.lexique.map(([m]) => m).join(", ") } } });
+    window.scrollTo({ top: y });
+  },
+  tamponner() {
+    const e = escaleParId(etat.escaleActive);
+    if (!toutJuste(e) || !lexiqueFini(e) || !chezToiRempli(e)) return;
+    ui.tamponAnime = e.id; son.tampon();
+    majEscale(e.id, { tamponne: true, fin: Date.now() });
+    annoncer(`Tampon obtenu. Chiffre gagné : ${e.chiffre}`);
+    document.querySelector(".recompense")?.scrollIntoView({ block: "center", behavior: "smooth" });
+  },
+  "valider-coffre"() {
+    const code = [...document.querySelectorAll("[data-chiffre]")].map((x) => x.value).join("");
+    if (code.length < 5) { ui.coffreMsg = "Il faut cinq chiffres, un par escale."; son.faux(); afficher(); return; }
+    if (code === CODE_COFFRE) { ui.coffreMsg = null; son.coffre(); maj({ coffreOuvert: true, coffreEssais: etat.coffreEssais + 1 }); }
+    else {
+      son.faux();
+      ui.coffreMsg = nbTampons() < 5
+        ? `Le coffre reste fermé. Il vous manque ${5 - nbTampons()} tampon${5 - nbTampons() > 1 ? "s" : ""} : retournez aux escales.`
+        : "Le coffre reste fermé. Vérifiez l'ordre : un chiffre par escale, dans l'ordre des pages du passeport (Québec, Sénégal, Martinique, Madagascar, La Réunion).";
+      maj({ coffreEssais: etat.coffreEssais + 1 });
+      document.getElementById("chiffre-0")?.focus();
+    }
+  },
+  "choisir-sujet"(b) { const y = window.scrollY; maj({ sujetTire: +b.dataset.i }); window.scrollTo({ top: y }); },
+  "tirer-sujet"() {
+    const possibles = SUJETS.map((_, i) => i).filter((i) => i !== etat.sujetTire);
+    const y = window.scrollY; son.clic();
+    maj({ sujetTire: possibles[Math.floor(Math.random() * possibles.length)] });
+    window.scrollTo({ top: y });
+  },
+  "choisir-comparaison"(b) { const y = window.scrollY; maj({ preparation: { ...etat.preparation, escale: b.dataset.id } }); window.scrollTo({ top: y }); },
+  outil(b) {
+    const champ = document.getElementById(dernierChampPrep) || document.getElementById("prep-r");
+    const t = b.dataset.t.replace("…", "").trim() + " ";
+    const pos = champ.selectionStart ?? champ.value.length;
+    champ.value = champ.value.slice(0, pos) + (pos && !/\s$/.test(champ.value.slice(0, pos)) ? " " : "") + t + champ.value.slice(pos);
+    champ.dispatchEvent(new Event("input", { bubbles: true }));
+    champ.focus();
+  },
+  minuteur(b) {
+    const m = ui.minuteurs[b.dataset.id]; const op = b.dataset.op;
+    if (op === "go") { if (resteMinuteur(m) <= 0) m.ecoule = 0; m.debut = Date.now(); son.clic(); }
+    else if (op === "pause") { m.ecoule += (Date.now() - m.debut) / 1000; m.debut = null; }
+    else { m.ecoule = 0; m.debut = null; }
+    const y = window.scrollY; afficher(); window.scrollTo({ top: y });
+  },
+  imprimer() { window.print(); },
+  "copier-carnet"() { copier(carnetEnTexte(), "Carnet copié : collez-le dans un document ou un courriel."); },
+  "copier-donnees"() { copier(JSON.stringify(donneesAEnvoyer(), null, 2), "Données copiées au format JSON."); },
+  corrige() { ui.corrigeVisible = !ui.corrigeVisible; afficher(); },
+  reset() { ui.confirmerReset = true; afficher(); },
+  "reset-non"() { ui.confirmerReset = false; afficher(); },
+  "reset-oui"() {
+    ui.erreurs = {}; ui.lexOrdre = {}; ui.confirmerReset = false; ui.corrigeVisible = false; dernierEnvoye = "";
+    ui.envoi = { statut: supabaseActif ? "en attente" : "inactif", dernier: null };
+    const sonPref = etat.son;
+    etat = etatInitial(); etat.son = sonPref; etat.ecran = "enseignante";
+    sauver(); afficher();
+  },
+  "sortir-enseignante"() { ui.enseignanteOk = false; ui.corrigeVisible = false; aller(etat.debutJeu ? "carte" : "accueil"); },
+};
+let dernierChampPrep = "prep-r";
+
+document.addEventListener("click", (ev) => {
+  const b = ev.target.closest("[data-action]");
+  if (!b || b.disabled) return;
+  const f = actions[b.dataset.action];
+  if (f) { ev.preventDefault(); f(b); }
+});
+document.addEventListener("keydown", (ev) => {
+  const t = ev.target;
+  if (t.matches && t.matches(".pt") && (ev.key === "Enter" || ev.key === " ")) { ev.preventDefault(); actions["ouvrir-escale"](t); return; }
+  if (t.dataset && t.dataset.chiffre !== undefined) {
+    if (ev.key === "Backspace" && !t.value) document.getElementById("chiffre-" + (+t.dataset.chiffre - 1))?.focus();
+    if (ev.key === "Enter") { ev.preventDefault(); actions["valider-coffre"](); }
+  }
+});
+
+// Saisies : mise à jour de l'état sans tout redessiner (pour garder le curseur)
+document.addEventListener("input", (ev) => {
+  const t = ev.target;
+  if (t.dataset.equipe === "nom" || t.dataset.membre !== undefined) {
+    const equipe = { ...etat.equipe, membres: [...etat.equipe.membres] };
+    if (t.dataset.equipe === "nom") equipe.nom = t.value;
+    else { equipe.membres[+t.dataset.membre] = t.value; if (rolesTires()) { equipe.roles = {}; document.getElementById("liste-roles").innerHTML = ""; } }
+    maj({ equipe }, { rendu: false });
+    const n = membresInscrits().length;
+    const ok = n >= 3 && rolesTires() && etat.equipe.nom.trim() && etat.guide;
+    document.getElementById("btn-tirer").disabled = n < 3;
+    document.getElementById("aide-tirage").textContent = n >= 3 ? "Chaque voyageur reçoit un rôle au hasard." : "Inscrivez au moins 3 voyageurs.";
+    document.getElementById("btn-decoller").disabled = !ok;
+    document.getElementById("aide-decoller").textContent = ok ? `Le chronomètre de ${REGLAGES.DUREE_JEU_MIN} minutes démarre au décollage.` : "Il faut un nom d'équipe, au moins 3 voyageurs, les rôles et un guide.";
+  } else if (t.dataset.cheznous) {
+    maj({ chezNous: { ...etat.chezNous, [t.dataset.cheznous]: t.value } }, { rendu: false });
+    const n = chezNousRemplis();
+    const btn = document.getElementById("btn-cn"); if (btn) btn.disabled = n < 2;
+    const c = document.getElementById("cond-cn");
+    if (c) { c.classList.toggle("ok", n >= 2); c.querySelector(".puce").textContent = n >= 2 ? "✓" : ""; document.getElementById("cond-cn-txt").textContent = `${n} case${n > 1 ? "s" : ""} remplie${n > 1 ? "s" : ""} sur 4`; }
+  } else if (t.dataset.carnet) {
+    const id = t.dataset.carnet;
+    maj({ carnet: { ...etat.carnet, [id]: { ...etat.carnet[id], [t.dataset.col]: t.value } } }, { rendu: false });
+    if (etat.ecran === "escale" && t.dataset.col === "chezMoi") {
+      const e = escaleParId(id);
+      const btn = document.getElementById("btn-tampon");
+      if (btn) btn.disabled = !(toutJuste(e) && lexiqueFini(e) && chezToiRempli(e));
+      const c = document.getElementById("cond-2");
+      if (c) { c.classList.toggle("ok", chezToiRempli(e)); c.querySelector(".puce").textContent = chezToiRempli(e) ? "✓" : ""; }
+    }
+  } else if (t.dataset.prep) {
+    dernierChampPrep = t.id;
+    maj({ preparation: { ...etat.preparation, [t.dataset.prep]: t.value } }, { rendu: false });
+  } else if (t.dataset.autoeval !== undefined) {
+    const i = +t.dataset.autoeval;
+    const set = new Set(etat.autoEval); t.checked ? set.add(i) : set.delete(i);
+    maj({ autoEval: [...set].sort() }, { rendu: false });
+    const n = etat.autoEval.length;
+    document.getElementById("score-ae").textContent = `${n} critère${n > 1 ? "s" : ""} réussi${n > 1 ? "s" : ""} sur ${AUTO_EVAL.length}.`;
+  } else if (t.dataset.chiffre !== undefined) {
+    t.value = t.value.replace(/\D/g, "").slice(-1);
+    if (t.value) document.getElementById("chiffre-" + (+t.dataset.chiffre + 1))?.focus();
+  }
+});
+document.addEventListener("toggle", (ev) => { if (ev.target.id === "details-carnet") ui.detailsOuvert = ev.target.open; }, true);
+document.addEventListener("focusin", (ev) => { if (ev.target.dataset && ev.target.dataset.prep) dernierChampPrep = ev.target.id; });
+document.addEventListener("submit", (ev) => {
+  ev.preventDefault();
+  if (ev.target.id === "form-code") {
+    const ok = document.getElementById("code-ens").value.trim() === REGLAGES.CODE_ENSEIGNANTE;
+    ui.enseignanteOk = ok; ui.enseignanteErreur = !ok; afficher();
+  }
+  if (ev.target.id === "form-coffre") actions["valider-coffre"]();
+});
+
+// Horloges : chrono global, minuteurs de la mission, phase du canevas
+setInterval(() => {
+  majChrono();
+  for (const id of ["prep", "pres"]) {
+    const el = document.getElementById("min-" + id); if (!el) continue;
+    const m = ui.minuteurs[id]; const r = resteMinuteur(m);
+    el.textContent = r <= 0 ? "00:00" : mmss(r);
+    el.classList.toggle("fini", r <= 0);
+    if (r <= 0 && m.debut) { m.ecoule = m.duree; m.debut = null; son.coffre(); const y = window.scrollY; afficher(); window.scrollTo({ top: y }); }
+  }
+  const ph = phasePresentation();
+  document.querySelectorAll("[id^=canevas-]").forEach((tr, k) => tr.classList.toggle("actif", k === ph));
+  const lab = document.getElementById("phase-pres");
+  if (lab) lab.textContent = ph >= 0 ? "Maintenant : " + CANEVAS[ph][0] : "";
+}, 500);
+
+if (ttsOk) speechSynthesis.onvoiceschanged = () => {};
+if (etat.ecran === "escale" && !escaleParId(etat.escaleActive)) etat.ecran = "carte";
+afficher();
+</script>
+</body>
+</html>
