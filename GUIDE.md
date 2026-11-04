@@ -3,13 +3,18 @@
 Escape game de FLE (lycée, B1-B2, préparation à la comparaison culturelle de l'AP).
 Tout le jeu tient dans **`index.html`** : double-cliquez pour jouer dans Chrome, Edge ou Firefox.
 
+**6 escales, dans l'ordre du passeport :** Québec (2) · Sénégal (9) · **Maroc (5)** · Martinique (4) · Madagascar (7) · La Réunion (1).
+**Code du coffre : 2 9 5 4 7 1.**
+
+L'escale du Maroc (Yasmine, guide à Fès) reprend le document et les trois questions du Genially. Le lexique et la question « Et chez toi ? » ont été ajoutés pour cette escale : ils sont à faire valider. Attention : le Genially utilise un autre ordre et un autre code (9 7 4 1 2), et il n'a pas Madagascar.
+
 ## D'où vient chaque élément
 
 | Source | Ce qui a été repris |
 |---|---|
-| **Prototype Word** | Tout le contenu : récit (Raoul, le Capitaine), règles, 5 escales, documents, 15 questions, indices, « Et chez toi ? », carnet, code 2 9 4 7 1, mission, sujets, canevas, boîte à outils, corrigé. |
+| **Prototype Word** | Le contenu des 5 escales d'origine : récit (Raoul, le Capitaine), règles, documents, 15 questions, indices, « Et chez toi ? », carnet, mission, sujets, canevas, boîte à outils, corrigé. |
 | **Version en ligne** | Architecture de l'application, rôles tirés au sort, chronomètre de 45 min, tampons, coffre, espace enseignante, envoi Supabase (même `schema.sql`, même fonction `enregistrer_partie`). |
-| **Genially « Adventure »** | Structure narrative : écran Bienvenue → *Companion Randomizer* (tirage du guide) → transition « arrivée à destination… 00:03 » → épreuve → « le chiffre est… » → coffre. Les images et sons du modèle n'ont pas été repris (destinations sans rapport : banquise, Égypte, Inde…). Les sons sont générés par le navigateur. |
+| **Genially « Adventure »** | L'escale du Maroc (document et 3 questions). Structure narrative : écran Bienvenue → *Companion Randomizer* (tirage du guide) → transition « arrivée à destination… 00:03 » → épreuve → « le chiffre est… » → coffre. Les images et sons du modèle n'ont pas été repris (destinations sans rapport : banquise, Égypte, Inde…). Les sons sont générés par le navigateur. |
 
 ## Ce que le prototype 2 ajoute, et pourquoi
 
@@ -38,7 +43,7 @@ Ce qui ne change pas par rapport à la version en ligne :
 
 ## Avant l'usage en classe
 
-- Faites valider les contenus culturels, et en particulier le **lexique**, qui est nouveau. La Martinique est à revoir avec la collègue partenaire.
+- Faites valider les contenus culturels, et en particulier le **lexique**, qui est nouveau, ainsi que l'escale du **Maroc**. La Martinique est à revoir avec la collègue partenaire.
 - Remplacez les documents de travail par des documents authentiques.
 - La synthèse vocale dépend des voix installées sur le poste. S'il n'y a aucune voix française, le bouton « Écouter » lit avec une autre voix. Testez sur les postes de la classe.
 - Pour modifier le contenu : tout est dans la partie `CONTENU PÉDAGOGIQUE` du script (`ESCALES`, `GUIDES`, `CHEZ_NOUS`, `SUJETS`, `CANEVAS`, `OUTILS`, `AUTO_EVAL`).

@@ -130,7 +130,7 @@ input:focus, textarea:focus, select:focus { border-color: var(--or); outline: no
 .avion { transition: none; }
 
 /* Pages du passeport */
-.pages { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+.pages { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
 .feuillet { --c: #333; text-align: left; background: var(--carte); border: 1px solid var(--trait); border-top: 6px solid var(--c); border-radius: 8px; padding: 14px; display: grid; gap: 8px; align-content: start; color: var(--encre); min-width: 0; transition: transform .15s, border-color .15s; }
 .feuillet:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--c) 60%, var(--trait)); border-top-color: var(--c); }
 .feuillet .num { font-family: var(--f-code); font-size: .75rem; color: var(--encre-douce); letter-spacing: .1em; }
@@ -355,6 +355,7 @@ const EMBLEMES = {
   quebec: `<path d="M50 8 56 26 66 20 63 40 78 32 74 46 90 48 76 60 80 70 56 64 54 92H46L44 64 20 70 24 60 10 48 26 46 22 32 37 40 34 20 44 26Z" fill="currentColor" opacity=".9"/>`,
   senegal: `<path d="M10 60h80l-10 14H22Z" fill="currentColor"/><path d="M50 58V18l24 34Z" fill="currentColor" opacity=".55"/><path d="M50 22 30 52h20" fill="currentColor" opacity=".35"/><path d="M8 84q10-6 20 0t20 0 20 0 20 0" stroke="currentColor" stroke-width="3" fill="none"/>`,
   martinique: `<g fill="currentColor">${[0,72,144,216,288].map((a) => `<ellipse cx="50" cy="28" rx="15" ry="22" transform="rotate(${a} 50 50)" opacity=".8"/>`).join("")}</g><circle cx="50" cy="50" r="7" fill="#f6d36b"/><path d="M50 50 62 30" stroke="#f6d36b" stroke-width="3"/>`,
+  maroc: `<ellipse cx="50" cy="80" rx="40" ry="8" fill="currentColor"/><path d="M18 76Q22 50 46 22h8Q78 50 82 76Z" fill="currentColor" opacity=".75"/><circle cx="50" cy="18" r="6" fill="currentColor"/><path d="M30 60h40" stroke="var(--carte)" stroke-width="3" opacity=".6"/>`,
   madagascar: `<path d="M44 92V48h12v44Z" fill="currentColor"/><path d="M44 50 30 30M56 50 70 30M50 48V26" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><ellipse cx="50" cy="22" rx="30" ry="11" fill="currentColor" opacity=".6"/>`,
   reunion: `<path d="M6 90 38 34h24l32 56Z" fill="currentColor" opacity=".85"/><path d="M40 34q4-14 10-6 4-16 12-2" stroke="currentColor" stroke-width="4" fill="none" opacity=".6"/><path d="M44 34l-8 20 10-6 4 14" stroke="#f08a3c" stroke-width="4" fill="none"/>`,
   moi: `<path d="M50 14 86 44v42H14V44Z" fill="currentColor" opacity=".85"/><rect x="42" y="60" width="16" height="26" fill="var(--carte)"/>`,
@@ -406,6 +407,30 @@ const ESCALES = [
     ],
     indice: "Cherchez dans le deuxième paragraphe, puis dans le dernier.",
     chezToi: "Comment accueille-t-on un invité dans ta communauté ? Que lui sert-on ?",
+  },
+  {
+    // Escale reprise du Genially (Yasmine, guide à Fès) : contenu à faire valider
+    id: "maroc", code: "MA", nom: "Maroc", region: "Afrique du Nord", couleur: "#b5452a", voix: "fr-FR",
+    lon: -5.0, lat: 34.03, contact: "Yasmine, guide à Fès", chiffre: 5,
+    ambiance: "Les ruelles de la médina sentent les épices et la menthe fraîche. Quelqu'un vous fait signe d'entrer…",
+    accroche: "« Marhaba ! Asseyez-vous, le thé est prêt. Lisez bien mon histoire, et mon chiffre sera à vous. »",
+    document: [
+      "Au Maroc, les langues officielles sont l'arabe et l'amazighe, la langue des Berbères. Au quotidien, la plupart des Marocains parlent la darija, l'arabe marocain. Le français n'est pas une langue officielle, mais il est très présent à l'école, dans les affaires et dans les médias.",
+      "On accueille l'invité avec un thé à la menthe, servi très sucré dans de petits verres. Le vendredi, les familles se réunissent souvent autour d'un grand plat de couscous partagé.",
+      "Dans la médina, la vieille ville, les souks sont des marchés où l'on trouve des épices, des tapis et des babouches. Le tajine, un plat mijoté dans un récipient en terre au couvercle pointu, porte le nom de ce récipient.",
+    ],
+    questions: [
+      { q: "Quelles sont les langues officielles du Maroc ?", options: ["L'arabe et l'amazighe", "L'arabe et le français", "La darija et le français"], correcte: 0, paragraphe: 1 },
+      { q: "Que sert-on à l'invité pour l'accueillir ?", options: ["Un jus d'orange", "Un thé à la menthe", "Un café au lait"], correcte: 1, paragraphe: 2 },
+      { q: "Quel jour mange-t-on souvent le couscous en famille ?", options: ["Le lundi", "Le samedi", "Le vendredi"], correcte: 2, paragraphe: 2 },
+    ],
+    lexique: [
+      ["la darija", "l'arabe marocain, parlé au quotidien"],
+      ["les souks", "des marchés de la médina : épices, tapis, babouches"],
+      ["le tajine", "un plat mijoté dans un récipient en terre au couvercle pointu"],
+    ],
+    indice: "La langue est dans le premier paragraphe, l'accueil et le couscous dans le deuxième.",
+    chezToi: "Quel lieu de ta ville ou de ta région est important pour faire les courses ou se retrouver ?",
   },
   {
     id: "martinique", code: "MQ", nom: "Martinique", region: "Caraïbes", couleur: "#c2185b", voix: "fr-FR",
@@ -478,6 +503,9 @@ const ESCALES = [
   },
 ];
 const CODE_COFFRE = ESCALES.map((e) => e.chiffre).join("");
+const NB = ESCALES.length;
+const NB_LETTRES = ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit"][NB];
+const LISTE_ESCALES = ESCALES.map((e) => e.nom).join(", ");
 const PARIS = { lon: 2.35, lat: 48.85 };
 
 const COLONNES_CARNET = [
@@ -515,7 +543,7 @@ const AUTO_EVAL = [
   "J'ai tenu dans les 2 minutes et j'ai conclu.",
 ];
 
-const TEXTE_FIN = "À l'intérieur, une clé USB. Grâce aux informations qu'elle contient, la police retrouve Raoul, sain et sauf, à l'aéroport de Dakar. Il vous remercie : « Vous avez voyagé dans cinq communautés francophones. Il vous reste une dernière mission : raconter ce que vous avez découvert, et le comparer avec votre propre communauté. »";
+const TEXTE_FIN = "À l'intérieur, une clé USB. Grâce aux informations qu'elle contient, la police retrouve Raoul, sain et sauf, à l'aéroport de Dakar. Il vous remercie : « Vous avez voyagé dans six communautés francophones. Il vous reste une dernière mission : raconter ce que vous avez découvert, et le comparer avec votre propre communauté. »";
 
 /* =====================================================================
    ÉTAT ET SAUVEGARDE (compatible avec schema.sql de la version en ligne)
@@ -772,7 +800,7 @@ function carteVol({ avion = null } = {}) {
   }).join("");
   const av = avion ? `<g class="avion" id="avion"><path d="M0-6 2-1 8 1V3L2 2 1 6 3 7.5V9L0 8-3 9V7.5L-1 6-2 2-8 3V1L-2-1Z" fill="var(--or)" stroke="var(--nuit)" stroke-width=".8"/></g>
     <path id="trajet" d="${avion}" fill="none" stroke="var(--or)" stroke-width="2"/>` : "";
-  return `<svg class="carte-vol" viewBox="240 60 490 300" role="img" aria-label="Carte de vol au départ de Paris vers les cinq escales">
+  return `<svg class="carte-vol" viewBox="240 60 490 300" role="img" aria-label="Carte de vol au départ de Paris vers les ${NB_LETTRES} escales">
     <path class="grille" d="${grille}"/>
     ${routes}
     <circle cx="${px}" cy="${py}" r="4" fill="var(--nuit)"/><text x="${px + 7}" y="${py - 5}">Paris</text>
@@ -807,14 +835,14 @@ function ecranAccueil() {
     <section class="couverture" aria-label="Couverture du passeport">
       <span class="pays">MONDE FRANCOPHONE</span>${GLOBE}
       <h1>PASSEPORT<br>FRANCOPHONE</h1>
-      <p class="sous">Québec · Sénégal · Martinique · Madagascar · La Réunion</p>
+      <p class="sous">${ESCALES.map((e) => esc(e.nom)).join(" · ")}</p>
       <button class="btn or" data-action="embarquer">${sauvegardeTrouvee || etat.debutJeu ? "REPRENDRE LE VOYAGE" : "ON EMBARQUE ?"}</button>
     </section>
     <section class="page">
       <p class="bienvenue">B I E N V E N U E !</p>
       <p>Attachez vos ceintures : le Passeport francophone est verrouillé, et l'avion décolle dans 45 minutes.</p>
       <p>Avant de partir, présentez-vous : votre culture est votre première escale. Ensuite, à chaque destination, lisez le document, discutez en équipe et répondez aux questions pour gagner un chiffre.</p>
-      <p>Une erreur ? Pas de panique : le jeu vous dit pourquoi, et un indice vous attend. Réunissez les cinq chiffres pour ouvrir le coffre… et préparer votre dernière mission !</p>
+      <p>Une erreur ? Pas de panique : le jeu vous dit pourquoi, et un indice vous attend. Réunissez les ${NB_LETTRES} chiffres pour ouvrir le coffre… et préparer votre dernière mission !</p>
     </section>
   </div>`;
 }
@@ -838,8 +866,8 @@ function ecranCapitaine() {
     <section class="page">
       <span class="etiquette">Message du Capitaine · cockpit, Paris</span>
       <div class="message">
-        <p>Raoul, l'agent chargé du Passeport francophone, a disparu. Avant de partir, il a verrouillé le coffre qui contient la clé de son enquête. Pour l'ouvrir, il faut un code à 5 chiffres.</p>
-        <p>Chaque chiffre est gardé par un contact, dans une communauté francophone : au Québec, au Sénégal, en Martinique, à Madagascar et à La Réunion. Pour l'obtenir, lisez le document de chaque escale et répondez à ses questions. Notez aussi ce que vous découvrez dans votre carnet de voyage : il vous servira pour votre dernière mission.</p>
+        <p>Raoul, l'agent chargé du Passeport francophone, a disparu. Avant de partir, il a verrouillé le coffre qui contient la clé de son enquête. Pour l'ouvrir, il faut un code à ${NB} chiffres.</p>
+        <p>Chaque chiffre est gardé par un contact, dans une communauté francophone : au Québec, au Sénégal, au Maroc, en Martinique, à Madagascar et à La Réunion. Pour l'obtenir, lisez le document de chaque escale et répondez à ses questions. Notez aussi ce que vous découvrez dans votre carnet de voyage : il vous servira pour votre dernière mission.</p>
         <p>L'avion décolle dans 45 minutes. Embarquez !</p>
       </div>
     </section>
@@ -908,7 +936,7 @@ function ecranCarte() {
   return `<section class="page">
       <div class="rangee" style="justify-content: space-between">
         <div style="display:grid; gap:4px"><span class="etiquette">Passeport de l'équipe</span><h2>${esc(etat.equipe.nom || "Votre équipe")}</h2></div>
-        <span class="doux">${n} tampon${n > 1 ? "s" : ""} sur 5</span>
+        <span class="doux">${n} tampon${n > 1 ? "s" : ""} sur ${NB}</span>
       </div>
       ${carteVol()}
       <p class="doux">Choisissez une escale sur la carte ou dans le passeport. L'ordre de jeu est libre, mais le code du coffre suit l'ordre des pages.</p>
@@ -927,7 +955,7 @@ function ecranCarte() {
       <span class="etiquette">Code du coffre</span>
       <div class="code-ligne">
         ${ESCALES.map((e) => `<span class="case${etat.escales[e.id].tamponne ? " pleine" : ""}" aria-label="${esc(e.nom)}">${etat.escales[e.id].tamponne ? e.chiffre : ""}</span>`).join("")}
-        ${n === 5 ? `<button class="btn or" data-action="aller" data-ecran="coffre">Ouvrir le coffre</button>` : ""}
+        ${n === NB ? `<button class="btn or" data-action="aller" data-ecran="coffre">Ouvrir le coffre</button>` : ""}
       </div>
       <div class="mrz" aria-hidden="true">${esc(mrz())}</div>
       ${etat.chezNous.tamponne ? "" : `<p class="doux petit">Vous n'avez pas encore le tampon « Chez nous ». <button class="lien" data-action="aller" data-ecran="cheznous">Retourner à l'escale 0</button></p>`}
@@ -998,7 +1026,7 @@ function ecranEscale() {
 
   return `<div class="colonne" style="--c:${e.couleur}">
     <section class="entete-escale" style="--c:${e.couleur}">
-      <div><span class="etiquette">Escale ${index + 1} sur 5 · ${esc(e.region)}</span>
+      <div><span class="etiquette">Escale ${index + 1} sur ${NB} · ${esc(e.region)}</span>
       <h2>${esc(e.nom)}</h2>
       <p><strong>Votre contact :</strong> ${esc(e.contact)}</p>
       <p class="accroche">${esc(e.accroche)}</p></div>
@@ -1049,7 +1077,7 @@ function prochaineEscaleBouton(e) {
   const suite = [...ESCALES.slice(i + 1), ...ESCALES.slice(0, i)].find((x) => !etat.escales[x.id].tamponne);
   if (suite) return `<button class="btn" data-action="ouvrir-escale" data-id="${suite.id}" data-depuis="${e.id}">Escale suivante : ${esc(suite.nom)}</button>
     <button class="btn second" data-action="aller" data-ecran="carte">Voir le passeport</button>`;
-  return `<button class="btn or" data-action="aller" data-ecran="coffre">Les cinq chiffres sont réunis : ouvrir le coffre</button>`;
+  return `<button class="btn or" data-action="aller" data-ecran="coffre">Les ${NB_LETTRES} chiffres sont réunis : ouvrir le coffre</button>`;
 }
 
 function ecranCarnet() {
@@ -1088,13 +1116,13 @@ function ecranCoffre() {
   }
   return `<div class="colonne"><section class="page coffre">${SERRURE(false)}
       <h2>Le coffre du passeport</h2>
-      <p class="doux">Entrez les cinq chiffres dans l'ordre des escales du passeport.</p>
+      <p class="doux">Entrez les ${NB_LETTRES} chiffres dans l'ordre des escales du passeport.</p>
       <form class="cadran" id="form-coffre" autocomplete="off">
         ${ESCALES.map((e, i) => `<label for="chiffre-${i}">${e.code}<input type="text" inputmode="numeric" maxlength="1" id="chiffre-${i}" data-chiffre="${i}" aria-label="Chiffre ${i + 1}, ${esc(e.nom)}"></label>`).join("")}
       </form>
       <button class="btn or" data-action="valider-coffre">Ouvrir</button>
       ${ui.coffreMsg ? `<p class="msg-coffre" role="alert">${esc(ui.coffreMsg)}</p>` : ""}
-      <p class="doux petit">${nbTampons()} tampon${nbTampons() > 1 ? "s" : ""} sur 5 dans votre passeport.</p>
+      <p class="doux petit">${nbTampons()} tampon${nbTampons() > 1 ? "s" : ""} sur ${NB} dans votre passeport.</p>
     </section></div>`;
 }
 
@@ -1202,7 +1230,7 @@ function ecranEnseignante() {
         const i = etat.equipe.membres.findIndex((x) => x.trim() === nom);
         return `${esc(nom)} (${rolesDuMembre(i).map((id) => ROLES.find((x) => x.id === id).nom).join(" + ") || "pas de rôle"})`;
       }).join(" · ") || "Aucun voyageur inscrit."}</p>
-      <p class="petit">Guide : ${g ? esc(g.nom) : "—"} · Décollage : ${etat.debutJeu ? new Date(etat.debutJeu).toLocaleTimeString("fr-FR") : "pas encore"} · Tampons : ${nbTampons()}/5 · « Chez nous » : ${chezNousRemplis()}/4 · Essais au coffre : ${etat.coffreEssais} · Coffre : ${etat.coffreOuvert ? "ouvert" : "fermé"} · Auto-évaluation : ${etat.autoEval.length}/${AUTO_EVAL.length}${etat.classe ? " · Classe : " + esc(etat.classe) : ""}</p>
+      <p class="petit">Guide : ${g ? esc(g.nom) : "—"} · Décollage : ${etat.debutJeu ? new Date(etat.debutJeu).toLocaleTimeString("fr-FR") : "pas encore"} · Tampons : ${nbTampons()}/${NB} · « Chez nous » : ${chezNousRemplis()}/4 · Essais au coffre : ${etat.coffreEssais} · Coffre : ${etat.coffreOuvert ? "ouvert" : "fermé"} · Auto-évaluation : ${etat.autoEval.length}/${AUTO_EVAL.length}${etat.classe ? " · Classe : " + esc(etat.classe) : ""}</p>
       <div id="statut-envoi">${texteStatutEnvoi()}</div>
       <div class="tableau"><table>
         <thead><tr><th>Escale</th><th>Tampon</th><th>Q1</th><th>Q2</th><th>Q3</th><th>Lexique (erreurs)</th><th>Indice</th><th>Écoute</th><th>Durée</th><th>Et chez toi ?</th></tr></thead>
@@ -1428,13 +1456,13 @@ const actions = {
   },
   "valider-coffre"() {
     const code = [...document.querySelectorAll("[data-chiffre]")].map((x) => x.value).join("");
-    if (code.length < 5) { ui.coffreMsg = "Il faut cinq chiffres, un par escale."; son.faux(); afficher(); return; }
+    if (code.length < NB) { ui.coffreMsg = `Il faut ${NB_LETTRES} chiffres, un par escale.`; son.faux(); afficher(); return; }
     if (code === CODE_COFFRE) { ui.coffreMsg = null; son.coffre(); maj({ coffreOuvert: true, coffreEssais: etat.coffreEssais + 1 }); }
     else {
       son.faux();
-      ui.coffreMsg = nbTampons() < 5
-        ? `Le coffre reste fermé. Il vous manque ${5 - nbTampons()} tampon${5 - nbTampons() > 1 ? "s" : ""} : retournez aux escales.`
-        : "Le coffre reste fermé. Vérifiez l'ordre : un chiffre par escale, dans l'ordre des pages du passeport (Québec, Sénégal, Martinique, Madagascar, La Réunion).";
+      ui.coffreMsg = nbTampons() < NB
+        ? `Le coffre reste fermé. Il vous manque ${NB - nbTampons()} tampon${NB - nbTampons() > 1 ? "s" : ""} : retournez aux escales.`
+        : `Le coffre reste fermé. Vérifiez l'ordre : un chiffre par escale, dans l'ordre des pages du passeport (${LISTE_ESCALES}).`;
       maj({ coffreEssais: etat.coffreEssais + 1 });
       document.getElementById("chiffre-0")?.focus();
     }
