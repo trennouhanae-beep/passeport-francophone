@@ -11,10 +11,12 @@
 /* Direction visuelle : un passeport. Couverture bleu nuit et or, pages en papier de sécurité,
    une encre de tampon par escale. Une colonne de lecture (~68 caractères). */
 :root {
-  --nuit: #15233f; --nuit-2: #1e3158; --or: #b08326; --or-clair: #e2c27a;
-  --papier: #eff3ee; --papier-2: #e2e9e1; --carte: #f8faf7;
-  --encre: #18202e; --encre-douce: #4b5666; --trait: #c5d0c7;
-  --ok: #1d7347; --ok-fond: #dcefe3; --erreur: #a8281f; --erreur-fond: #f8e1de; --surligne: #fbe9a6;
+  /* Palette chaude : cuir de passeport brun, or cuivré, papier crème */
+  --nuit: #4a2417; --nuit-2: #5e3020; --or: #c07a1c; --or-clair: #f0c27a;
+  --papier: #f7efe2; --papier-2: #efe1cb; --carte: #fffaf2;
+  --encre: #2b1a12; --encre-douce: #6b5243; --trait: #e2cfb3;
+  --mix-titre: 72%;
+  --ok: #2e7a3a; --ok-fond: #e3f1dc; --erreur: #b3261e; --erreur-fond: #fbe2dc; --surligne: #ffe28a;
   --mer: #dfe9ef; --mer-trait: #bfd0db;
   /* Carte ancienne : même parchemin dans les deux thèmes, par choix */
   --parch: #f1e7d2; --terre: #d8c4a0; --sepia: #8a6f4e; --sepia-fonce: #4a3a28; --x: #d42a22;
@@ -24,18 +26,18 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --nuit: #0c1528; --nuit-2: #16233f; --or: #d6ab52; --or-clair: #e9cd8c;
-    --papier: #111a29; --papier-2: #182336; --carte: #1a2539;
-    --encre: #e6eaf1; --encre-douce: #a4aebd; --trait: #2c3a52;
+    --nuit: #2a140c; --nuit-2: #3a1d12; --or: #e3a04a; --or-clair: #f3cf92;
+    --papier: #1c1410; --papier-2: #271c16; --carte: #2a1f18;
+    --encre: #f4e9dc; --encre-douce: #c7b3a1; --trait: #4a382c; --mix-titre: 45%;
     --ok: #5fc792; --ok-fond: #15352a; --erreur: #f0837a; --erreur-fond: #3d1c1d; --surligne: #4a3f17;
     --mer: #142033; --mer-trait: #24344f;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --nuit: #0c1528; --nuit-2: #16233f; --or: #d6ab52; --or-clair: #e9cd8c;
-  --papier: #111a29; --papier-2: #182336; --carte: #1a2539;
-  --encre: #e6eaf1; --encre-douce: #a4aebd; --trait: #2c3a52;
+  --nuit: #2a140c; --nuit-2: #3a1d12; --or: #e3a04a; --or-clair: #f3cf92;
+  --papier: #1c1410; --papier-2: #271c16; --carte: #2a1f18;
+  --encre: #f4e9dc; --encre-douce: #c7b3a1; --trait: #4a382c; --mix-titre: 45%;
   --ok: #5fc792; --ok-fond: #15352a; --erreur: #f0837a; --erreur-fond: #3d1c1d; --surligne: #4a3f17;
   --mer: #142033; --mer-trait: #24344f;
   color-scheme: dark;
@@ -143,10 +145,10 @@ input:focus, textarea:focus, select:focus { border-color: var(--or); outline: no
 
 /* Pages du passeport */
 .pages { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-.feuillet { --c: #333; text-align: left; background: var(--carte); border: 1px solid var(--trait); border-top: 6px solid var(--c); border-radius: 8px; padding: 14px; display: grid; gap: 8px; align-content: start; color: var(--encre); min-width: 0; transition: transform .15s, border-color .15s; }
+.feuillet { --c: #333; text-align: left; background: var(--carte); border: 1px solid var(--trait); position: relative; overflow: hidden; border-radius: 8px; padding: 22px 14px 14px; display: grid; gap: 8px; align-content: start; color: var(--encre); min-width: 0; transition: transform .15s, border-color .15s; }
 .feuillet:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--c) 60%, var(--trait)); border-top-color: var(--c); }
 .feuillet .num { font-family: var(--f-code); font-size: .75rem; color: var(--encre-douce); letter-spacing: .1em; }
-.feuillet h3 { font-size: 1.15rem; color: color-mix(in srgb, var(--c) 70%, var(--encre)); }
+.feuillet h3 { font-size: 1.15rem; color: color-mix(in srgb, var(--c) var(--mix-titre), var(--encre)); }
 .feuillet .reg { font-size: .85rem; color: var(--encre-douce); }
 .emplacement { width: 88px; height: 88px; justify-self: center; display: grid; place-items: center; border: 2px dashed var(--trait); border-radius: 50%; font-family: var(--f-code); font-size: 1.6rem; color: var(--encre-douce); }
 .code-ligne { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
@@ -155,7 +157,7 @@ input:focus, textarea:focus, select:focus { border-color: var(--or); outline: no
 .mrz { font-family: var(--f-code); font-size: .8rem; letter-spacing: .12em; color: var(--encre-douce); background: var(--papier-2); padding: 10px 12px; border-radius: 6px; overflow-x: auto; white-space: pre; }
 
 /* Tampon */
-.tampon { --c: #333; width: 96px; height: 96px; justify-self: center; border-radius: 50%; border: 3px double var(--c); display: grid; place-content: center; text-align: center; transform: rotate(-9deg); font-family: var(--f-code); line-height: 1.05; background: color-mix(in srgb, var(--c) 7%, transparent); color: color-mix(in srgb, var(--c) 75%, var(--encre)); }
+.tampon { --c: #333; width: 96px; height: 96px; justify-self: center; border-radius: 50%; border: 3px double var(--c); display: grid; place-content: center; text-align: center; transform: rotate(-9deg); font-family: var(--f-code); line-height: 1.05; background: color-mix(in srgb, var(--c) 7%, transparent); color: color-mix(in srgb, var(--c) var(--mix-titre), var(--encre)); }
 .tampon .t-code { font-size: .7rem; letter-spacing: .16em; }
 .tampon .t-chiffre { font-size: 2.2rem; font-weight: 600; }
 .tampon .t-nom { font-size: .6rem; letter-spacing: .06em; text-transform: uppercase; }
@@ -173,7 +175,13 @@ input:focus, textarea:focus, select:focus { border-color: var(--or); outline: no
 /* Escale */
 .entete-escale { --c: #333; border-radius: 10px; padding: clamp(18px, 4vw, 28px); background: color-mix(in srgb, var(--c) 12%, var(--carte)); border: 1px solid color-mix(in srgb, var(--c) 35%, var(--trait)); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px 18px; align-items: center; }
 .entete-escale > div { display: grid; gap: 8px; }
-.entete-escale h2 { font-size: clamp(1.7rem, 5vw, 2.3rem); color: color-mix(in srgb, var(--c) 70%, var(--encre)); }
+.entete-escale { position: relative; overflow: hidden; padding-top: calc(clamp(18px, 4vw, 28px) + 8px); }
+/* Bande aux couleurs du drapeau de l'escale */
+.bande-drapeau { position: absolute; inset: 0 0 auto; height: 8px; display: flex; box-shadow: inset 0 -1px 0 rgba(0,0,0,.12); }
+.bande-drapeau span { flex: 1; }
+.drapeau-mini { display: inline-flex; width: 30px; height: 18px; border-radius: 3px; overflow: hidden; box-shadow: 0 0 0 1px rgba(0,0,0,.18); vertical-align: middle; }
+.drapeau-mini span { flex: 1; }
+.entete-escale h2 { font-size: clamp(1.7rem, 5vw, 2.3rem); color: color-mix(in srgb, var(--c) var(--mix-titre), var(--encre)); }
 .embleme { width: 92px; height: 92px; color: var(--c); }
 .accroche { font-family: var(--f-titre); font-style: italic; font-size: 1.1rem; }
 .etapes { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -222,7 +230,7 @@ details[open] summary { margin-bottom: 12px; }
 /* Carnet */
 .fiches { display: grid; gap: 16px; }
 .fiche { --c: #333; border-left: 6px solid var(--c); }
-.fiche h3 { color: color-mix(in srgb, var(--c) 70%, var(--encre)); font-size: 1.25rem; }
+.fiche h3 { color: color-mix(in srgb, var(--c) var(--mix-titre), var(--encre)); font-size: 1.25rem; }
 .fiche-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .fiche-grille .large { grid-column: 1 / -1; }
 .suggestions { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -375,7 +383,7 @@ const EMBLEMES = {
 
 const ESCALES = [
   {
-    id: "quebec", code: "QC", nom: "Québec", region: "Canada", couleur: "#1f5fa8", voix: "fr-CA",
+    id: "quebec", code: "QC", nom: "Québec", region: "Canada", couleur: "#0b4ea2", drapeau: ["#0b4ea2", "#ffffff", "#0b4ea2"], voix: "fr-CA",
     lon: -71.2, lat: 46.8, contact: "Élodie, guide à Montréal", chiffre: 2,
     ambiance: "La neige fond, les érables coulent, et une odeur de sirop flotte dans l'air…",
     accroche: "« Bienvenue ! Ici, on parle français depuis plus de quatre siècles. Lisez bien : mon chiffre se mérite. »",
@@ -398,7 +406,7 @@ const ESCALES = [
     chezToi: "Quelle fête ou quel moment de l'année rassemble ta famille autour d'un repas ?",
   },
   {
-    id: "senegal", code: "SN", nom: "Sénégal", region: "Afrique de l'Ouest", couleur: "#00853f", voix: "fr-FR",
+    id: "senegal", code: "SN", nom: "Sénégal", region: "Afrique de l'Ouest", couleur: "#00853f", drapeau: ["#00853f", "#fdef42", "#e31b23"], voix: "fr-FR",
     lon: -16.5, lat: 16.0, contact: "Moussa, pêcheur à Saint-Louis", chiffre: 9,
     ambiance: "Les pirogues colorées rentrent au port de Saint-Louis, et quelqu'un vous fait signe de venir manger…",
     accroche: "« Nanga def ? Chez nous, l'invité est roi. Comprenez ce mot wolof et je vous donne mon chiffre. »",
@@ -422,7 +430,7 @@ const ESCALES = [
   },
   {
     // Escale reprise du Genially (Yasmine, guide à Fès) : contenu à faire valider
-    id: "maroc", code: "MA", nom: "Maroc", region: "Afrique du Nord", couleur: "#b5452a", voix: "fr-FR",
+    id: "maroc", code: "MA", nom: "Maroc", region: "Afrique du Nord", couleur: "#c1272d", drapeau: ["#c1272d", "#006233", "#c1272d"], voix: "fr-FR",
     lon: -5.0, lat: 34.03, contact: "Yasmine, guide à Fès", chiffre: 5,
     ambiance: "Les ruelles de la médina sentent les épices et la menthe fraîche. Quelqu'un vous fait signe d'entrer…",
     accroche: "« Marhaba ! Asseyez-vous, le thé est prêt. Lisez bien mon histoire, et mon chiffre sera à vous. »",
@@ -445,7 +453,7 @@ const ESCALES = [
     chezToi: "Quel lieu de ta ville ou de ta région est important pour faire les courses ou se retrouver ?",
   },
   {
-    id: "martinique", code: "MQ", nom: "Martinique", region: "Caraïbes", couleur: "#c2185b", voix: "fr-FR",
+    id: "martinique", code: "MQ", nom: "Martinique", region: "Caraïbes", couleur: "#1e1e1e", drapeau: ["#e4002b", "#00a651", "#1e1e1e"], voix: "fr-FR",
     lon: -61.0, lat: 14.6, contact: "Le Botaniste des Tropiques", chiffre: 4,
     ambiance: "Des tambours au loin, des costumes partout dans les rues : le carnaval commence…",
     accroche: "« Entre deux fleurs d'hibiscus, je garde un chiffre. Suivez-moi au carnaval ! »",
@@ -468,7 +476,7 @@ const ESCALES = [
     chezToi: "Quelle fête de ta communauté se vit dans la rue, avec de la musique et des costumes ?",
   },
   {
-    id: "madagascar", code: "MG", nom: "Madagascar", region: "Océan Indien", couleur: "#c05a00", voix: "fr-FR",
+    id: "madagascar", code: "MG", nom: "Madagascar", region: "Océan Indien", couleur: "#e2352b", drapeau: ["#ffffff", "#fc3d32", "#007e3a"], voix: "fr-FR",
     lon: 47.5, lat: -18.9, contact: "Hery, guide à Antananarivo", chiffre: 7,
     ambiance: "Des rizières en terrasses, des baobabs à l'horizon… ici, rien ne presse.",
     accroche: "« Mora mora… Prenez votre temps, lisez doucement, et le chiffre viendra. »",
@@ -491,7 +499,7 @@ const ESCALES = [
     chezToi: "Quelle place les grands-parents et les ancêtres occupent-ils dans ta communauté ?",
   },
   {
-    id: "reunion", code: "RE", nom: "La Réunion", region: "Océan Indien", couleur: "#7a3e9d", voix: "fr-FR",
+    id: "reunion", code: "RE", nom: "La Réunion", region: "Océan Indien", couleur: "#b06f00", drapeau: ["#003f87", "#ffd100", "#e4002b"], voix: "fr-FR",
     lon: 55.5, lat: -21.1, contact: "Le Gardien du Volcan", chiffre: 1,
     ambiance: "Le sol tremble un peu sous vos pieds : le Piton de la Fournaise veille sur l'île…",
     accroche: "« Du haut du Piton de la Fournaise, je surveille le dernier chiffre. Écoutez l'histoire de mon île. »",
@@ -784,6 +792,9 @@ function blocCopie() {
 const GLOBE = `<svg class="globe" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="color: var(--or-clair)">
   <circle cx="60" cy="60" r="44"/><ellipse cx="60" cy="60" rx="20" ry="44"/><ellipse cx="60" cy="60" rx="36" ry="44" opacity=".55"/>
   <path d="M16 60h88M22 38h76M22 82h76"/><circle cx="60" cy="60" r="54" stroke-width="1" stroke-dasharray="2 5"/></svg>`;
+const bandes = (e) => (e.drapeau || [e.couleur]).map((c) => `<span style="background:${c}"></span>`).join("");
+const bandeDrapeau = (e) => `<div class="bande-drapeau" aria-hidden="true">${bandes(e)}</div>`;
+const drapeauMini = (e) => `<span class="drapeau-mini" aria-hidden="true">${bandes(e)}</span>`;
 const embleme = (id, couleur) => `<svg class="embleme" viewBox="0 0 100 100" style="--c:${couleur}; color:${couleur}" aria-hidden="true">${EMBLEMES[id]}</svg>`;
 
 // Projection équirectangulaire, recadrée sur l'Atlantique et l'océan Indien
@@ -1003,6 +1014,7 @@ function ecranCarte() {
       ${ESCALES.map((e, i) => {
         const s = etat.escales[e.id];
         return `<button class="feuillet" style="--c:${e.couleur}" data-action="ouvrir-escale" data-id="${e.id}">
+          ${bandeDrapeau(e)}
           <span class="num">ESCALE ${i + 1} · ${e.code}</span><h3>${esc(e.nom)}</h3>
           <span class="reg">${esc(e.region)}<br>${esc(e.contact)}</span>
           ${s.tamponne ? tamponHTML(e) : `<span class="emplacement" aria-label="Pas encore de tampon">?</span>`}
@@ -1084,8 +1096,9 @@ function ecranEscale() {
 
   return `<div class="colonne" style="--c:${e.couleur}">
     <section class="entete-escale" style="--c:${e.couleur}">
+      ${bandeDrapeau(e)}
       <div><span class="etiquette">Escale ${index + 1} sur ${NB} · ${esc(e.region)}</span>
-      <h2>${esc(e.nom)}</h2>
+      <h2>${drapeauMini(e)} ${esc(e.nom)}</h2>
       <p><strong>Votre contact :</strong> ${esc(e.contact)}</p>
       <p class="accroche">${esc(e.accroche)}</p></div>
       ${embleme(e.id, e.couleur)}

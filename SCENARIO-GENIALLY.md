@@ -33,17 +33,28 @@ Ce document sert à monter le jeu dans Genially, à partir de votre modèle « A
 
 | Rôle | Code | Remplace (modèle Adventure) |
 |---|---|---|
-| Principal : titres, boutons, avions, barres | `#15233F` bleu nuit | `#3E2D4B` violet aubergine |
-| Fond : diapos, cadres | `#F1E7D2` parchemin | `#F7ECD7` beige rosé |
-| Accent : « Commencer », chiffres gagnés, coffre | `#B08326` or | — |
-| Erreur, escale visitée (croix) | `#D42A22` rouge tampon | — |
-| Texte courant | `#18202E` encre | `#121212` |
+Palette **chaude**, comme un passeport en cuir :
 
-Couleur de chaque escale, pour son titre et son tampon :
+| Rôle | Code | Remplace (modèle Adventure) |
+|---|---|---|
+| Principal : titres, boutons, avions, barres | `#4A2417` cuir brun | `#3E2D4B` violet aubergine |
+| Fond : diapos, cadres | `#F7EFE2` papier crème | `#F7ECD7` beige rosé |
+| Accent : « Commencer », chiffres gagnés, coffre | `#C07A1C` or cuivré | — |
+| Erreur, escale visitée (croix) | `#B3261E` rouge tampon | — |
+| Texte courant | `#2B1A12` encre brune | `#121212` |
 
-| Québec | Sénégal | Maroc | Martinique | Madagascar | La Réunion |
-|---|---|---|---|---|---|
-| `#1F5FA8` | `#00853F` | `#B5452A` | `#C2185B` | `#C05A00` | `#7A3E9D` |
+**Couleurs de chaque escale, d'après son drapeau.** La couleur principale sert au titre et au tampon. Les trois couleurs du drapeau forment une bande en haut de la diapo d'accueil.
+
+| Escale | Couleur principale | Bande du drapeau (gauche → droite) |
+|---|---|---|
+| Québec (fleurdelisé) | `#0B4EA2` bleu | `#0B4EA2` · `#FFFFFF` · `#0B4EA2` |
+| Sénégal | `#00853F` vert | `#00853F` · `#FDEF42` · `#E31B23` |
+| Maroc | `#C1272D` rouge | `#C1272D` · `#006233` · `#C1272D` |
+| Martinique (drapeau rouge-vert-noir) | `#1E1E1E` noir | `#E4002B` · `#00A651` · `#1E1E1E` |
+| Madagascar | `#E2352B` rouge | `#FFFFFF` · `#FC3D32` · `#007E3A` |
+| La Réunion (« Lo Mahavéli ») | `#B06F00` or volcan | `#003F87` · `#FFD100` · `#E4002B` |
+
+À valider : la Martinique et La Réunion ont un drapeau officiel français. Les couleurs ci-dessus viennent des drapeaux régionaux les plus utilisés (rouge-vert-noir et « Lo Mahavéli »).
 
 Règles de lisibilité : texte foncé sur fond clair, jamais de texte fin en or sur le parchemin, et le rouge réservé aux erreurs et aux croix.
 
