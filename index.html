@@ -66,7 +66,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .nav button[aria-current="true"] { background: var(--or-clair); color: #15233f; border-color: var(--or-clair); }
 .icone-btn { padding: 4px 10px; }
 .chrono { font-family: var(--f-code); font-size: 1.05rem; font-variant-numeric: tabular-nums; padding: 3px 10px; border-radius: 6px; background: var(--nuit-2); color: #f3efe4; }
-.chrono.urgent { background: #b3261e; color: #fff; }
+.chrono.urgent { background: var(--or); color: #2a160c; box-shadow: 0 0 0 1px var(--or-clair) inset; }
 .chrono small { font-family: var(--f-texte); font-size: .75rem; opacity: .8; margin-right: 6px; }
 
 main { max-width: 1040px; margin: 0 auto; padding-block: 28px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 24px; }
@@ -154,8 +154,8 @@ input:focus, textarea:focus, select:focus { border-color: var(--or); outline: no
 .carte-vol .graduations { stroke: #6b4a2a; stroke-width: 1.2; opacity: .55; }
 /* Routes : prévues en pointillés, effectuées en rouge plein, celle de l'escale choisie qui s'anime */
 .carte-vol .route.prevue { stroke: #6b4a2a; stroke-width: 1.2; stroke-dasharray: 3 6; opacity: .45; }
-.carte-vol .route.faite { stroke: var(--x); stroke-width: 1.8; stroke-dasharray: none; opacity: .75; }
-.carte-vol .route.sel { stroke: var(--x); stroke-width: 2.2; opacity: .9; stroke-dasharray: 6 6; animation: route-fil 1.2s linear infinite; }
+.carte-vol .route.faite { stroke: var(--or); stroke-width: 1.8; stroke-dasharray: none; opacity: .75; }
+.carte-vol .route.sel { stroke: var(--or); stroke-width: 2.2; opacity: .9; stroke-dasharray: 6 6; animation: route-fil 1.2s linear infinite; }
 @keyframes route-fil { to { stroke-dashoffset: -24; } }
 /* Les noms des escales gardent une taille lisible quand on zoome */
 .carte-vol .pt text { font-size: calc(18px * max(var(--z, 1), .5)); stroke-width: calc(4px * max(var(--z, 1), .5)); }
@@ -207,7 +207,7 @@ main.entree .punaise-liege:not(.visite):not(.sel) .tete { animation: planter .55
 @media (max-width: 640px) { .carte-wrap .zoom-carte { top: 6px; right: 6px; } }
 /* Carte interactive : escale sélectionnée ou survolée, punaise-drapeau, fiche de l'escale */
 .carte-vol .pt.sel .halo, .carte-vol .pt.survol .halo { fill: color-mix(in srgb, var(--or) 35%, transparent); stroke: var(--or); stroke-width: 2.5; }
-.carte-vol .pt.sel .picto { fill: var(--x); }
+.carte-vol .pt.sel .picto { fill: var(--or); stroke: var(--nuit); stroke-width: .6; paint-order: stroke; }
 .carte-vol .pt .picto, .carte-vol .pt .punaise { transform-box: fill-box; transform-origin: center; }
 .carte-vol .pt.sel .punaise, .carte-vol .pt.survol .punaise { transform: scale(1.25); }
 .carte-vol .pt .punaise { transition: transform .2s; }
@@ -1783,8 +1783,8 @@ function carteVol({ avion = null, interactive = false } = {}) {
       <text x="${x + dx}" y="${y + dy}" text-anchor="${anchor}">${esc(e.nom)}${s.tamponne ? " · " + e.chiffre : ""}</text>
       ${drapeau}</g>`;
   }).join("");
-  const av = avion ? `<path id="trajet" d="${avion}" fill="none" stroke="var(--nuit)" stroke-width="2.2" stroke-dasharray="1 0"/>
-    <g class="avion" id="avion"><path d="${AVION}" transform="scale(1.4)" fill="var(--nuit)"/></g>` : "";
+  const av = avion ? `<path id="trajet" d="${avion}" fill="none" stroke="var(--or)" stroke-width="2.4" stroke-dasharray="1 0"/>
+    <g class="avion" id="avion"><path d="${AVION}" transform="scale(1.4)" fill="var(--or)" stroke="var(--nuit)" stroke-width=".6" paint-order="stroke"/></g>` : "";
   const zoom = interactive ? `<div class="zoom-carte" role="group" aria-label="Zoom de la carte">
       <button data-action="zoom-carte" data-z="plus" aria-label="Zoomer">+</button><button data-action="zoom-carte" data-z="moins" aria-label="Dézoomer">−</button>
       <button data-action="zoom-carte" data-z="monde" aria-label="Voir le monde entier">Monde</button></div>` : "";
