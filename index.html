@@ -291,6 +291,14 @@ tr.actif td { background: color-mix(in srgb, var(--or) 16%, transparent); }
 .fil span { font-family: var(--f-code); font-size: .75rem; letter-spacing: .04em; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--trait); background: var(--carte); color: var(--encre-douce); }
 .fil span.ici { border-color: var(--or); color: var(--encre); font-weight: 600; }
 
+/* Enregistrement de l'exposé */
+.enreg-live { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 14px; border-radius: 8px; background: var(--erreur-fond); border: 1px solid var(--erreur); }
+.point-rec { width: 14px; height: 14px; border-radius: 50%; background: #d7263d; box-shadow: 0 0 0 0 rgba(215, 38, 61, .6); animation: rec 1.2s ease-out infinite; }
+@keyframes rec { 0% { box-shadow: 0 0 0 0 rgba(215, 38, 61, .6); } 100% { box-shadow: 0 0 0 12px rgba(215, 38, 61, 0); } }
+.temps-rec { font-family: var(--f-code); font-size: 1.4rem; font-variant-numeric: tabular-nums; margin-left: auto; }
+.lecteur-expose { width: 100%; }
+.depot { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding-top: 12px; border-top: 1px dashed var(--trait); }
+
 /* Bilan */
 .tampons-bilan { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
@@ -447,6 +455,9 @@ const REGLAGES = {
   DUREE_JEU_MIN: 45,
   PREPARATION_MIN: 4,
   PRESENTATION_MIN: 2,
+  // Dernière mission : adresse où les élèves déposent leur enregistrement (dossier Google Drive, Padlet, Moodle, formulaire…).
+  // Laisser vide pour cacher le bouton « Déposer ».
+  LIEN_DEPOT: "",
 };
 
 /* =====================================================================
@@ -745,6 +756,7 @@ function etatInitial() {
     sujetTire: null,
     preparation: { escale: null, ressemblance: "", difference: "", explication: "" },
     autoEval: [],
+    expose: { enregistre: false, duree: 0, nb: 0 }, // l'exposé enregistré dans le jeu (le son lui-même n'est pas sauvegardé)
     finJeu: null,          // heure de fin du voyage (premier passage au bilan)
     son: true,
     musique: false,        // la musique d'ambiance se lance seulement si l'équipe le choisit
@@ -1741,10 +1753,11 @@ function ecranMission() {
         <thead><tr><th>Partie</th><th>Durée</th><th>Contenu</th></tr></thead>
         <tbody>${CANEVAS.map(([pa, d, c], k) => `<tr id="canevas-${k}"><td><strong>${esc(pa)}</strong></td><td class="num">${d}</td><td>${esc(c)}</td></tr>`).join("")}</tbody>
       </table></div>
-      <p class="avis">Enregistrez votre exposé avec un téléphone pendant les 2 minutes de présentation. Le minuteur « Présentation » surligne la partie du canevas en cours.</p>
+      <p class="avis">Pendant les ${REGLAGES.PRESENTATION_MIN} minutes de présentation, le minuteur « Présentation » surligne la partie du canevas en cours.</p>
     </section>
+    <section class="page" id="enregistrement">${enregistrementHTML()}</section>
     <section class="page">
-      <h2>4. Auto-évaluation</h2>
+      <h2>5. Auto-évaluation</h2>
       <p class="doux">Après l'exposé, écoutez l'enregistrement et cochez ce qui est réussi.</p>
       <div class="coches">${AUTO_EVAL.map((a, i) => `<label><input type="checkbox" data-autoeval="${i}" ${etat.autoEval.includes(i) ? "checked" : ""}><span>${esc(a)}</span></label>`).join("")}</div>
       <p class="doux petit" id="score-ae">${etat.autoEval.length} critère${etat.autoEval.length > 1 ? "s" : ""} réussi${etat.autoEval.length > 1 ? "s" : ""} sur ${AUTO_EVAL.length}.</p>
@@ -1804,6 +1817,63 @@ function ecranBilan() {
     </section>
   </div>`;
 }
+/* Enregistrement de l'exposé avec le micro de l'ordinateur (le fichier reste sur le poste, rien n'est envoyé) */
+const enreg = { etat: "pret", rec: null, flux: null, debut: 0, url: null, duree: 0, ext: "webm", msg: "", arretAuto: null };
+const micOk = Boolean(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+function nomFichierExpose() {
+  const nom = (etat.equipe.nom || "equipe").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
+  return `expose-${nom || "equipe"}.${enreg.ext}`;
+}
+function enregistrementHTML() {
+  const depot = REGLAGES.LIEN_DEPOT
+    ? `<div class="depot"><a class="btn${enreg.etat === "fini" ? " or" : " second"}" href="${esc(REGLAGES.LIEN_DEPOT)}" target="_blank" rel="noopener noreferrer">Déposer l'enregistrement ↗</a>
+        <span class="doux petit">${enreg.etat === "fini" ? "Téléchargez d'abord le fichier, puis déposez-le sur la page qui s'ouvre." : "Vous avez enregistré avec un téléphone ? Déposez le fichier ici."}</span></div>` : "";
+  let corps;
+  if (!micOk) corps = `<p class="msg-coffre">Ce navigateur ne permet pas d'enregistrer. Enregistrez l'exposé avec un téléphone.</p>`;
+  else if (enreg.etat === "enregistre") corps = `<div class="enreg-live" role="status"><span class="point-rec" aria-hidden="true"></span><strong>Enregistrement en cours</strong><span class="temps-rec" id="enreg-temps">${mmss((Date.now() - enreg.debut) / 1000)}</span></div>
+      <div><button class="btn" data-action="enreg-stop">■ Arrêter l'enregistrement</button></div>`;
+  else if (enreg.etat === "fini") corps = `<p>Votre exposé est enregistré (${mmss(enreg.duree)}). Écoutez-le pour l'auto-évaluation :</p>
+      <audio controls src="${enreg.url}" class="lecteur-expose"></audio>
+      <div class="rangee"><a class="btn second" href="${enreg.url}" download="${nomFichierExpose()}">Télécharger l'enregistrement</a>
+        <button class="btn second" data-action="enreg-recommencer">Recommencer</button></div>`;
+  else corps = `${enreg.etat === "erreur" ? `<p class="msg-coffre" role="alert">${esc(enreg.msg)}</p>` : ""}
+      <p class="doux">Le micro de l'ordinateur enregistre l'exposé. Le minuteur « Présentation » démarre en même temps. Le fichier reste sur cet ordinateur : rien n'est envoyé en ligne.</p>
+      <div><button class="btn or" data-action="enreg-go">● Démarrer l'enregistrement</button></div>`;
+  return `<h2>4. L'enregistrement</h2>${corps}${depot}`;
+}
+function majEnregistrement() { const s = document.getElementById("enregistrement"); if (s) s.innerHTML = enregistrementHTML(); }
+async function demarrerEnregistrement() {
+  if (!micOk || enreg.etat === "enregistre") return;
+  try {
+    enreg.flux = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+  } catch (e) {
+    enreg.etat = "erreur";
+    enreg.msg = e && e.name === "NotAllowedError" ? "Le micro a été refusé. Autorisez-le dans la barre d'adresse du navigateur, puis réessayez (ou enregistrez avec un téléphone)." : "Aucun micro n'est disponible sur cet ordinateur. Enregistrez l'exposé avec un téléphone.";
+    majEnregistrement(); return;
+  }
+  const mime = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"].find((t) => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) || "";
+  enreg.ext = mime.includes("mp4") ? "m4a" : "webm";
+  const morceaux = [];
+  enreg.rec = new MediaRecorder(enreg.flux, mime ? { mimeType: mime } : {});
+  enreg.rec.ondataavailable = (ev) => { if (ev.data && ev.data.size) morceaux.push(ev.data); };
+  enreg.rec.onstop = () => {
+    clearTimeout(enreg.arretAuto);
+    enreg.flux.getTracks().forEach((t) => t.stop());
+    if (enreg.url) URL.revokeObjectURL(enreg.url);
+    enreg.url = URL.createObjectURL(new Blob(morceaux, { type: enreg.rec.mimeType || mime || "audio/webm" }));
+    enreg.duree = (Date.now() - enreg.debut) / 1000; enreg.etat = "fini";
+    const m = ui.minuteurs.pres; if (m.debut) { m.ecoule += (Date.now() - m.debut) / 1000; m.debut = null; }
+    maj({ expose: { enregistre: true, duree: Math.round(enreg.duree), nb: (etat.expose?.nb || 0) + 1 } }, { rendu: false });
+    son.juste(); majEnregistrement(); annoncer("Enregistrement terminé");
+  };
+  enreg.rec.start(1000);
+  enreg.debut = Date.now(); enreg.etat = "enregistre";
+  // Sécurité : arrêt automatique 30 s après la fin du temps de présentation
+  enreg.arretAuto = setTimeout(() => { if (enreg.rec && enreg.rec.state === "recording") enreg.rec.stop(); }, (REGLAGES.PRESENTATION_MIN * 60 + 30) * 1000);
+  const m = ui.minuteurs.pres; if (!m.debut) { m.ecoule = 0; m.debut = Date.now(); }
+  son.clic();
+  const y = window.scrollY; afficher(); window.scrollTo({ top: y });
+}
 function resteMinuteur(m) { return m.duree - (m.ecoule + (m.debut ? (Date.now() - m.debut) / 1000 : 0)); }
 function phasePresentation() {
   const m = ui.minuteurs.pres; const ecoule = m.duree - resteMinuteur(m);
@@ -1852,7 +1922,7 @@ function ecranEnseignante() {
         const i = etat.equipe.membres.findIndex((x) => x.trim() === nom);
         return `${esc(nom)} (${rolesDuMembre(i).map((id) => ROLES.find((x) => x.id === id).nom).join(" + ") || "pas de rôle"})`;
       }).join(" · ") || "Aucun voyageur inscrit."}</p>
-      <p class="petit">Guide : ${g ? esc(g.nom) : "—"} · Décollage : ${etat.debutJeu ? new Date(etat.debutJeu).toLocaleTimeString("fr-FR") : "pas encore"} · Tampons : ${nbTampons()}/${NB} · « Chez nous » : ${chezNousRemplis()}/4 · Essais au coffre : ${etat.coffreEssais} · Coffre : ${etat.coffreOuvert ? "ouvert" : "fermé"} · Auto-évaluation : ${etat.autoEval.length}/${AUTO_EVAL.length}${etat.classe ? " · Classe : " + esc(etat.classe) : ""}</p>
+      <p class="petit">Guide : ${g ? esc(g.nom) : "—"} · Décollage : ${etat.debutJeu ? new Date(etat.debutJeu).toLocaleTimeString("fr-FR") : "pas encore"} · Tampons : ${nbTampons()}/${NB} · « Chez nous » : ${chezNousRemplis()}/4 · Essais au coffre : ${etat.coffreEssais} · Coffre : ${etat.coffreOuvert ? "ouvert" : "fermé"} · Auto-évaluation : ${etat.autoEval.length}/${AUTO_EVAL.length} · Exposé enregistré dans le jeu : ${etat.expose && etat.expose.enregistre ? `oui (${mmss(etat.expose.duree)}${etat.expose.nb > 1 ? `, ${etat.expose.nb} essais` : ""})` : "non"}${etat.classe ? " · Classe : " + esc(etat.classe) : ""}</p>
       <div id="statut-envoi">${texteStatutEnvoi()}</div>
       <div class="tableau"><table>
         <thead><tr><th>Escale</th><th>Tampon</th><th>Q1</th><th>Q2</th><th>Q3</th><th>Lexique (erreurs)</th><th>Indice</th><th>Écoute</th><th>Durée</th><th>Et chez toi ?</th></tr></thead>
@@ -2146,6 +2216,9 @@ const actions = {
     else { m.ecoule = 0; m.debut = null; }
     const y = window.scrollY; afficher(); window.scrollTo({ top: y });
   },
+  "enreg-go"() { demarrerEnregistrement(); },
+  "enreg-stop"() { if (enreg.rec && enreg.rec.state === "recording") enreg.rec.stop(); },
+  "enreg-recommencer"() { if (enreg.url) URL.revokeObjectURL(enreg.url); enreg.url = null; enreg.etat = "pret"; majEnregistrement(); },
   imprimer() { window.print(); },
   "copier-carnet"() { copier(carnetEnTexte(), "Carnet copié : collez-le dans un document ou un courriel."); },
   "copier-donnees"() { copier(JSON.stringify(donneesAEnvoyer(), null, 2), "Données copiées au format JSON."); },
@@ -2247,6 +2320,8 @@ setInterval(() => {
   }
   const ph = phasePresentation();
   document.querySelectorAll("[id^=canevas-]").forEach((tr, k) => tr.classList.toggle("actif", k === ph));
+  const tr = document.getElementById("enreg-temps");
+  if (tr && enreg.etat === "enregistre") tr.textContent = mmss((Date.now() - enreg.debut) / 1000);
   const lab = document.getElementById("phase-pres");
   if (lab) lab.textContent = ph >= 0 ? "Maintenant : " + CANEVAS[ph][0] : "";
 }, 500);
