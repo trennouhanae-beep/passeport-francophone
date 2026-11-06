@@ -168,6 +168,13 @@ input:focus, textarea:focus, select:focus { border-color: var(--or); outline: no
 
 /* Tampon */
 .tampon { --c: #333; width: 96px; height: 96px; justify-self: center; border-radius: 50%; border: 3px double var(--c); display: grid; place-content: center; text-align: center; transform: rotate(-9deg); font-family: var(--f-code); line-height: 1.05; background: color-mix(in srgb, var(--c) 7%, transparent); color: color-mix(in srgb, var(--c) var(--mix-titre), var(--encre)); }
+.tampon { position: relative; }
+.tampon .t-fond { position: absolute; inset: 9%; border-radius: 50%; overflow: hidden; z-index: 0; opacity: .62; }
+.tampon .t-drapeau { width: 100%; height: 100%; display: block; transform: rotate(4deg) scale(1.05); }
+.tampon > :not(.t-fond) { position: relative; z-index: 1; text-shadow: 0 0 2px var(--carte), 0 0 4px var(--carte), 0 0 7px var(--carte); }
+.tampon .t-chiffre { color: color-mix(in srgb, var(--c) 55%, var(--encre)); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tampon .t-fond { opacity: .5; } }
+:root[data-theme="dark"] .tampon .t-fond { opacity: .5; }
 .tampon .t-code { font-size: .7rem; letter-spacing: .16em; }
 .tampon .t-chiffre { font-size: 2.2rem; font-weight: 600; }
 .tampon .t-nom { font-size: .6rem; letter-spacing: .06em; text-transform: uppercase; }
@@ -1444,8 +1451,38 @@ function carteVol({ avion = null } = {}) {
     ${points}${av}</svg></div>`;
 }
 
+/* Drapeaux des escales, dessinés en SVG (60 × 40) pour l'empreinte des tampons.
+   Martinique et La Réunion : drapeaux d'identité régionale (le drapeau officiel est le drapeau français). */
+const LYS = `<path d="M0-4.2C1.6-2.4 1.6-.2 0 1.4-1.6-.2-1.6-2.4 0-4.2ZM-.6 1C-3.2-1.2-4.4 1-2.7 2.3L-1 1.9ZM.6 1C3.2-1.2 4.4 1 2.7 2.3L1 1.9ZM-2.4 2.2H2.4V3H-2.4ZM-.7 3H.7L0 4.4Z" fill="#fff"/>`;
+const etoile = (cx, cy, r, pas) => Array.from({ length: 5 }, (_, k) => { const a = -Math.PI / 2 + k * pas * 2 * Math.PI / 5; return `${(cx + r * Math.cos(a)).toFixed(2)},${(cy + r * Math.sin(a)).toFixed(2)}`; }).join(" ");
+const DRAPEAUX = {
+  // Québec : le fleurdelisé (croix blanche, 4 fleurs de lys)
+  quebec: `<rect width="60" height="40" fill="#0b4ea2"/><rect x="25" width="10" height="40" fill="#fff"/><rect y="15" width="60" height="10" fill="#fff"/>
+    ${[[12.5, 7.5], [47.5, 7.5], [12.5, 32.5], [47.5, 32.5]].map(([x, y]) => `<g transform="translate(${x} ${y}) scale(1.15)">${LYS}</g>`).join("")}`,
+  // Sénégal : vert, jaune, rouge, étoile verte
+  senegal: `<rect width="20" height="40" fill="#00853f"/><rect x="20" width="20" height="40" fill="#fdef42"/><rect x="40" width="20" height="40" fill="#e31b23"/>
+    <polygon points="${etoile(30, 21, 6.5, 2)}" fill="#00853f" fill-rule="nonzero"/>`,
+  // Maroc : fond rouge, pentagramme vert en contour
+  maroc: `<rect width="60" height="40" fill="#c1272d"/><polygon points="${etoile(30, 21, 10, 2)}" fill="none" stroke="#006233" stroke-width="1.8" stroke-linejoin="round"/>`,
+  // Martinique : drapeau d'identité rouge-vert-noir
+  martinique: `<rect width="60" height="20" fill="#00a651"/><rect y="20" width="60" height="20" fill="#1e1e1e"/><polygon points="0,0 30,20 0,40" fill="#e4002b"/>`,
+  // Madagascar : blanc côté mât, rouge en haut, vert en bas
+  madagascar: `<rect width="20" height="40" fill="#fff"/><rect x="20" width="40" height="20" fill="#fc3d32"/><rect x="20" y="20" width="40" height="20" fill="#007e3a"/>`,
+  // La Réunion : Lo Mahavéli (le volcan rouge et les rayons du soleil sur fond bleu)
+  reunion: `<rect width="60" height="40" fill="#003f87"/>${[-58, -29, 0, 29, 58].map((a) => `<polygon points="30,23 ${(30 + 44 * Math.sin((a - 6) * Math.PI / 180)).toFixed(1)},${(23 - 44 * Math.cos((a - 6) * Math.PI / 180)).toFixed(1)} ${(30 + 44 * Math.sin((a + 6) * Math.PI / 180)).toFixed(1)},${(23 - 44 * Math.cos((a + 6) * Math.PI / 180)).toFixed(1)}" fill="#ffd100"/>`).join("")}<polygon points="14,40 30,23 46,40" fill="#e4002b"/>`,
+};
+// Empreinte d'encre : le drapeau, un peu effacé par un grain (comme un vrai coup de tampon)
+function empreinteDrapeau(e) {
+  if (!DRAPEAUX[e.id]) return "";
+  const f = "encre-" + e.id;
+  return `<svg class="t-drapeau" viewBox="0 0 60 40" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs><filter id="${f}" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="${e.chiffre}" result="b"/>
+      <feColorMatrix in="b" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 2.05" result="m"/><feComposite in="SourceGraphic" in2="m" operator="in"/></filter></defs>
+    <g filter="url(#${f})">${DRAPEAUX[e.id]}</g></svg>`;
+}
 function tamponHTML(e, { grand = false, anime = false } = {}) {
   return `<div class="tampon${grand ? " grand" : ""}${anime ? " anime" : ""}" style="--c:${e.couleur}" aria-label="Tampon ${esc(e.nom)} : chiffre ${e.chiffre}">
+    <span class="t-fond" aria-hidden="true">${empreinteDrapeau(e)}</span>
     <span class="t-code">${e.code}</span><span class="t-chiffre">${e.chiffre}</span><span class="t-nom">${esc(e.nom)}</span></div>`;
 }
 const TAMPON_CHEZ_NOUS = (grand, anime) => `<div class="tampon${grand ? " grand" : ""}${anime ? " anime" : ""}" style="--c:var(--or)" aria-label="Tampon Chez nous">
