@@ -165,6 +165,41 @@ input:focus, textarea:focus, select:focus { border-color: var(--or); outline: no
 .zoom-carte button { min-width: 34px; height: 34px; padding: 0 10px; border-radius: 8px; border: 1px solid #6b4a2a; background: rgba(246, 236, 211, .92); color: #4a3a28; font-family: var(--f-titre); font-weight: 700; font-size: 1.05rem; box-shadow: 0 2px 6px -2px rgba(0,0,0,.35); }
 .zoom-carte button:hover { background: #fff6df; }
 .fiche-carte.attend { opacity: 0; pointer-events: none; animation: none; }
+/* Carte en liège : punaises rouges (vertes une fois l'escale visitée) et photo du pays au clic */
+.carte-liege-wrap { position: relative; }
+.carte-liege { position: relative; border-radius: 12px; overflow: visible; box-shadow: 0 14px 30px -18px rgba(60, 30, 10, .6); }
+.plan-liege { position: relative; aspect-ratio: 1920 / 1072; max-width: 100%; }
+.fond-liege { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+.punaise-liege { position: absolute; z-index: 2; width: 0; height: 0; padding: 0; border: 0; background: none; cursor: pointer; }
+.punaise-liege .tete { position: absolute; left: 0; top: 0; width: clamp(24px, 3.4vw, 40px); height: clamp(24px, 3.4vw, 40px); transform: translate(-50%, -50%); border-radius: 50%;
+  display: grid; place-items: center; color: #fff; font-weight: 700; font-size: clamp(.7rem, 1.4vw, 1rem);
+  background: radial-gradient(circle at 50% 45%, #fff 0 18%, #d9484a 20% 100%); box-shadow: 0 3px 6px rgba(0,0,0,.35), inset 0 -2px 0 rgba(0,0,0,.15); transition: transform .15s; }
+.punaise-liege.visite .tete { background: #2e7a3a; }
+.punaise-liege:not(.visite) .tete { animation: punaise 2.6s ease-in-out infinite; }
+@keyframes punaise { 50% { box-shadow: 0 3px 6px rgba(0,0,0,.35), 0 0 0 7px rgba(217, 72, 74, .25); } }
+.punaise-liege:hover .tete, .punaise-liege.survol .tete, .punaise-liege:focus-visible .tete { transform: translate(-50%, -50%) scale(1.18); }
+.punaise-liege.sel .tete { transform: translate(-50%, -50%) scale(1.25); box-shadow: 0 0 0 4px #f3d79a, 0 6px 12px rgba(0,0,0,.4); }
+.nom-punaise { position: absolute; left: 0; top: clamp(14px, 2vw, 24px); transform: translateX(-50%); white-space: nowrap; font-family: var(--f-titre); font-weight: 700; font-size: clamp(.7rem, 1.3vw, .95rem);
+  color: #3b2416; background: rgba(255, 250, 240, .85); padding: 1px 8px; border-radius: 999px; box-shadow: 0 1px 3px rgba(0,0,0,.2); pointer-events: none; }
+.fiche-pays { --c: #333; position: absolute; z-index: 5; width: min(320px, 70%); background: #fffdf8; border-radius: 6px; padding: 10px 10px 12px; display: grid; gap: 10px;
+  box-shadow: 0 18px 34px -12px rgba(30, 15, 5, .6); animation: poser-fiche .35s cubic-bezier(.2, 1.3, .4, 1) both; color: #2b1a12; }
+.fiche-pays.a-droite { margin-left: 30px; } .fiche-pays.a-gauche { transform: translateX(-100%); margin-left: -30px; }
+.fiche-pays.en-bas { margin-top: -30px; } .fiche-pays.en-haut { translate: 0 -100%; margin-top: 30px; }
+@keyframes poser-fiche { from { opacity: 0; scale: .85; rotate: -4deg; } to { opacity: 1; scale: 1; rotate: -1.5deg; } }
+.fp-photo { position: relative; aspect-ratio: 16 / 10; border-radius: 3px; overflow: hidden; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 14%, #efe6d4); }
+.fp-photo .embleme { width: 40%; height: auto; animation: none; }
+.fp-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.fp-photo .bande-drapeau { position: absolute; inset: auto 0 0; height: 6px; }
+.fp-texte { display: grid; gap: 4px; }
+.fp-texte strong { font-family: var(--f-titre); font-size: 1.3rem; color: color-mix(in srgb, var(--c) 70%, #2b1a12); }
+.fp-texte span { font-size: .8rem; color: #6b5243; }
+.fp-texte p { font-family: var(--f-titre); font-style: italic; font-size: .92rem; line-height: 1.35; color: #4a3a28; }
+.fiche-pays .fermer-fiche { top: 14px; right: 14px; z-index: 2; background: rgba(255, 250, 240, .9); }
+@media (max-width: 640px) {
+  .nom-punaise { display: none; }
+  .fiche-pays, .fiche-pays.a-gauche, .fiche-pays.en-haut { position: relative; left: auto !important; top: auto !important; width: 100%; margin: 12px 0 0; transform: none; translate: none; }
+  .carte-liege { display: grid; }
+}
 @media (max-width: 640px) { .carte-wrap .zoom-carte { top: 6px; right: 6px; } }
 /* Carte interactive : escale sélectionnée ou survolée, punaise-drapeau, fiche de l'escale */
 .carte-vol .pt.sel .halo, .carte-vol .pt.survol .halo { fill: color-mix(in srgb, var(--or) 35%, transparent); stroke: var(--or); stroke-width: 2.5; }
@@ -1813,6 +1848,35 @@ function ficheCarte() {
     </div>`;
 }
 
+/* Carte en liège (image Higgsfield) : une punaise par escale ; un clic affiche le pays en photo.
+   Positions en % de l'image, placées à la main sur la carte générée (les petites îles sont approximatives). */
+const PUNAISES = { quebec: [28.7, 38.2], martinique: [30.9, 53.9], senegal: [43.9, 50.7], maroc: [46.3, 42.9], madagascar: [58.7, 72.4], reunion: [61.8, 73.6] };
+function carteLiege() {
+  const sel = escaleParId(ui.carteSel);
+  const punaises = ESCALES.map((e) => {
+    const [x, y] = PUNAISES[e.id] || [50, 50], s = etat.escales[e.id];
+    return `<button class="punaise-liege${s.tamponne ? " visite" : ""}${ui.carteSel === e.id ? " sel" : ""}" style="left:${x}%;top:${y}%;--c:${e.teinte || e.couleur}"
+        data-action="choisir-escale" data-id="${e.id}" aria-pressed="${ui.carteSel === e.id}" aria-label="${esc(e.nom)}${s.tamponne ? ", déjà visitée, chiffre " + e.chiffre : ""}">
+        <span class="tete" aria-hidden="true">${s.tamponne ? "✓" : ""}</span><span class="nom-punaise">${esc(e.nom)}</span></button>`;
+  }).join("");
+  let fiche = "";
+  if (sel) {
+    const [x, y] = PUNAISES[sel.id], s = etat.escales[sel.id], [, a] = PREP[sel.id] || ["", "à " + sel.nom];
+    const cote = x > 55 ? "a-gauche" : "a-droite", vert = y > 50 ? "en-haut" : "en-bas";
+    fiche = `<div class="fiche-pays ${cote} ${vert}" style="left:${x}%;top:${y}%;--c:${sel.teinte || sel.couleur}" role="dialog" aria-label="${esc(sel.nom)} en photo">
+        <button class="fermer-fiche" data-action="choisir-escale" data-id="${sel.id}" aria-label="Fermer la photo">×</button>
+        <div class="fp-photo">${embleme(sel.id, sel.teinte || sel.couleur)}<img src="images/escales/${sel.id}.jpg" alt="${esc(sel.nom)}" onerror="this.remove()">${bandeDrapeau(sel)}</div>
+        <div class="fp-texte"><strong>${esc(sel.nom)}</strong><span>${esc(sel.region)} · ${esc(sel.contact)}</span>
+          <p>${esc(sel.ambiance)}</p>
+          <div class="fc-pied"><span class="vv-etat${s.tamponne ? " ok" : ""}">${s.tamponne ? "Visité · chiffre " + sel.chiffre : "À visiter"}</span>
+            <button class="btn or" data-action="ouvrir-escale" data-id="${sel.id}">${s.tamponne ? "Revoir l'escale" : "S'envoler " + esc(a)} ✈</button></div></div>
+      </div>`;
+  }
+  return `<div class="carte-liege-wrap"><div class="carte-liege">
+      <div class="plan-liege"><img class="fond-liege" src="images/carte-liege.jpg" alt="Carte du monde en liège, avec une punaise sur chaque escale" onerror="ui.mediaAbsent.add('carte-liege'); afficher()">
+      ${punaises}</div>${fiche}</div></div>`;
+}
+
 /* Drapeaux des escales, dessinés en SVG (60 × 40) pour l'empreinte des tampons.
    Martinique et La Réunion : drapeaux d'identité régionale (le drapeau officiel est le drapeau français). */
 const LYS = `<path d="M0-4.2C1.6-2.4 1.6-.2 0 1.4-1.6-.2-1.6-2.4 0-4.2ZM-.6 1C-3.2-1.2-4.4 1-2.7 2.3L-1 1.9ZM.6 1C3.2-1.2 4.4 1 2.7 2.3L1 1.9ZM-2.4 2.2H2.4V3H-2.4ZM-.7 3H.7L0 4.4Z" fill="#fff"/>`;
@@ -2180,8 +2244,8 @@ function ecranCarte() {
         <span class="doux">${n} tampon${n > 1 ? "s" : ""} sur ${NB}</span>
       </div>
       <h3 class="titre-carte">Choisis ta destination</h3>
-      ${carteVol({ interactive: true })}
-      <p class="doux">Cliquez sur un avion pour découvrir l'escale, puis envolez-vous. Un petit drapeau marque les escales déjà visitées. L'ordre de jeu est libre, mais le code du coffre suit l'ordre des visas.</p>
+      ${ui.mediaAbsent.has("carte-liege") ? carteVol({ interactive: true }) : carteLiege()}
+      <p class="doux">Cliquez sur une punaise pour voir le pays en photo, puis envolez-vous. Une punaise verte marque une escale déjà visitée. L'ordre de jeu est libre, mais le code du coffre suit l'ordre des visas.</p>
     </section>
     <div class="visas" role="list" aria-label="Les visas des six escales">
       ${ESCALES.map((e, i) => {
@@ -3058,10 +3122,10 @@ document.addEventListener("click", (ev) => {
 });
 // Carte ↔ visas : survoler un visa allume son avion sur la carte, et inversement
 document.addEventListener("mouseover", (ev) => {
-  const v = ev.target.closest && ev.target.closest(".visa-vignette[data-id], .carte-vol .pt[data-id]");
+  const v = ev.target.closest && ev.target.closest(".visa-vignette[data-id], .carte-vol .pt[data-id], .punaise-liege[data-id]");
   const id = v ? v.dataset.id : null;
   if (id === ui.survol) return; ui.survol = id;
-  document.querySelectorAll(".carte-vol .pt, .visa-vignette").forEach((x) => x.classList.toggle("survol", Boolean(id) && x.dataset.id === id));
+  document.querySelectorAll(".carte-vol .pt, .visa-vignette, .punaise-liege").forEach((x) => x.classList.toggle("survol", Boolean(id) && x.dataset.id === id));
 });
 document.addEventListener("keydown", (ev) => {
   const t = ev.target;
