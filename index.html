@@ -140,6 +140,32 @@ input:focus, textarea:focus, select:focus { border-color: var(--or); outline: no
 .carte-zone { position: relative; }
 @media (max-width: 640px) { .carte-zone { min-width: 640px; } }
 .carte-vol .parchemin { fill: var(--parch); }
+/* Carte ancienne : côtes gravées, océans nommés, voilier, rose des vents, cartouche, cadre gradué */
+.carte-vol .cote { fill: none; stroke: #8a6f4e; stroke-opacity: .28; stroke-width: 7; stroke-linejoin: round; }
+.carte-vol .terres { fill: url(#terre-grad); }
+.carte-vol .oceans text { font-family: var(--f-titre); font-style: italic; font-size: 15px; letter-spacing: .32em; text-transform: uppercase; fill: #8a6f4e; fill-opacity: .75; stroke: none; text-anchor: middle; }
+.carte-vol .voilier path { fill: #6b4a2a; opacity: .7; }
+.carte-vol .rose-vents circle { stroke: #6b4a2a; stroke-width: 1; opacity: .7; }
+.carte-vol .rose-vents .branche { fill: #6b4a2a; opacity: .8; } .carte-vol .rose-vents .branche.petite { fill: #b0884f; }
+.carte-vol .rose-vents text { font-size: 13px; fill: #6b4a2a; stroke: none; font-weight: 700; }
+.carte-vol .cartouche rect { fill: #f6ecd3; stroke: #6b4a2a; stroke-width: 1.2; } .carte-vol .cartouche .filet-int { fill: none; stroke-width: .6; stroke-dasharray: 3 2; }
+.carte-vol .cartouche text { font-size: 14px; font-style: italic; fill: #4a3a28; stroke: none; letter-spacing: .06em; }
+.carte-vol .cadre-carte { fill: none; stroke: #6b4a2a; stroke-width: 1.4; opacity: .55; }
+.carte-vol .graduations { stroke: #6b4a2a; stroke-width: 1.2; opacity: .55; }
+/* Routes : prévues en pointillés, effectuées en rouge plein, celle de l'escale choisie qui s'anime */
+.carte-vol .route.prevue { stroke: #6b4a2a; stroke-width: 1.2; stroke-dasharray: 3 6; opacity: .45; }
+.carte-vol .route.faite { stroke: var(--x); stroke-width: 1.8; stroke-dasharray: none; opacity: .75; }
+.carte-vol .route.sel { stroke: var(--x); stroke-width: 2.2; opacity: .9; stroke-dasharray: 6 6; animation: route-fil 1.2s linear infinite; }
+@keyframes route-fil { to { stroke-dashoffset: -24; } }
+/* Les noms des escales gardent une taille lisible quand on zoome */
+.carte-vol .pt text { font-size: calc(18px * max(var(--z, 1), .5)); stroke-width: calc(4px * max(var(--z, 1), .5)); }
+.carte-vol .oceans, .carte-vol .cartouche { transition: opacity .3s; }
+/* Boutons de zoom */
+.carte-wrap .zoom-carte { position: absolute; top: 10px; right: 10px; z-index: 4; display: flex; gap: 4px; }
+.zoom-carte button { min-width: 34px; height: 34px; padding: 0 10px; border-radius: 8px; border: 1px solid #6b4a2a; background: rgba(246, 236, 211, .92); color: #4a3a28; font-family: var(--f-titre); font-weight: 700; font-size: 1.05rem; box-shadow: 0 2px 6px -2px rgba(0,0,0,.35); }
+.zoom-carte button:hover { background: #fff6df; }
+.fiche-carte.attend { opacity: 0; pointer-events: none; animation: none; }
+@media (max-width: 640px) { .carte-wrap .zoom-carte { top: 6px; right: 6px; } }
 /* Carte interactive : escale sélectionnée ou survolée, punaise-drapeau, fiche de l'escale */
 .carte-vol .pt.sel .halo, .carte-vol .pt.survol .halo { fill: color-mix(in srgb, var(--or) 35%, transparent); stroke: var(--or); stroke-width: 2.5; }
 .carte-vol .pt.sel .picto { fill: var(--x); }
@@ -1683,7 +1709,12 @@ function carteVol({ avion = null, interactive = false } = {}) {
   for (let lon = -150; lon <= 180; lon += 30) { const [x] = proj({ lon, lat: 0 }); grille += `M${x} 28V383`; }
   for (let lat = 60; lat >= -40; lat -= 20) { const [, y] = proj({ lon: 0, lat }); grille += `M0 ${y}H1000`; }
   const [px, py] = proj(PARIS);
-  const routes = avion ? "" : ESCALES.filter((e) => etat.escales[e.id].tamponne).map((e) => `<path class="route faite" d="${arc(PARIS, e)}"/>`).join("");
+  // Routes : en pointillés les vols à faire, en trait plein rouge les vols déjà effectués
+  const routes = avion ? "" : ESCALES.map((e) => {
+    const fait = etat.escales[e.id].tamponne, sel = interactive && ui.carteSel === e.id;
+    return `<path class="route ${fait ? "faite" : "prevue"}${sel ? " sel" : ""}" d="${arc(PARIS, e)}"/>`;
+  }).join("");
+  const v = interactive && ui.carteVue ? ui.carteVue : VUE_MONDE;
   const points = ESCALES.map((e) => {
     const [x, y] = proj(e); const s = etat.escales[e.id];
     const [dx, dy, anchor] = ETIQUETTES[e.id] || [14, 5, "start"];
@@ -1702,21 +1733,65 @@ function carteVol({ avion = null, interactive = false } = {}) {
   }).join("");
   const av = avion ? `<path id="trajet" d="${avion}" fill="none" stroke="var(--nuit)" stroke-width="2.2" stroke-dasharray="1 0"/>
     <g class="avion" id="avion"><path d="${AVION}" transform="scale(1.4)" fill="var(--nuit)"/></g>` : "";
-  return `<div class="carte-wrap">${interactive ? ficheCarte() : ""}<div class="carte-cadre${interactive ? " interactive" : ""}"><div class="carte-zone"><svg class="carte-vol" viewBox="0 28 1000 355" role="img" aria-label="Carte du monde : choisissez une des ${NB_LETTRES} escales au départ de Paris">
-    <defs><filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .35  0 0 0 0 .25  0 0 0 0 .12  0 0 0 .22 0"/><feComposite in2="SourceGraphic" operator="in"/></filter></defs>
+  const zoom = interactive ? `<div class="zoom-carte" role="group" aria-label="Zoom de la carte">
+      <button data-action="zoom-carte" data-z="plus" aria-label="Zoomer">+</button><button data-action="zoom-carte" data-z="moins" aria-label="Dézoomer">−</button>
+      <button data-action="zoom-carte" data-z="monde" aria-label="Voir le monde entier">Monde</button></div>` : "";
+  return `<div class="carte-wrap">${interactive ? ficheCarte() : ""}${zoom}<div class="carte-cadre${interactive ? " interactive" : ""}"><div class="carte-zone"><svg class="carte-vol" id="${interactive ? "carte-svg" : "carte-vol"}" viewBox="${v.x} ${v.y} ${v.w} ${v.h}" style="--z:${(v.w / 1000).toFixed(3)}" role="img" aria-label="Carte du monde : choisissez une des ${NB_LETTRES} escales au départ de Paris">
+    <defs><filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .35  0 0 0 0 .25  0 0 0 0 .12  0 0 0 .22 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+      <radialGradient id="vieilli" cx="50%" cy="50%" r="75%"><stop offset=".55" stop-color="#8a6f4e" stop-opacity="0"/><stop offset="1" stop-color="#6b4a2a" stop-opacity=".42"/></radialGradient>
+      <pattern id="vagues" width="26" height="14" patternUnits="userSpaceOnUse"><path d="M2 9q4-4 8 0t8 0" fill="none" stroke="#8a6f4e" stroke-width=".7" opacity=".45"/></pattern>
+      <linearGradient id="terre-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dcc79f"/><stop offset="1" stop-color="#cdb184"/></linearGradient></defs>
     <rect x="0" y="28" width="1000" height="355" class="parchemin"/>
+    ${[[180, 90, 70], [620, 300, 90], [880, 120, 60], [420, 360, 50]].map(([cx, cy, r]) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#a07a4a" opacity=".07"/>`).join("")}
+    <rect x="0" y="28" width="1000" height="355" fill="url(#vagues)"/>
     <path class="grille" d="${grille}"/>
+    <path class="cote" d="${TERRES_D}"/>
     <path class="terres" d="${TERRES_D}"/>
     <rect x="0" y="28" width="1000" height="355" filter="url(#grain)" fill="#000"/>
+    <g class="oceans" aria-hidden="true"><text x="394" y="160">Océan Atlantique</text><text x="740" y="336">Océan Indien</text><text x="140" y="196">Océan Pacifique</text></g>
+    <g class="voilier" aria-hidden="true" transform="translate(452 340)"><path d="M-9 4h18l-4 4H-5Z"/><path d="M0 3V-12l8 13Z" opacity=".85"/><path d="M-1 3V-9l-6 11Z" opacity=".6"/></g>
+    <g class="rose-vents" aria-hidden="true" transform="translate(78 292)">
+      <circle r="26" fill="none"/><circle r="19" fill="none" stroke-dasharray="2 3"/>
+      ${[0, 90, 180, 270].map((a) => `<path d="M0-30 5-5 0 0-5-5Z" transform="rotate(${a})" class="branche"/>`).join("")}
+      ${[45, 135, 225, 315].map((a) => `<path d="M0-18 3-3 0 0-3-3Z" transform="rotate(${a})" class="branche petite"/>`).join("")}
+      <text y="-34" text-anchor="middle">N</text></g>
+    <g class="cartouche" aria-hidden="true" transform="translate(30 348)"><rect width="200" height="28" rx="4"/><rect x="3" y="3" width="194" height="22" rx="2" class="filet-int"/>
+      <text x="100" y="19" text-anchor="middle">Le monde francophone</text></g>
+    <rect x="2" y="30" width="996" height="351" class="cadre-carte"/>
+    <path class="graduations" d="${[...Array(13)].map((_, i) => { const x = i * 1000 / 12; return `M${x} 30v7M${x} 381v-7`; }).join("")}${[...Array(9)].map((_, i) => { const [, y] = proj({ lon: 0, lat: 80 - i * 20 }); return y > 30 && y < 381 ? `M2 ${y}h7M998 ${y}h-7` : ""; }).join("")}"/>
+    <rect x="0" y="28" width="1000" height="355" fill="url(#vieilli)" pointer-events="none"/>
     ${routes}
     <g class="paris"><title>Paris · départ</title><circle cx="${px}" cy="${py}" r="9"/><path d="M${px} ${py + 4}l-4.2-4.2a2.4 2.4 0 0 1 4.2-2.6 2.4 2.4 0 0 1 4.2 2.6Z" fill="var(--parch)"/></g>
     ${points}${av}</svg></div></div></div>`;
 }
 // Fiche de l'escale sélectionnée sur la carte interactive, posée à côté de son avion
+// Vue de la carte : le monde entier, ou un zoom (viewBox) sur une région
+const VUE_MONDE = { x: 0, y: 28, w: 1000, h: 355 };
+function vueCentree(cx, cy, w) {
+  w = Math.max(260, Math.min(1000, w)); const h = w * 355 / 1000;
+  return { x: Math.max(0, Math.min(1000 - w, cx - w / 2)), y: Math.max(28, Math.min(383 - h, cy - h / 2)), w, h };
+}
+// Glisse la carte de la vue précédente vers la nouvelle ; la fiche apparaît à l'arrivée
+function animerVueCarte(de, vers) {
+  const svg = document.getElementById("carte-svg"); if (!svg) return;
+  const fiche = document.querySelector(".fiche-carte"); if (fiche) fiche.classList.add("attend");
+  const reduit = matchMedia("(prefers-reduced-motion: reduce)").matches, t0 = performance.now(), D = reduit ? 0 : 550;
+  if (D) { svg.setAttribute("viewBox", `${de.x} ${de.y} ${de.w} ${de.h}`); svg.style.setProperty("--z", (de.w / 1000).toFixed(3)); }
+  const pas = (now) => {
+    const k = D ? Math.max(0, Math.min(1, (now - t0) / D)) : 1, e = 1 - Math.pow(1 - k, 3);
+    const v = { x: de.x + (vers.x - de.x) * e, y: de.y + (vers.y - de.y) * e, w: de.w + (vers.w - de.w) * e, h: de.h + (vers.h - de.h) * e };
+    svg.setAttribute("viewBox", `${v.x} ${v.y} ${v.w} ${v.h}`); svg.style.setProperty("--z", (v.w / 1000).toFixed(3));
+    if (k < 1) requestAnimationFrame(pas); else if (fiche) fiche.classList.remove("attend");
+  };
+  requestAnimationFrame(pas);
+  // Sécurité : si l'onglet est caché, le navigateur suspend l'animation ; on pose la vue finale quand même
+  setTimeout(() => { if (!svg.isConnected) return; svg.setAttribute("viewBox", `${vers.x} ${vers.y} ${vers.w} ${vers.h}`); svg.style.setProperty("--z", (vers.w / 1000).toFixed(3)); if (fiche) fiche.classList.remove("attend"); }, D + 120);
+}
 function ficheCarte() {
   const e = escaleParId(ui.carteSel); if (!e) return "";
   const [x, y] = proj(e); const s = etat.escales[e.id];
-  const gauche = (x / 1000) * 100, haut = ((y - 28) / 355) * 100;
+  const v = ui.carteVue || VUE_MONDE;
+  const gauche = ((x - v.x) / v.w) * 100, haut = ((y - v.y) / v.h) * 100;
   const cote = gauche > 55 ? "a-gauche" : "a-droite", vert = haut > 55 ? "en-haut" : "en-bas";
   const [, a] = PREP[e.id] || ["", "à " + e.nom];
   return `<div class="fiche-carte ${cote} ${vert}" style="left:${gauche.toFixed(1)}%;top:${haut.toFixed(1)}%;--c:${e.teinte || e.couleur}" role="dialog" aria-label="Escale ${esc(e.nom)}">
@@ -2823,10 +2898,24 @@ const actions = {
   "choisir-escale"(b) {
     const id = b.dataset.id || null;
     ui.carteSel = ui.carteSel === id ? null : id;
+    // La carte glisse et zoome sur l'escale choisie ; en fermant la fiche, on revient au monde entier
+    const de = ui.carteVue || VUE_MONDE;
+    const e = escaleParId(ui.carteSel);
+    ui.carteVue = e ? vueCentree(...proj(e), 480) : null;
     const cadre = document.querySelector(".carte-cadre.interactive"), sx = cadre ? cadre.scrollLeft : 0, y = window.scrollY;
     son.clic(); afficher(); window.scrollTo({ top: y });
     const c2 = document.querySelector(".carte-cadre.interactive"); if (c2 && cadre) c2.scrollLeft = sx;
+    animerVueCarte(de, ui.carteVue || VUE_MONDE);
     document.querySelector(ui.carteSel ? ".fiche-carte .btn" : `.carte-vol .pt[data-id="${id}"]`)?.focus({ preventScroll: true });
+  },
+  // Boutons + / − / Monde : zoom autour du centre de la vue (la fiche se ferme)
+  "zoom-carte"(b) {
+    const de = ui.carteVue || VUE_MONDE, z = b.dataset.z;
+    const cx = de.x + de.w / 2, cy = de.y + de.h / 2;
+    const vers = z === "monde" ? VUE_MONDE : vueCentree(cx, cy, z === "plus" ? de.w / 1.6 : de.w * 1.6);
+    ui.carteVue = vers.w >= 1000 ? null : vers; ui.carteSel = null;
+    const y = window.scrollY; son.clic(); afficher(); window.scrollTo({ top: y });
+    animerVueCarte(de, vers);
   },
   lire() { lireDocument(escaleParId(etat.escaleActive)); },
   repondre(b) {
