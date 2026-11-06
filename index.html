@@ -470,9 +470,9 @@ main.entree .embleme .hib-fleur { transform-origin: 50px 50px; animation: eclore
 /* =====================================================================
    LE LIVRET : le jeu est un vrai passeport (couverture en cuir, pages de sécurité, pages qui tournent)
    ===================================================================== */
-:root { --cuir: #5a1d24; --cuir-2: #7a2a30; --cuir-ombre: #2e0d12; --page: #fffaf0; --page-2: #f6ecd9; --lisere: #c9a25a; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --cuir: #3d1117; --cuir-2: #561b22; --cuir-ombre: #1a0609; --page: #2a1f18; --page-2: #33261d; --lisere: #a8813c; } }
-:root[data-theme="dark"] { --cuir: #3d1117; --cuir-2: #561b22; --cuir-ombre: #1a0609; --page: #2a1f18; --page-2: #33261d; --lisere: #a8813c; }
+:root { --cuir: #4a2c1a; --cuir-2: #6a4128; --cuir-ombre: #2a160c; --page: #fffaf0; --page-2: #f6ecd9; --lisere: #c9a25a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --cuir: #3a2214; --cuir-2: #53331f; --cuir-ombre: #1e0f07; --page: #2a1f18; --page-2: #33261d; --lisere: #a8813c; } }
+:root[data-theme="dark"] { --cuir: #3a2214; --cuir-2: #53331f; --cuir-ombre: #1e0f07; --page: #2a1f18; --page-2: #33261d; --lisere: #a8813c; }
 
 /* La barre du haut prend le cuir de la couverture */
 .barre { background: linear-gradient(180deg, var(--cuir-2), var(--cuir)); border-bottom-color: var(--lisere); box-shadow: 0 2px 10px -4px rgba(40, 8, 12, .5); }
@@ -579,6 +579,10 @@ main.livret.tourne-arriere { transform-origin: right center; animation: tourner-
 .intro .intro-passer { position: absolute; top: 12px; right: 12px; z-index: 2; color: #fff6e2; border-color: rgba(255, 246, 226, .6); background: rgba(20, 8, 4, .6); padding: 6px 14px; }
 .intro .intro-passer:hover:not(:disabled) { background: rgba(20, 8, 4, .8); color: #fff; }
 .revoir-intro { color: #e9c77e !important; font-size: .9rem; }
+.intro img.intro-video { object-fit: cover; }
+.intro-depart { position: absolute; inset: auto 0 0; z-index: 2; display: grid; justify-items: center; gap: 8px; padding: 40px 16px 22px; text-align: center;
+  background: linear-gradient(180deg, transparent, rgba(20, 8, 4, .75)); color: #fff6e2; font-size: .95rem; }
+.intro-jouer { font-size: clamp(1rem, 2.4vw, 1.25rem); padding: 12px 26px; animation: respirer 2.4s ease-in-out infinite; }
 
 /* Page 5 (option A) : la double page des visas et la serrure du code */
 .visas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 2vw, 18px); }
@@ -641,7 +645,47 @@ main.entree .album-cn .polaroid { animation: poser .55s cubic-bezier(.2, 1.3, .4
 .album-cn .recompense { display: grid; justify-items: center; gap: 12px; text-align: center; padding-top: 6px; }
 @media (max-width: 480px) { .album-cn .polaroids { grid-template-columns: minmax(0, 1fr); max-width: 320px; margin: 0 auto; width: 100%; } }
 
-/* Page 3 (option A) : le visa du compagnon de voyage */
+/* Page 3 : « Choisis ton guide », fidèle à la maquette (bureau, bandeau de cuir, cartes à médaillon, bouton de cuir) */
+.salle-guides { position: relative; display: grid; gap: 18px; padding: 0 clamp(12px, 3vw, 28px) 26px; border-radius: 14px; overflow: hidden;
+  background: linear-gradient(rgba(42, 24, 12, .55), rgba(42, 24, 12, .72)), url("images/couverture.jpg") center / cover, var(--cuir);
+  box-shadow: 0 18px 36px -20px rgba(40, 18, 6, .7); }
+.bandeau-cuir { margin: 0 calc(-1 * clamp(12px, 3vw, 28px)); padding: 16px 16px 18px; text-align: center; font-family: var(--f-titre); font-weight: 700;
+  font-size: clamp(1.7rem, 4.4vw, 2.8rem); color: #f3d79a; text-shadow: 0 2px 0 rgba(0,0,0,.45); background: linear-gradient(180deg, var(--cuir-2), var(--cuir));
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,.08), 0 6px 14px -6px rgba(0,0,0,.6); position: relative; }
+.bandeau-cuir::before, .bandeau-cuir::after { content: ""; position: absolute; left: 10px; right: 10px; border-top: 2px dashed rgba(233, 199, 126, .45); }
+.bandeau-cuir::before { top: 6px; } .bandeau-cuir::after { bottom: 6px; }
+.salle-texte { color: #f6ead2; text-align: center; max-width: 62ch; margin: 0 auto; font-size: .98rem; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.cartes-guides { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(10px, 2vw, 22px); }
+.carte-guide { --g: #555; position: relative; display: grid; justify-items: center; align-content: start; gap: 4px; text-align: center; padding: 22px 14px 16px; border-radius: 14px;
+  background: #fbf4e6; color: #2b1a12;
+  background-image: radial-gradient(circle at 14px 14px, #c9a25a 2.5px, transparent 3px), radial-gradient(circle at calc(100% - 14px) 14px, #c9a25a 2.5px, transparent 3px),
+    radial-gradient(circle at 14px calc(100% - 14px), #c9a25a 2.5px, transparent 3px), radial-gradient(circle at calc(100% - 14px) calc(100% - 14px), #c9a25a 2.5px, transparent 3px);
+  box-shadow: inset 0 0 0 7px #fbf4e6, inset 0 0 0 9px var(--g), inset 0 0 0 12px #fbf4e6, inset 0 0 0 13px rgba(201, 162, 90, .8), 0 10px 22px -12px rgba(0,0,0,.6);
+  transition: transform .15s, box-shadow .2s, filter .4s, opacity .4s; }
+.medaillon { position: relative; width: min(150px, 82%); aspect-ratio: 1; border-radius: 50%; overflow: hidden; display: grid; place-items: center; margin-bottom: 8px;
+  background: var(--g); color: #fff; font-family: var(--f-titre); font-size: 3rem; font-weight: 700;
+  box-shadow: 0 0 0 4px var(--g), 0 0 0 7px #fbf4e6, 0 0 0 8.5px #c9a25a; }
+.medaillon img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
+.carte-guide strong { font-family: var(--f-titre); font-weight: 700; font-size: clamp(1.15rem, 2.4vw, 1.55rem); letter-spacing: .02em; text-transform: uppercase; line-height: 1.1; }
+.carte-guide .metier { font-family: var(--f-titre); font-size: clamp(.78rem, 1.5vw, .95rem); text-transform: uppercase; letter-spacing: .03em; color: #3b2a1e; }
+.carte-guide .filet { display: flex; align-items: center; gap: 8px; width: 100%; margin-top: 6px; color: #8a5a1f; }
+.carte-guide .filet::before, .carte-guide .filet::after { content: ""; flex: 1; height: 2px; background: linear-gradient(90deg, transparent, var(--g)); opacity: .7; }
+.carte-guide .filet::after { background: linear-gradient(90deg, var(--g), transparent); }
+.carte-guide .filet .ico-guide { width: 34px; height: 34px; flex: none; }
+.carte-guide.vise { transform: translateY(-6px) scale(1.04); box-shadow: inset 0 0 0 7px #fbf4e6, inset 0 0 0 9px var(--g), inset 0 0 0 12px #fbf4e6, inset 0 0 0 13px #c9a25a, 0 0 0 4px #f3d79a, 0 16px 30px -10px rgba(240, 194, 122, .6); }
+.carte-guide.choisi { transform: translateY(-4px); box-shadow: inset 0 0 0 7px #fbf4e6, inset 0 0 0 9px var(--g), inset 0 0 0 12px #fbf4e6, inset 0 0 0 13px #c9a25a, 0 0 0 4px var(--g), 0 18px 34px -12px rgba(0,0,0,.7); }
+.carte-guide.ecarte { filter: grayscale(.75); opacity: .6; }
+.salle-bouton { display: flex; justify-content: center; }
+.btn-cuir { font-family: var(--f-titre); font-weight: 700; font-size: clamp(1.15rem, 2.6vw, 1.6rem); color: #f3d79a; padding: 12px 38px; border-radius: 999px;
+  border: 2px solid var(--cuir-ombre); background: linear-gradient(180deg, var(--cuir-2), var(--cuir)); outline: 1.5px dashed rgba(233, 199, 126, .6); outline-offset: -8px;
+  box-shadow: 0 8px 18px -8px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.12); text-shadow: 0 1px 0 rgba(0,0,0,.5); transition: transform .12s, filter .15s; }
+.btn-cuir span { color: #ffd76a; }
+.btn-cuir:hover:not(:disabled) { filter: brightness(1.12); }
+.btn-cuir:active:not(:disabled) { transform: scale(.97); }
+.btn-cuir:disabled { opacity: .75; cursor: progress; }
+@media (max-width: 760px) { .cartes-guides { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Page 3 (suite) : le visa du compagnon de voyage, qui apparaît une fois le guide tiré */
 .identite.visa-compagnon, .identite.saisie { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: clamp(16px, 3vw, 24px); }
 .planche { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(8px, 2vw, 16px); }
 .pp-guide { --g: #555; display: grid; gap: 4px; justify-items: center; text-align: center; padding: 8px 6px 10px; border-radius: 8px; border: 1px solid var(--trait);
@@ -731,6 +775,26 @@ main.entree .album-cn .polaroid { animation: poser .55s cubic-bezier(.2, 1.3, .4
   .identite dl { grid-template-columns: minmax(0, 1fr); }
 }
 @media print { main.livret { box-shadow: none; } main.livret::before, main.livret::after, .tete-page, .pied-page, .filigrane { display: none; } }
+/* Adapté à l'écran : sur un grand écran ou un vidéoprojecteur, le passeport s'agrandit avec l'écran
+   (texte, cartes et images grandissent ensemble) au lieu de rester une colonne étroite au milieu */
+@media (min-width: 1200px) {
+  html { font-size: clamp(16px, calc(9px + .58vw), 22px); }
+  main.livret { max-width: min(1500px, 92vw); }
+  .colonne { max-width: min(1080px, 100%); }
+  .barre-in { max-width: min(1500px, 92vw); }
+  footer { max-width: min(1500px, 92vw); }
+  .intro { max-width: min(1200px, 100%); }
+  .couverture { max-width: min(680px, 100%); }
+  .visa-photo, .visa-photo .pp-portrait { width: 170px; }
+  .visa-zone { grid-template-columns: 170px minmax(0, 1fr); }
+  .photo-pp { max-width: 130px; }
+  .pp-portrait { max-width: 110px; }
+}
+/* Écran bas (portable en paysage, projecteur 16:9) : on resserre les marges verticales pour que la page tienne mieux */
+@media (min-width: 900px) and (max-height: 760px) {
+  main.livret { margin-block: 12px 24px; padding-top: 44px; padding-bottom: 46px; }
+  .intro { max-height: calc(100vh - 160px); width: auto; aspect-ratio: 16 / 9; }
+}
 
 /* Confettis */
 canvas.confettis { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
@@ -1763,33 +1827,76 @@ function decorLivret() {
     <div class="pied-page" aria-hidden="true" style="${f.c ? `--c:${f.c}` : ""}"><span class="serie">N° ${serie}</span>${f.n ? `<span class="folio"><span class="pastille"></span>${f.n}</span>` : ""}<span class="serie-2">${f.c ? "Visa" : "Page"}</span></div>`;
 }
 
-/* Vidéo d'introduction (Higgsfield) : elle se joue sur la couverture à la première visite, avec des sous-titres */
-const SOUS_TITRES_INTRO = [
-  [0, "Paris, à l'aube. Raoul, l'agent du Passeport francophone, a disparu…"],
-  [2.3, "Il a laissé un coffre verrouillé, et six chiffres cachés dans le monde francophone."],
-  [4.6, "Votre mission : partir à leur recherche. L'avion décolle !"],
-];
-// On s'arrête dans les nuages : la fin de la vidéo générée montre une carte aux noms de lieux inventés
-const FIN_INTRO = 6.6;
+/* Vidéo d'introduction (Higgsfield) : l'annonce de l'hôtesse avant le décollage, en deux séquences, avec le texte en sous-titres.
+   Les navigateurs n'autorisent le son qu'après un clic : on commence donc par un bouton « Écouter l'annonce ».
+   Si les vidéos de l'hôtesse manquent, on revient à l'ancienne introduction (le cockpit, sans son). */
+// Répartit les phrases sur la durée d'une séquence, au prorata de leur longueur
+const etaler = (phrases, duree, debut = 0) => {
+  const total = phrases.reduce((n, p) => n + p.length, 0); let t = debut;
+  return phrases.map((p) => { const d = t; t += (duree - debut) * p.length / total; return [d, p]; });
+};
+const INTRO_HOTESSE = {
+  poster: "images/hotesse.jpg",
+  clips: [
+    { src: "videos/intro-hotesse-1.mp4", voix: "audio/intro-hotesse-1.wav", st: etaler(["Bienvenue !", "Attachez vos ceintures : le Passeport francophone est verrouillé, et l'avion décolle dans 45 minutes.",
+      "Avant de partir, présentez-vous : votre culture est votre première escale.", "Ensuite, à chaque destination, lisez le document, discutez en équipe et répondez aux questions pour gagner un chiffre."], 21.5, .3) },
+    { src: "videos/intro-hotesse-2.mp4", voix: "audio/intro-hotesse-2.wav", st: etaler(["Une erreur ? Pas de panique : le jeu vous dit pourquoi, et un indice vous aide à trouver les bonnes réponses.",
+      "Réunissez les six chiffres pour ouvrir le coffre… et préparer votre dernière mission !"], 12.3, .2) },
+  ],
+};
+// Ancienne introduction (cockpit), arrêtée à 6,6 s : la fin de la vidéo générée montrait des noms de lieux inventés
+const INTRO_COCKPIT = { clips: [{ src: "videos/intro.mp4", fin: 6.6, st: [[0, "Paris, à l'aube. Raoul, l'agent du Passeport francophone, a disparu…"],
+  [2.3, "Il a laissé un coffre verrouillé, et six chiffres cachés dans le monde francophone."], [4.6, "Votre mission : partir à leur recherche. L'avion décolle !"]] }] };
+const introActuelle = () => (ui.mediaAbsent.has("intro-hotesse") ? INTRO_COCKPIT : INTRO_HOTESSE);
 function introHTML() {
-  return `<div class="colonne"><section class="intro" aria-label="Introduction du jeu">
-      <video class="intro-video" id="intro-video" autoplay muted playsinline preload="auto" ontimeupdate="sousTitresIntro(this)" onended="finIntro()">
-        <source src="videos/intro.mp4" type="video/mp4" onerror="ui.mediaAbsent.add('intro'); finIntro()"></video>
-      <p class="intro-st" id="intro-st" aria-live="polite">${esc(SOUS_TITRES_INTRO[0][1])}</p>
-      <div class="intro-barre" aria-hidden="true"><span id="intro-progres"></span></div>
+  const I = introActuelle(), hotesse = I === INTRO_HOTESSE, attente = hotesse && !ui.introEnCours;
+  return `<div class="colonne"><section class="intro${attente ? " attente" : ""}" aria-label="Introduction du jeu">
+      ${attente ? `<img class="intro-video" src="${I.poster}" alt="" onerror="ui.mediaAbsent.add('intro-hotesse'); afficher()">
+        <div class="intro-depart"><button class="btn or intro-jouer" data-action="jouer-intro">▶ Écouter l'annonce</button>
+          <span>Activez le son : l'hôtesse vous accueille à bord.</span></div>`
+      : `<video class="intro-video" id="intro-video" ${hotesse ? "" : "autoplay muted"} playsinline preload="auto" ontimeupdate="sousTitresIntro(this)" onended="clipSuivant()">
+          <source src="${I.clips[ui.introClip || 0].src}" type="video/mp4" onerror="${hotesse ? "ui.mediaAbsent.add('intro-hotesse'); ui.introEnCours = false; afficher()" : "ui.mediaAbsent.add('intro'); finIntro()"}"></video>
+        <p class="intro-st" id="intro-st" aria-live="polite"></p>
+        <div class="intro-barre" aria-hidden="true"><span id="intro-progres"></span></div>`}
       <button class="btn second intro-passer" data-action="passer-intro">Passer ▸</button>
     </section></div>`;
 }
 function sousTitresIntro(v) {
+  const I = introActuelle(), c = I.clips[ui.introClip || 0]; if (!c) return;
   const t = v.currentTime, st = document.getElementById("intro-st"), pr = document.getElementById("intro-progres");
-  const ligne = [...SOUS_TITRES_INTRO].reverse().find(([d]) => t >= d);
+  const ligne = [...c.st].reverse().find(([d]) => t >= d);
   if (st && ligne && st.textContent !== ligne[1]) { st.textContent = ligne[1]; st.classList.remove("apparait"); void st.offsetWidth; st.classList.add("apparait"); }
-  if (pr) pr.style.width = Math.min(100, 100 * t / FIN_INTRO).toFixed(1) + "%";
-  if (t >= FIN_INTRO) { v.pause(); finIntro(); }
+  // progression sur l'ensemble des séquences
+  const n = I.clips.length, k = ui.introClip || 0, fin = c.fin || v.duration || 1;
+  if (pr) pr.style.width = Math.min(100, 100 * (k + Math.min(1, t / fin)) / n).toFixed(1) + "%";
+  if (c.fin && t >= c.fin) { v.pause(); clipSuivant(); }
+  // La voix suit la vidéo (les vidéos générées sont muettes) : on corrige un éventuel décalage
+  const a = ui.introVoix; if (a && c.voix && !a.paused && Math.abs(a.currentTime - t) > .25) a.currentTime = t;
+}
+// Lance la vidéo de la séquence en cours et, s'il y en a une, la voix qui va avec
+function jouerSequence(v) {
+  const c = introActuelle().clips[ui.introClip || 0]; if (!c || !v) return;
+  if (ui.introVoix) { ui.introVoix.pause(); ui.introVoix = null; }
+  if (c.voix) {
+    const a = new Audio(c.voix); a.preload = "auto"; ui.introVoix = a;
+    v.muted = true;
+    const go = () => { a.currentTime = v.currentTime; a.play().catch(() => {}); };
+    v.onplaying = go; v.onpause = () => { if (!v.ended) a.pause(); };
+  }
+  v.play().catch(() => {});
+}
+// Séquence suivante, sur le même lecteur (le son reste autorisé), ou fin de l'introduction
+function clipSuivant() {
+  const I = introActuelle(); ui.introClip = (ui.introClip || 0) + 1;
+  const c = I.clips[ui.introClip], v = document.getElementById("intro-video");
+  if (!c || !v) return finIntro();
+  v.querySelector("source").src = c.src; v.load(); jouerSequence(v);
 }
 function finIntro() {
   if (!ui.intro) return;
-  ui.intro = false; ui.dernierEcran = null;
+  if (ui.introVoix) { ui.introVoix.pause(); ui.introVoix = null; }
+  ui.intro = false; ui.introEnCours = false; ui.introClip = 0; ui.dernierEcran = null;
+  musique.attenuer(false);
   maj({ introVue: true });
 }
 function ecranAccueil() {
@@ -1904,14 +2011,22 @@ function ecranGuide() {
   // Option A : la page de visa du compagnon de voyage
   return `<div class="colonne">
     ${filAriane(2)}
-    <section class="identite visa-compagnon" aria-label="Visa du compagnon de voyage">
+    <section class="salle-guides" aria-label="Choix du guide">
+      <h2 class="bandeau-cuir">Choisis ton guide</h2>
+      <p class="salle-texte">Votre guide vous accompagne pendant tout le voyage. À chaque escale, il ou elle peut vous donner un indice, un seul, pour vous aider à répondre aux questions.</p>
+      <div class="cartes-guides" role="group" aria-label="Les quatre guides possibles">
+        ${GUIDES.map((x, i) => `<div class="carte-guide${t && t.vise === i ? " vise" : ""}${fini && g.id === x.id ? " choisi" : ""}${fini && g.id !== x.id ? " ecarte" : ""}" style="--g:${x.couleur}">
+          <span class="medaillon" aria-hidden="true">${x.initiale}<img src="${DOSSIER_PORTRAITS}${x.photo}" alt="" onerror="this.remove()"></span>
+          <strong>${esc(x.nom)}</strong><span class="metier">${esc(x.metier)}</span>
+          <span class="filet" aria-hidden="true">${iconeGuide(x)}</span>
+          ${fini && g.id === x.id ? `<span class="tampon-choisi" aria-hidden="true">Choisi !</span>` : ""}
+        </div>`).join("")}
+      </div>
+      <div class="salle-bouton"><button class="btn-cuir" data-action="tirer-guide" ${t ? "disabled" : ""}>${t ? "Tirage en cours…" : g ? "Tirer un autre guide" : "Tirer notre guide"} <span aria-hidden="true">✦</span></button></div>
+    </section>
+    ${fini ? `<section class="identite visa-compagnon" aria-label="Visa du compagnon de voyage">
       <span class="hologramme" aria-hidden="true"></span>
       <div class="ligne-pp"><span class="dt">Visa · Compagnon de voyage</span><span class="dd">Équipe ${esc(etat.equipe.nom || "")}</span></div>
-      <p class="doux">Votre guide vous accompagne pendant tout le voyage. À chaque escale, il ou elle peut vous donner un indice, un seul, pour vous aider à répondre aux questions.</p>
-      <div class="planche" role="group" aria-label="Les quatre guides possibles">
-        ${GUIDES.map((x, i) => `<div class="pp-guide${t && t.vise === i ? " vise" : ""}${fini && g.id === x.id ? " choisi" : ""}${fini && g.id !== x.id ? " ecarte" : ""}" style="--g:${x.couleur}">
-          ${portrait(x)}<strong>${esc(x.nom)}</strong><span>${esc(x.metier)}</span></div>`).join("")}
-      </div>
       <div class="visa-zone${fini ? " accorde" : ""}${anime ? " anime" : ""}">
         ${fini ? `<div class="visa-photo" style="--g:${g.couleur}"><span class="agrafe" aria-hidden="true"></span>${portrait(g)}</div>
           <div class="visa-champs">
@@ -1925,9 +2040,8 @@ function ecranGuide() {
         : `<div class="visa-photo vide" aria-hidden="true"><svg class="silhouette" viewBox="0 0 60 70" fill="currentColor"><circle cx="30" cy="24" r="13"/><path d="M6 70c2-16 12-24 24-24s22 8 24 24Z"/></svg></div>
           <div class="visa-champs"><p class="doux">${t ? "Tirage en cours…" : "La photo de votre guide sera agrafée ici, puis le visa sera tamponné."}</p></div>`}
       </div>
-      <div><button class="btn ${fini ? "second" : "or"}" data-action="tirer-guide" ${t ? "disabled" : ""}>${g ? "Tirer un autre guide" : "Tirer notre guide"}</button></div>
       <pre class="mrz" aria-hidden="true">${esc(mrzGuide)}</pre>
-    </section>
+    </section>` : ""}
     <div class="rangee">
       <button class="btn second" data-action="aller" data-ecran="equipage">Retour à l'équipage</button>
       <button class="btn or" data-action="decoller" id="btn-decoller" ${g && !t ? "" : "disabled"}>Décoller</button>
@@ -2698,7 +2812,12 @@ const actions = {
   },
   "fin-transit"() { finTransit(); },
   "voir-album"() { apresVol(ui.transit); },
-  "voir-intro"() { ui.intro = true; ui.dernierEcran = null; afficher(); son.avion(); },
+  "voir-intro"() { ui.intro = true; ui.introEnCours = false; ui.introClip = 0; ui.dernierEcran = null; afficher(); },
+  // Le clic autorise le son : on lance l'annonce de l'hôtesse (la musique se fait discrète)
+  "jouer-intro"() {
+    ui.introEnCours = true; ui.introClip = 0; afficher(); musique.attenuer(true);
+    jouerSequence(document.getElementById("intro-video"));
+  },
   "passer-intro"() { finIntro(); },
   // Carte interactive : sélectionner une escale (ou fermer la fiche), sans faire sauter la page ni la carte
   "choisir-escale"(b) {
