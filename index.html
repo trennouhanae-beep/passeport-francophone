@@ -355,7 +355,7 @@ main.entree > :nth-child(n+5), main.entree > .colonne > :nth-child(n+5) { animat
 
 /* Couverture : globe qui flotte, vidéo de fond si elle existe */
 .couverture { position: relative; overflow: hidden; isolation: isolate; }
-.couverture > :not(.fond-media) { position: relative; z-index: 1; }
+.couverture > :not(.fond-media):not(.couture):not(.dorure) { position: relative; z-index: 2; }
 .couverture .globe { animation: flotter 5s ease-in-out infinite; }
 @keyframes flotter { 50% { transform: translateY(-6px) rotate(3deg); } }
 .fond-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1s; z-index: 0; pointer-events: none; }
@@ -428,6 +428,111 @@ main.entree .embleme .hib-fleur { transform-origin: 50px 50px; animation: eclore
 .tampons-bilan .tampon:nth-child(4) { animation-delay: .45s; } .tampons-bilan .tampon:nth-child(5) { animation-delay: .6s; }
 .tampons-bilan .tampon:nth-child(6) { animation-delay: .75s; } .tampons-bilan .tampon:nth-child(7) { animation-delay: .9s; }
 .stat strong { animation: monter .5s both; }
+
+/* =====================================================================
+   LE LIVRET : le jeu est un vrai passeport (couverture en cuir, pages de sécurité, pages qui tournent)
+   ===================================================================== */
+:root { --cuir: #5a1d24; --cuir-2: #7a2a30; --cuir-ombre: #2e0d12; --page: #fffaf0; --page-2: #f6ecd9; --lisere: #c9a25a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --cuir: #3d1117; --cuir-2: #561b22; --cuir-ombre: #1a0609; --page: #2a1f18; --page-2: #33261d; --lisere: #a8813c; } }
+:root[data-theme="dark"] { --cuir: #3d1117; --cuir-2: #561b22; --cuir-ombre: #1a0609; --page: #2a1f18; --page-2: #33261d; --lisere: #a8813c; }
+
+/* La barre du haut prend le cuir de la couverture */
+.barre { background: linear-gradient(180deg, var(--cuir-2), var(--cuir)); border-bottom-color: var(--lisere); box-shadow: 0 2px 10px -4px rgba(40, 8, 12, .5); }
+body::before { background: var(--cuir-2); }
+.marque { color: #e9c77e; }
+
+/* La page ouverte du passeport */
+main.livret { position: relative; width: calc(100% - 32px); max-width: 1000px; margin: 22px auto 44px; padding: 54px clamp(16px, 4vw, 44px) 56px calc(clamp(16px, 4vw, 44px) + 22px);
+  background-color: var(--page); background-image: var(--guilloche), linear-gradient(90deg, rgba(0,0,0,.07), transparent 40px);
+  background-size: 420px 210px, auto; border-radius: 6px 16px 16px 6px; border: 1px solid var(--trait);
+  box-shadow: 2px 2px 0 -1px var(--page-2), 2px 2px 0 0 var(--trait), 5px 5px 0 -1px var(--page-2), 5px 5px 0 0 var(--trait), 8px 8px 0 -1px var(--page-2), 8px 8px 0 0 var(--trait), 0 26px 50px -26px rgba(60, 20, 10, .45);
+  transform-origin: left center; }
+/* Reliure : couture dorée et ombre du pli */
+main.livret::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 22px; border-radius: 6px 0 0 6px;
+  background: linear-gradient(90deg, var(--cuir-ombre), var(--cuir) 60%, var(--cuir-2)); box-shadow: inset -2px 0 3px rgba(0,0,0,.35); }
+main.livret::after { content: ""; position: absolute; top: 14px; bottom: 14px; left: 10px; border-left: 2px dashed color-mix(in srgb, var(--lisere) 75%, transparent); pointer-events: none; }
+main.livret .page, main.livret .entete-escale { box-shadow: 0 1px 0 rgba(255,255,255,.5) inset, 0 6px 14px -12px rgba(60, 20, 10, .4); }
+main.livret .page { background: color-mix(in srgb, var(--carte) 88%, transparent); }
+/* Titre courant et folio, comme dans un vrai passeport */
+.tete-page, .pied-page { position: absolute; left: 22px; right: 0; display: flex; align-items: center; gap: 12px; padding: 0 clamp(16px, 4vw, 44px); font-family: var(--f-code); font-size: .7rem; letter-spacing: .22em; text-transform: uppercase; color: var(--encre-douce); pointer-events: none; }
+.tete-page { top: 18px; }
+.tete-page::after, .pied-page::before { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, color-mix(in srgb, var(--c, var(--lisere)) 70%, transparent), transparent); }
+.pied-page { bottom: 18px; justify-content: space-between; }
+.pied-page::before { order: 1; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--lisere) 60%, transparent), transparent); }
+.pied-page .folio { order: 2; font-size: .9rem; letter-spacing: .1em; color: var(--encre); border: 1px solid var(--lisere); border-radius: 999px; padding: 2px 12px; background: var(--page); }
+.pied-page .serie { order: 0; } .pied-page .serie-2 { order: 3; }
+.pied-page .pastille { width: 10px; height: 10px; border-radius: 50%; background: var(--c, var(--lisere)); display: inline-block; margin-right: 8px; vertical-align: middle; }
+/* Filigrane : le globe, très pâle, au centre de chaque page */
+.filigrane { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 0; overflow: hidden; border-radius: inherit; }
+.filigrane svg { width: min(60%, 420px); height: auto; color: var(--lisere); opacity: .09; }
+main.livret > :not(.filigrane):not(.tete-page):not(.pied-page) { position: relative; z-index: 1; }
+/* Écran d'accueil : le passeport est fermé, on ne voit que la couverture */
+main.ferme { padding-top: 34px; }
+
+/* La page qui tourne quand on change d'écran (en avant : depuis la droite ; en arrière : depuis la gauche) */
+@keyframes tourner-avant { 0% { transform: perspective(2200px) rotateY(-28deg) translateX(10px); opacity: .25; filter: brightness(.9); } 100% { transform: none; opacity: 1; filter: none; } }
+@keyframes tourner-arriere { 0% { transform: perspective(2200px) rotateY(22deg) translateX(-10px); opacity: .25; filter: brightness(.9); } 100% { transform: none; opacity: 1; filter: none; } }
+main.livret.tourne-avant { animation: tourner-avant .65s cubic-bezier(.2, .75, .25, 1) both; }
+main.livret.tourne-arriere { transform-origin: right center; animation: tourner-arriere .65s cubic-bezier(.2, .75, .25, 1) both; }
+
+/* Couverture en cuir : grain, couture, dorure à chaud */
+.couverture { background: radial-gradient(120% 90% at 30% 0%, var(--cuir-2), var(--cuir) 55%, var(--cuir-ombre)); border-left: 16px solid var(--cuir-ombre);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), inset 0 0 60px rgba(0,0,0,.35), 0 3px 0 -1px #e9dcc4, 0 3px 0 0 #cdb894, 0 6px 0 -1px #e9dcc4, 0 6px 0 0 #cdb894, 0 30px 50px -24px rgba(40, 8, 12, .7);
+  transform-origin: left center; }
+.couverture::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .5; mix-blend-mode: overlay; background-image: var(--grain); }
+.couverture .couture { position: absolute; inset: 12px; border: 2px dashed color-mix(in srgb, var(--lisere) 70%, transparent); border-radius: 8px 20px 20px 8px; z-index: 1; pointer-events: none; }
+.couverture .dorure { position: absolute; inset: 22px; border: 1px solid color-mix(in srgb, var(--lisere) 60%, transparent); outline: 1px solid color-mix(in srgb, var(--lisere) 35%, transparent); outline-offset: 4px; border-radius: 4px 14px 14px 4px; z-index: 1; pointer-events: none; }
+.couverture h1 { background: linear-gradient(100deg, #b8862f 0%, #f7dd9a 30%, #c8953a 50%, #fbe7b0 70%, #b8862f 100%); background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 1px 0 rgba(0,0,0,.5)); animation: dorure 6s ease-in-out infinite; }
+@keyframes dorure { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+.couverture .globe { color: #e9c77e !important; filter: drop-shadow(0 1px 0 rgba(0,0,0,.6)); }
+.couverture .pays { color: #e9c77e; }
+.puce-bio { width: 46px; height: 30px; color: #e9c77e; opacity: .9; }
+/* Ouverture de la couverture au moment d'embarquer */
+@keyframes ouvrir-couverture { 0% { transform: perspective(1800px) rotateY(0); } 100% { transform: perspective(1800px) rotateY(-112deg); opacity: .4; } }
+.couverture.ouvre { animation: ouvrir-couverture .85s cubic-bezier(.55, .05, .6, .4) forwards; }
+.couverture.ouvre + .page { animation: monter .6s .3s both; }
+
+/* Album photo du pays (entre le vol et l'atterrissage) : des polaroïds scotchés sur la page */
+.album h2 { display: flex; align-items: center; gap: 10px; color: color-mix(in srgb, var(--c) var(--mix-titre), var(--encre)); }
+.polaroids { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(16px, 3vw, 28px); padding: 10px 4px 6px; }
+.polaroid { --r: calc((var(--i) - 1.5) * 2.4deg); margin: 0; background: #fffdf8; padding: 10px 10px 0; border-radius: 3px; position: relative;
+  box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 12px 22px -14px rgba(60, 20, 10, .55); transform: rotate(var(--r));
+  animation: poser .55s cubic-bezier(.2, 1.3, .4, 1) backwards; animation-delay: calc(.25s + var(--i) * .32s); }
+.polaroid:nth-child(even) { --r: calc((1.5 - var(--i)) * 2.1deg + 1deg); }
+.polaroid::before { content: ""; position: absolute; top: -10px; left: 50%; width: 74px; height: 22px; transform: translateX(-50%) rotate(-3deg);
+  background: color-mix(in srgb, var(--c) 22%, rgba(255, 244, 214, .85)); box-shadow: 0 1px 2px rgba(0,0,0,.1); }
+.polaroid .cliche { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: color-mix(in srgb, var(--c) 10%, #efe6d4); display: grid; place-items: center; }
+.polaroid .cliche .embleme { width: 42%; height: auto; opacity: .55; animation: none; }
+.cliche-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .6s; }
+.cliche-media.pret { opacity: 1; }
+.polaroid figcaption { font-family: var(--f-titre); font-style: italic; font-size: clamp(.92rem, 2.4vw, 1.08rem); color: #3a2a1e; text-align: center; padding: 10px 6px 14px; line-height: 1.25; }
+.polaroid:hover { transform: rotate(0) scale(1.03); z-index: 2; transition: transform .25s; }
+@keyframes poser { from { opacity: 0; transform: translateY(-26px) rotate(calc(var(--r) - 8deg)) scale(1.08); } to { opacity: 1; transform: rotate(var(--r)); } }
+@media (max-width: 420px) { .polaroids { gap: 14px; } .polaroid { padding: 7px 7px 0; } .polaroid figcaption { padding: 7px 4px 10px; } }
+
+/* Page d'identité (écran de l'équipage) */
+.identite { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 14px 20px; padding: 18px; border-radius: 10px; background: linear-gradient(135deg, color-mix(in srgb, #2a8a8a 9%, var(--page)), color-mix(in srgb, #c0506a 8%, var(--page))); border: 1px solid var(--trait); position: relative; overflow: hidden; }
+.identite::before { content: ""; position: absolute; inset: 0; background-image: var(--guilloche); background-size: 300px 150px; opacity: .9; pointer-events: none; }
+.identite > * { position: relative; }
+.identite .photo { width: 120px; aspect-ratio: 4 / 5; border-radius: 6px; background: color-mix(in srgb, var(--encre) 8%, var(--page)); border: 1px solid var(--trait); display: grid; place-items: center; overflow: hidden; }
+.identite .photo svg { width: 70%; color: color-mix(in srgb, var(--encre) 35%, transparent); }
+.identite dl { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; }
+.identite dt { font-family: var(--f-code); font-size: .64rem; letter-spacing: .14em; text-transform: uppercase; color: var(--encre-douce); }
+.identite dd { margin: 2px 0 0; font-family: var(--f-code); font-weight: 600; text-transform: uppercase; overflow-wrap: anywhere; }
+.identite .large { grid-column: 1 / -1; }
+.identite .mrz { grid-column: 1 / -1; margin: 0; background: color-mix(in srgb, var(--page) 70%, transparent); }
+.identite .hologramme { position: absolute; right: 14px; top: 14px; width: 54px; height: 54px; border-radius: 50%; background: conic-gradient(from 0deg, #ffd6e0, #d6f5ff, #e6ffd6, #fff1c2, #ffd6e0); opacity: .55; mix-blend-mode: multiply; animation: holo 8s linear infinite; }
+@keyframes holo { to { transform: rotate(360deg); } }
+@media (max-width: 560px) {
+  main.livret { width: calc(100% - 20px); padding: 46px 14px 52px 30px; margin-top: 14px; }
+  main.livret::before { width: 16px; } main.livret::after { left: 7px; }
+  .tete-page, .pied-page { left: 16px; padding: 0 14px; font-size: .62rem; letter-spacing: .14em; }
+  .pied-page .serie, .pied-page .serie-2 { display: none; }
+  .identite { grid-template-columns: 84px minmax(0, 1fr); padding: 14px; }
+  .identite .photo { width: 84px; }
+  .identite dl { grid-template-columns: minmax(0, 1fr); }
+}
+@media print { main.livret { box-shadow: none; } main.livret::before, main.livret::after, .tete-page, .pied-page, .filigrane { display: none; } }
 
 /* Confettis */
 canvas.confettis { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
@@ -932,6 +1037,8 @@ const son = {
     g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(.07, t + .05); g.gain.exponentialRampToValueAtTime(0.0001, t + .26);
     s.connect(filt).connect(g).connect(o); s.start(t); s.stop(t + .3);
   }),
+  // Déclencheur d'appareil photo : deux claquements rapides et un petit souffle
+  photo: () => sfx((ac, o, t) => { instr.souffle(ac, o, t, { dur: .025, vol: .22, freq: 3200, type: "bandpass", q: 4 }); instr.souffle(ac, o, t + .07, { dur: .04, vol: .16, freq: 2200, type: "bandpass", q: 3 }); instr.souffle(ac, o, t + .09, { dur: .18, vol: .04, freq: 6000 }); }),
   cadran: () => sfx((ac, o, t) => { instr.souffle(ac, o, t, { dur: .03, vol: .2, freq: 2500, type: "bandpass", q: 6 }); instr.peau(ac, o, t, { f0: 900, f1: 500, dur: .04, vol: .08 }); }),
   coffre: () => sfx((ac, o, t) => {
     instr.souffle(ac, o, t, { dur: .08, vol: .3, freq: 1500, type: "bandpass", q: 4 });
@@ -1367,14 +1474,52 @@ function bulleGuide(texte, intro = true) {
 /* =====================================================================
    ÉCRANS
    ===================================================================== */
+// Pictogramme de passeport électronique, doré au bas de la couverture
+const PUCE_BIO = `<svg class="puce-bio" viewBox="0 0 46 30" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="2" width="42" height="26" rx="3"/><path d="M2 11h12M32 11h12M2 19h12M32 19h12"/><circle cx="23" cy="15" r="6"/></svg>`;
+
+// Papier de sécurité : un guillochis (ondes entrelacées vert d'eau et rose), dessiné une fois au chargement
+(function papierSecurite() {
+  const W = 420, H = 210; let d = "";
+  const onde = (y0, amp, per, phase) => { let p = `M0 ${y0}`; for (let x = 0; x <= W; x += 6) p += ` L${x} ${(y0 + amp * Math.sin((x / per) * 2 * Math.PI + phase)).toFixed(1)}`; return p; };
+  for (let k = 0; k < 14; k++) d += `<path d="${onde(8 + k * 15, 7, 105, k * .45)}" stroke="#2a8a8a" stroke-opacity=".10"/>`;
+  for (let k = 0; k < 14; k++) d += `<path d="${onde(15 + k * 15, 6, 140, -k * .6 + 1)}" stroke="#c0506a" stroke-opacity=".08"/>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" fill="none" stroke-width=".8">${d}</svg>`;
+  const grain = `<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0"/></filter><rect width="100%" height="100%" filter="url(#g)"/></svg>`;
+  const r = document.documentElement.style;
+  r.setProperty("--guilloche", `url("data:image/svg+xml,${encodeURIComponent(svg)}")`);
+  r.setProperty("--grain", `url("data:image/svg+xml,${encodeURIComponent(grain)}")`);
+})();
+
+/* Le livret : chaque écran est une page numérotée du passeport */
+function folioEcran() {
+  const ec = ui.transit ? "transit" : etat.ecran;
+  if (ec === "escale") { const e = escaleParId(etat.escaleActive); const i = ESCALES.indexOf(e); return e ? { n: 6 + i, titre: `Visa · ${e.nom}`, c: e.teinte || e.couleur } : { n: 5, titre: "Visas et escales" }; }
+  if (ec === "transit") { const d = ui.transit.vers === "cheznous" ? null : escaleParId(ui.transit.vers); return { n: d ? 6 + ESCALES.indexOf(d) : 4, titre: d ? (ui.transit.album ? `Album · ${d.nom}` : `En vol vers ${d.nom}`) : "Décollage", c: d ? d.teinte || d.couleur : null }; }
+  return ({
+    capitaine: { n: 1, titre: "Message de la Capitaine" }, equipage: { n: 2, titre: "Page d'identité" }, guide: { n: 3, titre: "Compagnon de voyage" },
+    cheznous: { n: 4, titre: "Escale 0 · Chez nous" }, carte: { n: 5, titre: "Visas et escales" }, carnet: { n: 20, titre: "Carnet de voyage · notes" },
+    coffre: { n: 12, titre: "Le coffre" }, mission: { n: 13, titre: "Dernière mission" }, bilan: { n: 14, titre: "Retour au pays" },
+    enseignante: { n: 0, titre: "Espace enseignante" },
+  })[ec] || { n: 0, titre: "" };
+}
+function decorLivret() {
+  const f = folioEcran();
+  const serie = "PF" + String(etat.partieId || "").replace(/[^0-9a-f]/gi, "").slice(0, 7).toUpperCase();
+  return `<div class="filigrane" aria-hidden="true">${GLOBE}</div>
+    <div class="tete-page" aria-hidden="true" style="${f.c ? `--c:${f.c}` : ""}"><span>Passeport francophone · ${esc(f.titre)}</span></div>
+    <div class="pied-page" aria-hidden="true" style="${f.c ? `--c:${f.c}` : ""}"><span class="serie">N° ${serie}</span>${f.n ? `<span class="folio"><span class="pastille"></span>${f.n}</span>` : ""}<span class="serie-2">${f.c ? "Visa" : "Page"}</span></div>`;
+}
+
 function ecranAccueil() {
   return `<div class="colonne">
     <section class="couverture" aria-label="Couverture du passeport">
       ${media("couverture", "videos/couverture.mp4", "images/couverture.jpg", "fond-media")}
+      <span class="couture" aria-hidden="true"></span><span class="dorure" aria-hidden="true"></span>
       <span class="pays">MONDE FRANCOPHONE</span>${GLOBE}
       <h1>PASSEPORT<br>FRANCOPHONE</h1>
       <p class="sous">${ESCALES.map((e) => esc(e.nom)).join(" · ")}</p>
       <button class="btn or" data-action="embarquer">${sauvegardeTrouvee || etat.debutJeu ? "REPRENDRE LE VOYAGE" : "ON EMBARQUE ?"}</button>
+      ${PUCE_BIO}
     </section>
     <section class="page">
       <p class="bienvenue">B I E N V E N U E !</p>
@@ -1405,6 +1550,23 @@ function ecranCapitaine() {
     <div class="rangee"><button class="btn or" data-action="aller" data-ecran="equipage">Former l'équipage</button></div>
   </div>`;
 }
+// Page d'identité du passeport : elle se remplit pendant que l'équipe tape son nom et ses prénoms
+function pageIdentite() {
+  const date = (d) => d.toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase();
+  const auj = new Date();
+  return `<section class="identite" aria-label="Page d'identité du passeport">
+    <span class="hologramme" aria-hidden="true"></span>
+    <div class="photo" aria-hidden="true"><svg viewBox="0 0 60 70" fill="currentColor"><circle cx="30" cy="24" r="13"/><path d="M6 70c2-16 12-24 24-24s22 8 24 24Z"/></svg></div>
+    <dl>
+      <div class="large"><dt>Type / Code · Passeport n°</dt><dd>P · FR · PF${String(etat.partieId || "").replace(/[^0-9a-f]/gi, "").slice(0, 7).toUpperCase()}</dd></div>
+      <div class="large"><dt>Nom de l'équipe</dt><dd id="id-nom">${esc(etat.equipe.nom) || "…"}</dd></div>
+      <div class="large"><dt>Voyageurs</dt><dd id="id-membres">${membresInscrits().map(esc).join(" · ") || "…"}</dd></div>
+      <div><dt>Délivré le</dt><dd>${date(auj)}</dd></div>
+      <div><dt>Valable</dt><dd>${REGLAGES.DUREE_JEU_MIN} minutes</dd></div>
+    </dl>
+    <pre class="mrz" id="id-mrz" aria-hidden="true">${esc(mrz())}</pre>
+  </section>`;
+}
 function ecranEquipage() {
   const m = etat.equipe.membres;
   const inscrits = membresInscrits().length;
@@ -1420,6 +1582,7 @@ function ecranEquipage() {
   }
   return `<div class="colonne">
     ${filAriane(1)}
+    ${pageIdentite()}
     <section class="page">
       <span class="etiquette">Étape 1 · l'équipage</span>
       <h2>Votre équipe</h2>
@@ -1528,6 +1691,7 @@ function ecranCarte() {
 function ecranTransit() {
   const t = ui.transit;
   const dest = t.vers === "cheznous" ? null : escaleParId(t.vers);
+  if (dest && t.album) return albumHTML(dest);
   const reste = Math.max(0, 3 - (Date.now() - t.debut) / 1000);
   return `<div class="colonne"><section class="page transit">
       <span class="etiquette">${dest ? "Arrivée à destination…" : "Embarquement…"}</span>
@@ -1538,8 +1702,49 @@ function ecranTransit() {
       ${dest ? carteVol({ avion: arc(t.depuis, dest) }) : ""}
       <p class="compte" id="compte">00:0${Math.ceil(reste)}</p>
       <p class="ambiance">${esc(dest ? dest.ambiance : "Les moteurs chauffent. Mais avant de partir, une première escale vous attend : chez vous.")}</p>
-      <button class="btn second" data-action="fin-transit">Passer</button>
+      <button class="btn second" data-action="${dest && ALBUMS[dest.id] ? "voir-album" : "fin-transit"}">Passer</button>
     </section></div>`;
+}
+
+/* Album photo de chaque pays : il s'ouvre pendant le vol, avant l'atterrissage.
+   Les légendes reprennent uniquement le contenu des documents de l'escale. Images : images/album/<fichier>.jpg */
+const ALBUMS = {
+  quebec: [["escales/quebec", "La cabane à sucre, au temps des sucres"], ["album/quebec-tire", "La tire d'érable versée sur la neige"],
+    ["album/quebec-carnaval", "Le Carnaval de Québec, en plein hiver"], ["album/quebec-feux", "Les feux de la Fête nationale, le 24 juin"]],
+  senegal: [["escales/senegal", "Les pirogues colorées de Saint-Louis"], ["album/senegal-thieboudiene", "Le thiéboudiène, dans le grand plat commun"],
+    ["album/senegal-teranga", "La teranga : on offre le meilleur à l'invité"], ["album/senegal-tabaski", "Les habits neufs de la Tabaski"]],
+  maroc: [["escales/maroc", "Une ruelle de la médina de Fès"], ["album/maroc-the", "Le thé à la menthe, servi très sucré"],
+    ["album/maroc-souk", "Le souk : épices, tapis et babouches"], ["album/maroc-tajine", "Le tajine et son couvercle pointu"]],
+  martinique: [["album/martinique-carnaval", "Les défilés du carnaval"], ["album/martinique-vaval", "Vaval, le roi du carnaval"],
+    ["album/martinique-accras", "Les accras et le colombo"], ["album/martinique-madras", "Le madras, un tissu à carreaux colorés"]],
+  madagascar: [["escales/madagascar", "Les rizières des Hautes Terres"], ["album/madagascar-romazava", "Le romazava, servi avec du riz"],
+    ["album/madagascar-bredes", "Les brèdes, des feuilles vertes, au marché"], ["album/madagascar-moramora", "« Mora mora » : on prend le temps"]],
+  reunion: [["escales/reunion", "Le Piton de la Fournaise"], ["album/reunion-cari", "Le cari, avec du riz et des « grains »"],
+    ["album/reunion-maloya", "Les instruments du maloya"], ["album/reunion-fetkaf", "La Fèt Kaf, le 20 décembre"]],
+};
+// Les bonnes prépositions : « souvenirs du Maroc », « atterrir en Martinique »…
+const PREP = { quebec: ["du Québec", "au Québec"], senegal: ["du Sénégal", "au Sénégal"], maroc: ["du Maroc", "au Maroc"],
+  martinique: ["de la Martinique", "en Martinique"], madagascar: ["de Madagascar", "à Madagascar"], reunion: ["de La Réunion", "à La Réunion"] };
+function albumHTML(dest) {
+  const photos = ALBUMS[dest.id] || [];
+  const [de, a] = PREP[dest.id] || ["de " + dest.nom, "à " + dest.nom];
+  return `<div class="colonne"><section class="page album" style="--c:${dest.teinte || dest.couleur}">
+      <span class="etiquette">Album de voyage · ${esc(dest.region)}</span>
+      <h2>${drapeauMini(dest)} Souvenirs ${esc(de)}</h2>
+      <p class="doux">Pendant le vol, feuilletez l'album : chaque photo annonce ce que vous allez découvrir. Lisez les légendes à voix haute !</p>
+      <div class="polaroids">${photos.map(([f, legende], i) => `<figure class="polaroid" style="--i:${i}">
+          <div class="cliche">${embleme(dest.id, dest.teinte || dest.couleur)}${media("album-" + f, null, `images/${f}.jpg`, "cliche-media")}</div>
+          <figcaption>${esc(legende)}</figcaption></figure>`).join("")}</div>
+      <div class="rangee" style="justify-content:center"><button class="btn or" data-action="fin-transit">Atterrir ${esc(a)} →</button></div>
+    </section></div>`;
+}
+// Après le vol : l'album s'ouvre s'il existe pour cette destination, sinon on atterrit directement
+function apresVol(t) {
+  if (!t || ui.transit !== t) return;
+  if (!ALBUMS[t.vers] || !ALBUMS[t.vers].length) return finTransit();
+  if (t.album) return;
+  t.album = true; afficher(); window.scrollTo({ top: 0 });
+  ALBUMS[t.vers].forEach((_, i) => setTimeout(() => { if (ui.transit === t) son.photo(); }, 250 + i * 320));
 }
 
 function ecranEscale() {
@@ -2002,7 +2207,10 @@ function afficher() {
   const app = document.getElementById("app");
   // On garde les vidéos et images déjà chargées d'un affichage à l'autre (sinon elles repartiraient de zéro à chaque clic)
   const garde = new Map([...app.querySelectorAll("[data-media]")].map((n) => [n.dataset.media, n]));
-  app.innerHTML = fn();
+  // Accueil : le passeport est fermé (couverture seule) ; ailleurs, on est sur une page ouverte du livret
+  const ouvert = ui.transit || etat.ecran !== "accueil";
+  app.classList.toggle("livret", Boolean(ouvert)); app.classList.toggle("ferme", !ouvert);
+  app.innerHTML = (ouvert ? decorLivret() : "") + fn();
   app.querySelectorAll("[data-media]").forEach((n) => {
     const o = garde.get(n.dataset.media); if (!o) return;
     n.replaceWith(o);
@@ -2011,8 +2219,13 @@ function afficher() {
   // Animation d'entrée seulement quand on change d'écran (pas à chaque mise à jour)
   const cle = ui.transit ? "transit" : etat.ecran + ":" + (etat.escaleActive || "");
   if (cle !== ui.dernierEcran) {
-    app.classList.remove("entree"); void app.offsetWidth; app.classList.add("entree"); ui.dernierEcran = cle;
-    clearTimeout(ui.finEntree); ui.finEntree = setTimeout(() => app.classList.remove("entree"), 1100);
+    // La page tourne vers l'avant ou vers l'arrière selon le numéro de page
+    const n = folioEcran().n, sens = ui.dernierFolio == null || n >= ui.dernierFolio ? "tourne-avant" : "tourne-arriere";
+    ui.dernierFolio = n;
+    app.classList.remove("entree", "tourne-avant", "tourne-arriere"); void app.offsetWidth;
+    app.classList.add("entree"); if (ouvert && ui.dernierEcran !== null) app.classList.add(sens);
+    ui.dernierEcran = cle;
+    clearTimeout(ui.finEntree); ui.finEntree = setTimeout(() => app.classList.remove("entree", "tourne-avant", "tourne-arriere"), 1100);
   }
   musique.pour(themeEcran());
   afficherBarre();
@@ -2030,7 +2243,7 @@ function lancerTransit(vers, depuisId) {
   const t = { vers, depuis, debut: Date.now() };
   ui.transit = t;
   // Sécurité : si l'animation est suspendue (onglet en arrière-plan), on arrive quand même
-  setTimeout(() => { if (ui.transit === t) finTransit(); }, 3800);
+  setTimeout(() => apresVol(t), 3800);
   son.avion();
   window.scrollTo({ top: 0 });
   afficher();
@@ -2060,7 +2273,8 @@ function animerAvion() {
       av.setAttribute("transform", `translate(${p.x} ${p.y}) rotate(${ang})`);
       tr.style.strokeDashoffset = L * (1 - e);
     }
-    if (k < 1) requestAnimationFrame(pas); else setTimeout(finTransit, 250);
+    const t = ui.transit;
+    if (k < 1) requestAnimationFrame(pas); else setTimeout(() => apresVol(t), 250);
   };
   requestAnimationFrame(pas);
 }
@@ -2069,7 +2283,13 @@ function animerAvion() {
    ACTIONS
    ===================================================================== */
 const actions = {
-  embarquer() { if (!etat.debutJeu) aller("capitaine"); else aller(etat.ecran === "accueil" ? "carte" : etat.ecran); },
+  embarquer() {
+    const suite = () => { if (!etat.debutJeu) aller("capitaine"); else aller(etat.ecran === "accueil" ? "carte" : etat.ecran); };
+    // La couverture s'ouvre comme un vrai passeport, puis on arrive sur la première page
+    const c = document.querySelector(".couverture");
+    if (!c || c.classList.contains("ouvre") || matchMedia("(prefers-reduced-motion: reduce)").matches) return suite();
+    son.page(); c.classList.add("ouvre"); setTimeout(suite, 800);
+  },
   aller(b) { aller(b.dataset.ecran); },
   son() { etat.son = !etat.son; sauver(); afficherBarre(); son.clic(); },
   musique() { etat.musique = !etat.musique; sauver(); afficherBarre(); musique.pour(themeEcran()); },
@@ -2119,6 +2339,7 @@ const actions = {
     lancerTransit(id, b.dataset.depuis || etat.escaleActive);
   },
   "fin-transit"() { finTransit(); },
+  "voir-album"() { apresVol(ui.transit); },
   lire() { lireDocument(escaleParId(etat.escaleActive)); },
   repondre(b) {
     const e = escaleParId(etat.escaleActive);
@@ -2260,6 +2481,10 @@ document.addEventListener("input", (ev) => {
     if (t.dataset.equipe === "nom") equipe.nom = t.value;
     else { equipe.membres[+t.dataset.membre] = t.value; if (rolesTires()) { equipe.roles = {}; document.getElementById("liste-roles").innerHTML = ""; } }
     maj({ equipe }, { rendu: false });
+    // La page d'identité se remplit en direct
+    const idNom = document.getElementById("id-nom"); if (idNom) idNom.textContent = etat.equipe.nom || "…";
+    const idM = document.getElementById("id-membres"); if (idM) idM.textContent = membresInscrits().join(" · ") || "…";
+    const idMrz = document.getElementById("id-mrz"); if (idMrz) idMrz.textContent = mrz();
     const n = membresInscrits().length;
     const ok = equipageComplet();
     document.getElementById("btn-tirer").disabled = n < 3;
