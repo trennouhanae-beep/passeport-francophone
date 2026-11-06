@@ -896,7 +896,8 @@ const REGLAGES = {
   PRESENTATION_MIN: 2,
   // Dernière mission : adresse où les élèves déposent leur enregistrement (dossier Google Drive, Padlet, Moodle, formulaire…).
   // Laisser vide pour cacher le bouton « Déposer ».
-  LIEN_DEPOT: "",
+  LIEN_DEPOT: "https://digipad.app/p/1969325/81d79e72d91fd8",
+  NOM_DEPOT: "le Digipad", // affiché sur le bouton : « Déposer l'enregistrement sur le Digipad »
 };
 
 /* =====================================================================
@@ -2650,7 +2651,7 @@ function nomFichierExpose() {
 }
 function enregistrementHTML() {
   const depot = REGLAGES.LIEN_DEPOT
-    ? `<div class="depot"><a class="btn${enreg.etat === "fini" ? " or" : " second"}" href="${esc(REGLAGES.LIEN_DEPOT)}" target="_blank" rel="noopener noreferrer">Déposer l'enregistrement ↗</a>
+    ? `<div class="depot"><a class="btn${enreg.etat === "fini" ? " or" : " second"}" href="${esc(REGLAGES.LIEN_DEPOT)}" target="_blank" rel="noopener noreferrer">Déposer l'enregistrement ${REGLAGES.NOM_DEPOT ? "sur " + esc(REGLAGES.NOM_DEPOT) : ""} ↗</a>
         <span class="doux petit">${enreg.etat === "fini" ? "Téléchargez d'abord le fichier, puis déposez-le sur la page qui s'ouvre." : "Vous avez enregistré avec un téléphone ? Déposez le fichier ici."}</span></div>` : "";
   let corps;
   if (!micOk) corps = `<p class="msg-coffre">Ce navigateur ne permet pas d'enregistrer. Enregistrez l'exposé avec un téléphone.</p>`;
