@@ -21,7 +21,7 @@ L'escale du Maroc (Yasmine, guide à Fès) reprend le document et les trois ques
 | Ajout | Principe de conception |
 |---|---|
 | **Escale 0 « Chez nous »** juste après le décollage | Le Word l'annonce (« votre culture est votre première escale ») mais la version en ligne ne l'avait pas. On *part de soi* : on active ce que les élèves savent déjà, et on obtient la seconde moitié de la comparaison finale. |
-| **Tirage du guide** (Aminata, Léon, Mireille, Tahina) | Repris du Genially. Le guide donne l'indice avec sa propre voix : l'aide fait partie du récit. |
+| **Tirage du guide** (Awa, Léon, Mireille, Teva) | Repris du Genially. Le guide donne l'indice avec sa propre voix : l'aide fait partie du récit. |
 | **Transition animée** sur une carte de vol | Repris du Genially. Elle rythme le jeu et situe chaque communauté sur la carte. |
 | **Épreuve 2 : lexique** (associer 3 mots à leur définition) | Fait travailler le vocabulaire culturel. Les mots et définitions viennent *uniquement* des documents du Word. Une fois le lexique complet, un bouton reporte les trois mots dans « Trois mots nouveaux » du carnet. |
 | **Écouter le document** (synthèse vocale, voix québécoise si le poste en a une) | Ajoute la compréhension orale (« Écoutez l'histoire de mon île »). Le paragraphe en cours de lecture est surligné. |

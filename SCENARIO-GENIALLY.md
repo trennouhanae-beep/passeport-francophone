@@ -121,10 +121,10 @@ Gardez le **Companion Randomizer** du modèle. Remplacez les 4 fenêtres :
 
 | Fenêtre | Nom | Texte |
 |---|---|---|
-| 1 | **Aminata, la cartographe** | « Un bon voyageur lit la carte… et le texte, paragraphe par paragraphe. » |
-| 2 | **Léon, le reporter** | « Qui ? Quoi ? Quand ? Un journaliste cherche toujours les mots-clés. » |
+| 1 | **Awa, la cartographe** | « Un bon voyageur lit la carte… et le texte, paragraphe par paragraphe. » |
+| 2 | **Léon, le rapporteur** | « Qui ? Quoi ? Quand ? Un bon rapporteur note toujours les mots-clés. » |
 | 3 | **Mireille, la conteuse** | « Chaque histoire a un début, un milieu et une fin : écoutez-la bien. » |
-| 4 | **Tahina, l'explorateur** | « Prenez votre temps, observez, et la piste apparaîtra. » |
+| 4 | **Teva, l'explorateur** | « Prenez votre temps, observez, et la piste apparaîtra. » |
 
 Bouton de chaque fenêtre : **C'EST PARTI !** → diapo suivante. Remplacez les photos du modèle par des illustrations ou des initiales dans un cercle.
 
