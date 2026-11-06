@@ -286,6 +286,19 @@ tr.actif td { background: color-mix(in srgb, var(--or) 16%, transparent); }
 .coches input { width: 1.2em; height: 1.2em; margin-top: .25em; accent-color: var(--or); flex: none; }
 .avis { background: color-mix(in srgb, var(--or) 14%, var(--carte)); border: 1px solid color-mix(in srgb, var(--or) 45%, var(--trait)); border-radius: 8px; padding: 12px 14px; }
 
+/* Préparation : fil d'étapes (briefing → équipage → guide) */
+.fil { display: flex; gap: 6px; flex-wrap: wrap; margin: 0; }
+.fil span { font-family: var(--f-code); font-size: .75rem; letter-spacing: .04em; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--trait); background: var(--carte); color: var(--encre-douce); }
+.fil span.ici { border-color: var(--or); color: var(--encre); font-weight: 600; }
+
+/* Bilan */
+.tampons-bilan { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.stat { background: var(--papier-2); border-radius: 8px; padding: 12px 14px; display: grid; gap: 2px; align-content: start; }
+.stat strong { font-family: var(--f-code); font-size: 1.6rem; font-variant-numeric: tabular-nums; color: var(--or); }
+.stat span { font-size: .9rem; color: var(--encre-douce); }
+@media (max-width: 640px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
 /* Enseignante */
 .etat-pill { display: inline-block; font-family: var(--f-code); font-size: .78rem; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--trait); }
 .etat-pill.ok { background: var(--ok-fond); border-color: var(--ok); }
@@ -312,6 +325,99 @@ footer { max-width: 1040px; margin: 0 auto; padding-block: 0 32px; padding-left:
   .case { width: 42px; height: 52px; }
   .cadran input { width: 46px; height: 58px; }
 }
+/* =====================================================================
+   ANIMATIONS ET MÉDIAS (Higgsfield)
+   ===================================================================== */
+/* Entrée d'écran : les blocs montent l'un après l'autre */
+@keyframes monter { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+main.entree > *, main.entree > .colonne > * { animation: monter .5s cubic-bezier(.2,.8,.3,1) both; }
+main.entree > :nth-child(2), main.entree > .colonne > :nth-child(2) { animation-delay: .07s; }
+main.entree > :nth-child(3), main.entree > .colonne > :nth-child(3) { animation-delay: .14s; }
+main.entree > :nth-child(4), main.entree > .colonne > :nth-child(4) { animation-delay: .21s; }
+main.entree > :nth-child(n+5), main.entree > .colonne > :nth-child(n+5) { animation-delay: .28s; }
+
+/* Boutons : réponse au doigt, reflet sur les boutons dorés */
+.btn { transition: transform .12s, background .15s, border-color .15s, box-shadow .2s; }
+.btn:active:not(:disabled) { transform: scale(.97); }
+.btn.or { position: relative; overflow: hidden; }
+.btn.or:not(:disabled)::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.45) 50%, transparent 65%); transform: translateX(-120%); animation: reflet 3.6s ease-in-out infinite 1s; pointer-events: none; }
+@keyframes reflet { 0%, 70% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+.couverture .btn.or { animation: respirer 2.4s ease-in-out infinite; }
+@keyframes respirer { 50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--or) 25%, transparent); } }
+
+/* Couverture : globe qui flotte, vidéo de fond si elle existe */
+.couverture { position: relative; overflow: hidden; isolation: isolate; }
+.couverture > :not(.fond-media) { position: relative; z-index: 1; }
+.couverture .globe { animation: flotter 5s ease-in-out infinite; }
+@keyframes flotter { 50% { transform: translateY(-6px) rotate(3deg); } }
+.fond-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1s; z-index: 0; pointer-events: none; }
+.couverture .fond-media.pret { opacity: .38; }
+.couverture::after { content: ""; position: absolute; inset: 0; z-index: 0; background: radial-gradient(90% 70% at 50% 40%, transparent, color-mix(in srgb, var(--nuit) 80%, transparent)); pointer-events: none; }
+/* En-tête d'escale : image ou vidéo fondue sur la droite, le texte reste lisible */
+.entete-escale { isolation: isolate; }
+.entete-escale > :not(.fond-media):not(.bande-drapeau) { position: relative; z-index: 1; }
+.entete-escale > .bande-drapeau { z-index: 2; display: flex; gap: 0; }
+.entete-escale .fond-media { -webkit-mask-image: linear-gradient(90deg, transparent 15%, #000 70%); mask-image: linear-gradient(90deg, transparent 15%, #000 70%); }
+.entete-escale .fond-media.pret { opacity: .5; }
+@media (max-width: 560px) { .entete-escale .fond-media.pret { opacity: .22; } }
+.embleme { animation: flotter 6s ease-in-out infinite; }
+
+/* Transit : le hublot de l'avion, avec nuages (ou la vidéo de la destination) */
+.hublot { --c: var(--or); position: relative; width: min(220px, 60vw); aspect-ratio: 4 / 5; border-radius: 46% / 40%; overflow: hidden;
+  border: 12px solid color-mix(in srgb, var(--papier-2) 70%, #cfc6b8); box-shadow: inset 0 0 0 3px rgba(0,0,0,.12), inset 0 10px 30px rgba(0,0,0,.35), 0 10px 30px -12px rgba(0,0,0,.5);
+  animation: tanguer 3s ease-in-out infinite; }
+@keyframes tanguer { 0%, 100% { transform: rotate(-1.5deg); } 50% { transform: rotate(1.5deg) translateY(-3px); } }
+.hublot-ciel { position: absolute; inset: 0; display: grid; place-items: center; background: linear-gradient(180deg, #7fb6e6, color-mix(in srgb, var(--c) 35%, #f6d9a8)); }
+.hublot-ciel .embleme { width: 46%; height: auto; opacity: .9; filter: drop-shadow(0 4px 6px rgba(0,0,0,.25)); animation: none; }
+.nuage { position: absolute; height: 26px; border-radius: 50px; background: #fff; filter: blur(3px); opacity: .9; animation: nuage 2.2s linear infinite; }
+.nuage.n1 { width: 90px; top: 18%; animation-duration: 2s; }
+.nuage.n2 { width: 130px; top: 55%; animation-duration: 1.5s; animation-delay: -.6s; }
+.nuage.n3 { width: 70px; top: 80%; animation-duration: 2.6s; animation-delay: -1.2s; }
+@keyframes nuage { from { left: 110%; } to { left: -70%; } }
+.hublot-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .6s; }
+.hublot-media.pret { opacity: 1; }
+.hublot::after { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,.35), transparent 40%); pointer-events: none; }
+.transit .compte { animation: battre 1s ease-in-out infinite; }
+@keyframes battre { 50% { transform: scale(1.08); } }
+
+/* Carte : les escales à visiter appellent doucement */
+.carte-vol .pulse { fill: none; stroke: var(--or); stroke-width: 2; opacity: 0; animation: appel 2.8s ease-out infinite; pointer-events: none; }
+@keyframes appel { 0% { r: 10px; opacity: .9; } 100% { r: 30px; opacity: 0; } }
+.feuillet { transition: transform .2s, border-color .15s, box-shadow .2s; }
+.feuillet:hover { box-shadow: 0 10px 22px -14px rgba(74, 36, 23, .5); }
+
+/* Quiz, lexique, tampon : réactions immédiates */
+.option.vient.juste { animation: pop .4s cubic-bezier(.2,1.6,.4,1); }
+@keyframes pop { 40% { transform: scale(1.04); } }
+.option.vient.faux { animation: secouer .35s; }
+.question.vient .retour { animation: monter .3s ease-out both; }
+.tuile.trouve.vient { animation: trouve .6s ease-out; }
+@keyframes trouve { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 60%, transparent); } 100% { box-shadow: 0 0 0 12px transparent; } }
+.tampon.anime { position: relative; }
+.tampon.anime::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 3px solid var(--c); opacity: 0; animation: encre .8s .25s ease-out both; }
+@keyframes encre { 0% { transform: scale(.8); opacity: .7; } 100% { transform: scale(1.6); opacity: 0; } }
+.chrono.urgent { animation: urgence 1s ease-in-out infinite; }
+@keyframes urgence { 50% { box-shadow: 0 0 0 4px rgba(179, 38, 30, .35); } }
+.guide.vise .av { animation: pop .2s; }
+
+/* Coffre : la serrure tremble, puis s'ouvre ; vidéo d'ouverture si elle existe */
+.coffre-scene { display: grid; justify-items: center; gap: 14px; width: 100%; }
+.coffre-media { width: 100%; max-width: 520px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 10px; opacity: 0; transition: opacity .6s; box-shadow: 0 12px 30px -16px rgba(0,0,0,.6); }
+.coffre-media.pret { opacity: 1; }
+.coffre-scene.ouvre .serrure { animation: deverrouiller 1s cubic-bezier(.3,1.4,.5,1) both; }
+@keyframes deverrouiller { 0% { transform: rotate(0); } 15% { transform: rotate(-8deg); } 30% { transform: rotate(8deg); } 45% { transform: rotate(-5deg); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
+.coffre-scene.ouvre + h2, .coffre-scene.ouvre ~ .fin { animation: monter .6s .5s both; }
+
+/* Bilan : les tampons tombent un à un */
+.tampons-bilan .tampon { animation: tamponner .5s cubic-bezier(.2,1.4,.4,1) both; }
+.tampons-bilan .tampon:nth-child(2) { animation-delay: .15s; } .tampons-bilan .tampon:nth-child(3) { animation-delay: .3s; }
+.tampons-bilan .tampon:nth-child(4) { animation-delay: .45s; } .tampons-bilan .tampon:nth-child(5) { animation-delay: .6s; }
+.tampons-bilan .tampon:nth-child(6) { animation-delay: .75s; } .tampons-bilan .tampon:nth-child(7) { animation-delay: .9s; }
+.stat strong { animation: monter .5s both; }
+
+/* Confettis */
+canvas.confettis { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
@@ -616,7 +722,9 @@ function etatInitial() {
     sujetTire: null,
     preparation: { escale: null, ressemblance: "", difference: "", explication: "" },
     autoEval: [],
+    finJeu: null,          // heure de fin du voyage (premier passage au bilan)
     son: true,
+    musique: false,        // la musique d'ambiance se lance seulement si l'équipe le choisit
   };
 }
 function charger() {
@@ -645,7 +753,8 @@ function maj(modif, { rendu = true } = {}) {
 function majEscale(id, modif, opts) { maj({ escales: { ...etat.escales, [id]: { ...etat.escales[id], ...modif } } }, opts); }
 
 const ui = {
-  erreurs: {}, tamponAnime: null, coffreMsg: null,
+  erreurs: {}, tamponAnime: null, coffreMsg: null, coffreAnime: false, dernierEcran: null,
+  mediaAbsent: new Set(), // médias Higgsfield introuvables (on ne les redemande pas à chaque affichage)
   enseignanteOk: false, enseignanteErreur: false, corrigeVisible: false, confirmerReset: false,
   copieSecours: null, messageCopie: null,
   envoi: { statut: "inactif", dernier: null },
@@ -697,29 +806,273 @@ window.addEventListener("online", () => envoyer());
 /* =====================================================================
    SONS (générés, aucun fichier externe) ET LECTURE À VOIX HAUTE
    ===================================================================== */
-let ctxAudio = null;
-function bip(notes, { type = "sine", vol = 0.12 } = {}) {
-  if (!etat.son) return;
+let ctxAudio = null, busSfx = null, busMusique = null;
+// Contexte audio unique : effets et musique passent par deux bus séparés, puis un compresseur.
+function audio() {
   try {
-    ctxAudio = ctxAudio || new (window.AudioContext || window.webkitAudioContext)();
-    let t = ctxAudio.currentTime;
-    for (const [f, d] of notes) {
-      const o = ctxAudio.createOscillator(), g = ctxAudio.createGain();
-      o.type = type; o.frequency.value = f;
-      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + d);
-      o.connect(g).connect(ctxAudio.destination); o.start(t); o.stop(t + d);
-      t += d * 0.8;
+    if (!ctxAudio) {
+      ctxAudio = new (window.AudioContext || window.webkitAudioContext)();
+      const comp = ctxAudio.createDynamicsCompressor();
+      comp.threshold.value = -18; comp.ratio.value = 4;
+      comp.connect(ctxAudio.destination);
+      busSfx = ctxAudio.createGain(); busSfx.gain.value = 1; busSfx.connect(comp);
+      busMusique = ctxAudio.createGain(); busMusique.gain.value = 0; busMusique.connect(comp);
     }
-  } catch (e) {}
+    if (ctxAudio.state === "suspended") ctxAudio.resume();
+    return ctxAudio;
+  } catch (e) { return null; }
 }
-const son = {
-  juste: () => bip([[660, .12], [880, .18]]),
-  faux: () => bip([[220, .22]], { type: "triangle", vol: .1 }),
-  tampon: () => bip([[110, .08], [70, .2]], { type: "square", vol: .08 }),
-  clic: () => bip([[520, .05]], { vol: .05 }),
-  coffre: () => bip([[523, .14], [659, .14], [784, .14], [1047, .4]]),
-  avion: () => bip([[300, .5], [380, .6]], { type: "sawtooth", vol: .03 }),
+const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
+let bruitBuffer = null;
+function bruit(ac) {
+  if (bruitBuffer) return bruitBuffer;
+  bruitBuffer = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
+  const d = bruitBuffer.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  return bruitBuffer;
+}
+// Instruments de synthèse (aucun fichier son)
+const instr = {
+  // Corde pincée : kora, oud, valiha, guitare… (forme d'onde + filtre qui se referme)
+  pince(ac, out, t, f, { dur = .5, vol = .2, onde = "triangle", brillance = 3000 } = {}) {
+    const o = ac.createOscillator(), o2 = ac.createOscillator(), filt = ac.createBiquadFilter(), g = ac.createGain();
+    o.type = onde; o.frequency.value = f; o2.type = "sine"; o2.frequency.value = f * 2.003;
+    filt.type = "lowpass"; filt.frequency.setValueAtTime(brillance, t); filt.frequency.exponentialRampToValueAtTime(Math.max(200, f * 1.5), t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + .006); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    const g2 = ac.createGain(); g2.gain.value = .25;
+    o.connect(filt); o2.connect(g2).connect(filt); filt.connect(g).connect(out);
+    o.start(t); o2.start(t); o.stop(t + dur + .05); o2.stop(t + dur + .05);
+  },
+  // Nappe douce (accords tenus)
+  nappe(ac, out, t, f, { dur = 2, vol = .05 } = {}) {
+    for (const det of [-6, 6]) {
+      const o = ac.createOscillator(), g = ac.createGain(), filt = ac.createBiquadFilter();
+      o.type = "sawtooth"; o.frequency.value = f; o.detune.value = det;
+      filt.type = "lowpass"; filt.frequency.value = 900;
+      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + dur * .35); g.gain.linearRampToValueAtTime(0.0001, t + dur);
+      o.connect(filt).connect(g).connect(out); o.start(t); o.stop(t + dur + .05);
+    }
+  },
+  // Cloche / marimba
+  cloche(ac, out, t, f, { dur = .8, vol = .12 } = {}) {
+    for (const [k, v] of [[1, 1], [2.76, .35], [5.4, .12]]) {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = "sine"; o.frequency.value = f * k;
+      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol * v, t + .004); g.gain.exponentialRampToValueAtTime(0.0001, t + dur / k);
+      o.connect(g).connect(out); o.start(t); o.stop(t + dur + .05);
+    }
+  },
+  basse(ac, out, t, f, { dur = .4, vol = .22 } = {}) {
+    const o = ac.createOscillator(), g = ac.createGain(), filt = ac.createBiquadFilter();
+    o.type = "triangle"; o.frequency.value = f; filt.type = "lowpass"; filt.frequency.value = 500;
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(filt).connect(g).connect(out); o.start(t); o.stop(t + dur + .05);
+  },
+  // Percussions : grosse caisse / pied, peau (djembé, darbouka), bruit filtré (shaker, kayamb), claquement
+  peau(ac, out, t, { f0 = 160, f1 = 60, dur = .25, vol = .4 } = {}) {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = "sine"; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(out); o.start(t); o.stop(t + dur + .05);
+  },
+  souffle(ac, out, t, { dur = .06, vol = .08, freq = 7000, type = "highpass", q = .8 } = {}) {
+    const s = ac.createBufferSource(), filt = ac.createBiquadFilter(), g = ac.createGain();
+    s.buffer = bruit(ac); filt.type = type; filt.frequency.value = freq; filt.Q.value = q;
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(filt).connect(g).connect(out); s.start(t, Math.random() * .5); s.stop(t + dur + .02);
+  },
 };
+
+/* ---------- Effets sonores ---------- */
+function sfx(fn) { if (!etat.son) return; const ac = audio(); if (!ac) return; try { fn(ac, busSfx, ac.currentTime + .01); } catch (e) {} }
+const son = {
+  juste: () => sfx((ac, o, t) => { instr.cloche(ac, o, t, mtof(84), { vol: .14 }); instr.cloche(ac, o, t + .09, mtof(91), { vol: .12, dur: 1 }); }),
+  faux: () => sfx((ac, o, t) => { instr.pince(ac, o, t, mtof(50), { vol: .18, dur: .35, onde: "square", brillance: 900 }); instr.pince(ac, o, t + .12, mtof(47), { vol: .15, dur: .4, onde: "square", brillance: 700 }); }),
+  tampon: () => sfx((ac, o, t) => { instr.peau(ac, o, t, { f0: 140, f1: 45, dur: .3, vol: .6 }); instr.souffle(ac, o, t, { dur: .12, vol: .25, freq: 1800, type: "bandpass" }); instr.cloche(ac, o, t + .18, mtof(79), { vol: .06 }); }),
+  clic: () => sfx((ac, o, t) => instr.souffle(ac, o, t, { dur: .025, vol: .12, freq: 3500, type: "bandpass", q: 3 })),
+  page: () => sfx((ac, o, t) => {
+    const s = ac.createBufferSource(), filt = ac.createBiquadFilter(), g = ac.createGain();
+    s.buffer = bruit(ac); filt.type = "bandpass"; filt.Q.value = 1.2;
+    filt.frequency.setValueAtTime(900, t); filt.frequency.exponentialRampToValueAtTime(4200, t + .22);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(.07, t + .05); g.gain.exponentialRampToValueAtTime(0.0001, t + .26);
+    s.connect(filt).connect(g).connect(o); s.start(t); s.stop(t + .3);
+  }),
+  cadran: () => sfx((ac, o, t) => { instr.souffle(ac, o, t, { dur: .03, vol: .2, freq: 2500, type: "bandpass", q: 6 }); instr.peau(ac, o, t, { f0: 900, f1: 500, dur: .04, vol: .08 }); }),
+  coffre: () => sfx((ac, o, t) => {
+    instr.souffle(ac, o, t, { dur: .08, vol: .3, freq: 1500, type: "bandpass", q: 4 });
+    [72, 76, 79, 84, 88, 91].forEach((m, k) => instr.cloche(ac, o, t + .15 + k * .09, mtof(m), { vol: .11, dur: 1.4 }));
+    instr.nappe(ac, o, t + .15, mtof(60), { dur: 2.4, vol: .05 }); instr.nappe(ac, o, t + .15, mtof(67), { dur: 2.4, vol: .04 });
+  }),
+  fanfare: () => sfx((ac, o, t) => {
+    [[67, 0], [72, .16], [76, .32], [79, .48], [76, .72], [79, .88], [84, 1.04]].forEach(([m, d]) => instr.pince(ac, o, t + d, mtof(m), { vol: .16, dur: .5, onde: "sawtooth", brillance: 2600 }));
+    [0, .48, 1.04].forEach((d) => instr.peau(ac, o, t + d, { f0: 120, f1: 50, dur: .3, vol: .4 }));
+  }),
+  etincelles: () => sfx((ac, o, t) => { for (let k = 0; k < 7; k++) instr.cloche(ac, o, t + k * .05 + Math.random() * .03, mtof(88 + [0, 3, 5, 7, 10, 12, 15][k]), { vol: .04, dur: .6 }); }),
+  avion: () => sfx((ac, o, t) => {
+    // Souffle qui monte puis passe : décollage et vol
+    const s = ac.createBufferSource(), filt = ac.createBiquadFilter(), g = ac.createGain();
+    s.buffer = bruit(ac); s.loop = true; filt.type = "bandpass"; filt.Q.value = .7;
+    filt.frequency.setValueAtTime(300, t); filt.frequency.exponentialRampToValueAtTime(1800, t + 1.6); filt.frequency.exponentialRampToValueAtTime(500, t + 3);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(.22, t + 1.2); g.gain.linearRampToValueAtTime(0.0001, t + 3.1);
+    s.connect(filt).connect(g).connect(o); s.start(t); s.stop(t + 3.2);
+    const m = ac.createOscillator(), gm = ac.createGain(); m.type = "sawtooth";
+    m.frequency.setValueAtTime(70, t); m.frequency.linearRampToValueAtTime(110, t + 1.5); m.frequency.linearRampToValueAtTime(80, t + 3);
+    gm.gain.setValueAtTime(0.0001, t); gm.gain.linearRampToValueAtTime(.025, t + 1); gm.gain.linearRampToValueAtTime(0.0001, t + 3);
+    const fm = ac.createBiquadFilter(); fm.type = "lowpass"; fm.frequency.value = 300;
+    m.connect(fm).connect(gm).connect(o); m.start(t); m.stop(t + 3.1);
+    instr.cloche(ac, o, t + 2.6, mtof(76), { vol: .05 }); instr.cloche(ac, o, t + 2.8, mtof(72), { vol: .05 }); // « ding-dong » d'arrivée
+  }),
+};
+
+/* ---------- Musique générée : un thème par escale ----------
+   Chaque thème évoque une tradition musicale (sans la reproduire) : gamme, rythme, timbre.
+   x = coup, X = coup accentué, . = silence. 16 pas par mesure (binaire) ou 12 (ternaire). */
+const THEMES = {
+  carte: { bpm: 84, pas: 16, racine: 62, gamme: [0, 2, 4, 7, 9], accords: [[0, 4, 7], [9, 12, 16], [5, 9, 12], [7, 11, 14]],
+    lead: "x...x...x.x.....", leadInstr: "cloche", basse: "x.......x.......", nappe: true,
+    perc: { souffle: "..x...x...x...x." } },
+  cheznous: { bpm: 78, pas: 16, racine: 65, gamme: [0, 2, 4, 5, 7, 9, 11], accords: [[0, 4, 7], [5, 9, 12], [9, 12, 16], [7, 11, 14]],
+    lead: "x.....x...x.....", leadInstr: "cloche", basse: "x.......x.......", nappe: true, perc: {} },
+  // Québec : air de violon en croches, podorythmie (tapement de pieds)
+  quebec: { bpm: 116, pas: 16, racine: 67, gamme: [0, 2, 4, 5, 7, 9, 11], accords: [[0, 4, 7], [0, 4, 7], [5, 9, 12], [7, 11, 14]],
+    lead: "x.xxx.xxx.xxx.x.", leadInstr: "violon", basse: "x...x...x...x...",
+    perc: { pied: "x...x...x...x...", talon: "..x...x...x...x." } },
+  // Sénégal : arpèges de kora, djembé, ternaire
+  senegal: { bpm: 92, pas: 12, racine: 65, gamme: [0, 2, 4, 7, 9], accords: [[0, 4, 7], [5, 9, 12], [0, 4, 7], [7, 11, 14]],
+    lead: "x.xx.xx.x.x.", leadInstr: "kora", basse: "x.....x.....",
+    perc: { djembe: "x..x.xx..x.x", souffle: "xxxxxxxxxxxx" } },
+  // Maroc : luth sur un mode oriental, darbouka (dum / tek)
+  maroc: { bpm: 88, pas: 16, racine: 62, gamme: [0, 1, 4, 5, 7, 8, 10], accords: [[0, 7, 12], [0, 7, 12], [5, 8, 12], [0, 7, 12]],
+    lead: "x..x..x.x.x.x...", leadInstr: "oud", basse: "x.......x.......", bourdon: true,
+    perc: { dum: "x......x..x.....", tek: "...x.x.....x.x.x" } },
+  // Martinique : esprit biguine, basse syncopée, ti-bwa (baguettes)
+  martinique: { bpm: 120, pas: 16, racine: 60, gamme: [0, 2, 4, 5, 7, 9, 11], accords: [[0, 4, 7], [9, 12, 16], [2, 5, 9], [7, 11, 14]],
+    lead: "x.x..x.x.xx..x..", leadInstr: "clarinette", basse: "x..x..x.x..x..x.",
+    perc: { tibwa: "x.xx.x.xx.x.xx.x", pied: "x.......x......." } },
+  // Madagascar : cithare tubulaire (valiha), 6/8 tranquille
+  madagascar: { bpm: 96, pas: 12, racine: 64, gamme: [0, 2, 4, 7, 9], accords: [[0, 4, 7], [7, 11, 14], [9, 12, 16], [5, 9, 12]],
+    lead: "x.xx.xx.xx.x", leadInstr: "valiha", basse: "x.....x.....",
+    perc: { souffle: "x..x..x..x..", pied: "x.....x....." } },
+  // La Réunion : esprit maloya, kayamb (hochet plat) et roulèr (gros tambour), ternaire
+  reunion: { bpm: 104, pas: 12, racine: 57, gamme: [0, 3, 5, 7, 10], accords: [[0, 3, 7], [0, 3, 7], [5, 8, 12], [7, 10, 14]],
+    lead: "x...x.x...x.", leadInstr: "kora", basse: "x.....x..x..",
+    perc: { kayamb: "XxxXxxXxxXxx", roul: "x.....x..x.." } },
+  // Coffre : suspense, battement de cœur
+  coffre: { bpm: 70, pas: 16, racine: 57, gamme: [0, 2, 3, 7, 8], accords: [[0, 3, 7], [0, 3, 7], [8, 12, 15], [7, 11, 14]],
+    lead: "x.......x.......", leadInstr: "cloche", basse: "x.x.............", nappe: true, perc: {} },
+  // Bilan : fête
+  bilan: { bpm: 118, pas: 16, racine: 60, gamme: [0, 2, 4, 7, 9], accords: [[0, 4, 7], [5, 9, 12], [7, 11, 14], [0, 4, 7]],
+    lead: "x.x.xx.x.x.xx.x.", leadInstr: "cloche", basse: "x...x...x...x...",
+    perc: { pied: "x...x...x...x...", souffle: "..x...x...x...x.", tibwa: "x.x.x.x.x.x.x.x." } },
+};
+function graine(s) { let h = 2166136261; for (const c of s) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return () => { h += 0x6D2B79F5; let t = h; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+// Une phrase de 4 mesures, toujours la même pour un thème (marche aléatoire sur la gamme)
+function phraseDe(id) {
+  const th = THEMES[id], rnd = graine(id);
+  const notes = []; for (let o = 0; o < 2; o++) for (const s of th.gamme) notes.push(o * 12 + s);
+  let i = 2; const ph = [];
+  for (let b = 0; b < 4; b++) for (let p = 0; p < th.pas; p++) {
+    if (th.lead[p] === ".") { ph.push(null); continue; }
+    if (p === 0) { const cible = th.accords[b][rnd() < .5 ? 0 : 1] % 12; i = notes.findIndex((n) => n % 12 === cible); if (i < 0) i = 0; }
+    else i = Math.max(0, Math.min(notes.length - 1, i + [-2, -1, -1, 1, 1, 2, 0][Math.floor(rnd() * 7)]));
+    ph.push(notes[i]);
+  }
+  return ph;
+}
+const LEADS = {
+  cloche: (ac, o, t, f, d) => instr.cloche(ac, o, t, f, { vol: .07, dur: Math.min(1.6, d * 3) }),
+  kora: (ac, o, t, f, d) => instr.pince(ac, o, t, f, { vol: .11, dur: Math.max(.5, d * 2), onde: "triangle", brillance: 4200 }),
+  valiha: (ac, o, t, f, d) => { instr.pince(ac, o, t, f, { vol: .08, dur: Math.max(.6, d * 2), onde: "triangle", brillance: 5000 }); instr.cloche(ac, o, t, f * 2, { vol: .02, dur: .5 }); },
+  oud: (ac, o, t, f, d) => instr.pince(ac, o, t, f / 2, { vol: .14, dur: Math.max(.35, d * 1.5), onde: "sawtooth", brillance: 2200 }),
+  violon: (ac, o, t, f, d) => {
+    const os = ac.createOscillator(), g = ac.createGain(), filt = ac.createBiquadFilter(), vib = ac.createOscillator(), vg = ac.createGain();
+    os.type = "sawtooth"; os.frequency.value = f; vib.frequency.value = 5.5; vg.gain.value = f * .006; vib.connect(vg).connect(os.frequency);
+    filt.type = "lowpass"; filt.frequency.value = 2400; const L = Math.max(.12, d * .9);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(.05, t + .03); g.gain.linearRampToValueAtTime(0.0001, t + L);
+    os.connect(filt).connect(g).connect(o); os.start(t); vib.start(t); os.stop(t + L + .05); vib.stop(t + L + .05);
+  },
+  clarinette: (ac, o, t, f, d) => {
+    const os = ac.createOscillator(), g = ac.createGain(), filt = ac.createBiquadFilter();
+    os.type = "square"; os.frequency.value = f; filt.type = "lowpass"; filt.frequency.value = 1600; const L = Math.max(.15, d * .95);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(.035, t + .04); g.gain.linearRampToValueAtTime(0.0001, t + L);
+    os.connect(filt).connect(g).connect(o); os.start(t); os.stop(t + L + .05);
+  },
+};
+const PERCS = {
+  souffle: (ac, o, t, fort) => instr.souffle(ac, o, t, { vol: fort ? .05 : .025, dur: .05 }),
+  kayamb: (ac, o, t, fort) => instr.souffle(ac, o, t, { vol: fort ? .09 : .035, dur: .08, freq: 5000, type: "bandpass", q: .6 }),
+  pied: (ac, o, t) => instr.peau(ac, o, t, { f0: 110, f1: 45, dur: .22, vol: .35 }),
+  talon: (ac, o, t) => instr.souffle(ac, o, t, { vol: .06, dur: .05, freq: 1200, type: "bandpass", q: 2 }),
+  djembe: (ac, o, t, fort, p) => instr.peau(ac, o, t, p % 3 === 0 ? { f0: 120, f1: 60, dur: .25, vol: .3 } : { f0: 420, f1: 260, dur: .09, vol: .14 }),
+  dum: (ac, o, t) => instr.peau(ac, o, t, { f0: 130, f1: 70, dur: .3, vol: .35 }),
+  tek: (ac, o, t) => { instr.peau(ac, o, t, { f0: 800, f1: 500, dur: .05, vol: .08 }); instr.souffle(ac, o, t, { vol: .04, dur: .03, freq: 3000, type: "bandpass", q: 3 }); },
+  tibwa: (ac, o, t) => instr.souffle(ac, o, t, { vol: .05, dur: .03, freq: 2500, type: "bandpass", q: 8 }),
+  roul: (ac, o, t) => instr.peau(ac, o, t, { f0: 90, f1: 40, dur: .4, vol: .32 }),
+};
+const VOLUME_MUSIQUE = 0.16;
+const musique = {
+  theme: null, pasN: 0, prochain: 0, minuteur: null, phrase: null, attenue: false,
+  // Appelée à chaque affichage : choisit le thème de l'écran, en fondu
+  pour(id) {
+    if (!etat.musique || !THEMES[id]) id = null;
+    if (id === this.theme) return;
+    const ac = id ? audio() : ctxAudio;
+    if (!ac) return;
+    const t = ac.currentTime;
+    busMusique.gain.cancelScheduledValues(t); busMusique.gain.setValueAtTime(busMusique.gain.value, t);
+    busMusique.gain.linearRampToValueAtTime(0, t + .5);
+    clearInterval(this.minuteur); this.minuteur = null;
+    this.theme = id;
+    if (!id) return;
+    setTimeout(() => {
+      if (this.theme !== id) return;
+      this.phrase = phraseDe(id); this.pasN = 0; this.prochain = ac.currentTime + .05;
+      this.niveau();
+      this.minuteur = setInterval(() => this.planifier(), 60);
+    }, 520);
+  },
+  niveau() {
+    if (!ctxAudio || !this.theme) return;
+    const t = ctxAudio.currentTime, v = this.attenue ? VOLUME_MUSIQUE * .25 : VOLUME_MUSIQUE;
+    busMusique.gain.cancelScheduledValues(t); busMusique.gain.setValueAtTime(busMusique.gain.value, t); busMusique.gain.linearRampToValueAtTime(v, t + .6);
+  },
+  // Pendant la lecture à voix haute, la musique se fait discrète
+  attenuer(oui) { this.attenue = oui; this.niveau(); },
+  planifier() {
+    const ac = ctxAudio, th = THEMES[this.theme]; if (!ac || !th) return;
+    const d = 60 / th.bpm / (th.pas / 4);
+    while (this.prochain < ac.currentTime + .25) {
+      const t = this.prochain, n = this.pasN, p = n % th.pas, b = Math.floor(n / th.pas) % 4, o = busMusique;
+      const acc = th.accords[b];
+      try {
+        const note = this.phrase[n % this.phrase.length];
+        if (note !== null) {
+          let k = 1; while (k < 4 && this.phrase[(n + k) % this.phrase.length] === null) k++;
+          LEADS[th.leadInstr](ac, o, t, mtof(th.racine + 12 + note), k * d);
+        }
+        if (th.basse[p] !== ".") { // fondamentale et quinte en alternance
+          const rang = th.basse.slice(0, p).replace(/\./g, "").length;
+          instr.basse(ac, o, t, mtof(th.racine - 24 + acc[rang % 2 ? 2 : 0]), { dur: d * 3 });
+        }
+        if (p === 0 && th.nappe) for (const s of acc) instr.nappe(ac, o, t, mtof(th.racine + s), { dur: d * th.pas, vol: .025 });
+        if (p === 0 && th.bourdon) instr.nappe(ac, o, t, mtof(th.racine - 12), { dur: d * th.pas, vol: .03 });
+        for (const [nom, motif] of Object.entries(th.perc)) if (motif[p] && motif[p] !== ".") PERCS[nom](ac, o, t, motif[p] === "X", p);
+      } catch (e) {}
+      this.prochain += d; this.pasN++;
+    }
+  },
+};
+// Quel thème pour quel écran ? Silence pendant la mission (préparation et enregistrement de l'exposé).
+function themeEcran() {
+  if (ui.transit) return ui.transit.vers === "cheznous" ? "cheznous" : ui.transit.vers;
+  const ec = etat.ecran;
+  if (ec === "escale") return etat.escaleActive;
+  if (ec === "cheznous") return "cheznous";
+  if (ec === "coffre") return etat.coffreOuvert ? "bilan" : "coffre";
+  if (ec === "bilan") return "bilan";
+  if (["accueil", "capitaine", "equipage", "guide", "carte", "carnet"].includes(ec)) return "carte";
+  return null;
+}
 
 const ttsOk = "speechSynthesis" in window;
 function voixPour(lang) {
@@ -729,15 +1082,16 @@ function voixPour(lang) {
 function lireDocument(e) {
   if (!ttsOk) return;
   speechSynthesis.cancel();
-  if (ui.lecture && ui.lecture.escale === e.id) { ui.lecture = null; afficherLecture(); return; }
+  if (ui.lecture && ui.lecture.escale === e.id) { ui.lecture = null; afficherLecture(); musique.attenuer(false); return; }
   ui.lecture = { escale: e.id, para: 0 };
+  musique.attenuer(true);
   majEscale(e.id, { ecoute: (etat.escales[e.id].ecoute || 0) + 1 }, { rendu: false });
   e.document.forEach((p, k) => {
     const u = new SpeechSynthesisUtterance(p);
     u.lang = e.voix; const v = voixPour(e.voix); if (v) u.voice = v;
     u.rate = 0.9;
     u.onstart = () => { if (ui.lecture) { ui.lecture.para = k + 1; afficherLecture(); } };
-    if (k === e.document.length - 1) u.onend = () => { ui.lecture = null; afficherLecture(); };
+    if (k === e.document.length - 1) u.onend = () => { ui.lecture = null; afficherLecture(); musique.attenuer(false); };
     speechSynthesis.speak(u);
   });
   afficherLecture();
@@ -747,7 +1101,37 @@ function afficherLecture() {
   const b = document.getElementById("btn-lire");
   if (b) b.textContent = ui.lecture ? "Arrêter la lecture" : "Écouter le document";
 }
-function arreterLecture() { if (ttsOk) speechSynthesis.cancel(); ui.lecture = null; }
+function arreterLecture() { if (ttsOk) speechSynthesis.cancel(); ui.lecture = null; if (musique.attenue) musique.attenuer(false); }
+// Les navigateurs bloquent le son avant le premier geste : on réveille l'audio au premier clic ou à la première touche.
+["pointerdown", "keydown"].forEach((ev) => document.addEventListener(ev, () => { if (ctxAudio && ctxAudio.state === "suspended") ctxAudio.resume(); }, { passive: true }));
+
+/* Confettis (couleurs de l'escale ou du drapeau), dessinés sur un canevas posé au-dessus de la page */
+function confettis({ couleurs = ["#d99a2b", "#f0c35a", "#c1272d", "#00853f", "#0b4ea2"], nombre = 120, origine = null } = {}) {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const cv = document.createElement("canvas"); cv.className = "confettis"; cv.setAttribute("aria-hidden", "true");
+  document.body.appendChild(cv);
+  const dpr = Math.min(2, window.devicePixelRatio || 1), W = innerWidth, H = innerHeight;
+  cv.width = W * dpr; cv.height = H * dpr; const c = cv.getContext("2d"); c.scale(dpr, dpr);
+  const ox = origine ? origine.x : W / 2, oy = origine ? origine.y : H * .35;
+  const ps = Array.from({ length: nombre }, () => {
+    const a = -Math.PI / 2 + (Math.random() - .5) * Math.PI * 1.1, v = 6 + Math.random() * 9;
+    return { x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: Math.random() * Math.PI, vr: (Math.random() - .5) * .3,
+      w: 6 + Math.random() * 6, h: 3 + Math.random() * 5, col: couleurs[Math.floor(Math.random() * couleurs.length)], forme: Math.random() < .3 ? "rond" : "carre" };
+  });
+  const debut = performance.now();
+  const pas = (now) => {
+    const k = (now - debut) / 2600; c.clearRect(0, 0, W, H);
+    for (const p of ps) {
+      p.vy += .28; p.vx *= .985; p.vy *= .985; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+      c.save(); c.globalAlpha = Math.max(0, 1 - k * k); c.translate(p.x, p.y); c.rotate(p.r); c.fillStyle = p.col;
+      if (p.forme === "rond") { c.beginPath(); c.arc(0, 0, p.h, 0, Math.PI * 2); c.fill(); } else c.fillRect(-p.w / 2, -p.h / 2, p.w, Math.abs(Math.cos(p.r * 3)) * p.h + 1);
+      c.restore();
+    }
+    if (k < 1) requestAnimationFrame(pas); else cv.remove();
+  };
+  requestAnimationFrame(pas);
+}
+function centreDe(sel) { const el = document.querySelector(sel); if (!el) return null; const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
 
 /* =====================================================================
    OUTILS
@@ -758,7 +1142,7 @@ const escaleParId = (id) => ESCALES.find((e) => e.id === id);
 const guideActuel = () => GUIDES.find((g) => g.id === etat.guide);
 function annoncer(t) { const a = document.getElementById("annonce"); if (a) { a.textContent = ""; setTimeout(() => (a.textContent = t), 30); } }
 function mmss(s) { s = Math.max(0, Math.ceil(s)); return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); }
-function resteJeu() { return etat.debutJeu ? REGLAGES.DUREE_JEU_MIN * 60 - (Date.now() - etat.debutJeu) / 1000 : REGLAGES.DUREE_JEU_MIN * 60; }
+function resteJeu() { return etat.debutJeu ? REGLAGES.DUREE_JEU_MIN * 60 - ((etat.finJeu || Date.now()) - etat.debutJeu) / 1000 : REGLAGES.DUREE_JEU_MIN * 60; }
 function questionJuste(e, i) { return etat.escales[e.id].reponses[i] === e.questions[i].correcte; }
 function toutJuste(e) { return e.questions.every((_, i) => questionJuste(e, i)); }
 function lexiqueFini(e) { return etat.escales[e.id].lexique.length === e.lexique.length; }
@@ -773,6 +1157,7 @@ function melanger(t) { const a = [...t]; for (let i = a.length - 1; i > 0; i--) 
 function aller(ecran, extra = {}) {
   arreterLecture();
   ui.coffreMsg = null; ui.copieSecours = null; ui.messageCopie = null; ui.confirmerReset = false; ui.lexSel = null;
+  if (ecran !== etat.ecran) son.page();
   maj({ ecran, ...extra });
   window.scrollTo({ top: 0 });
   const h = document.querySelector("main h1, main h2");
@@ -819,6 +1204,21 @@ const bandes = (e) => (e.drapeau || [e.couleur]).map((c) => `<span style="backgr
 const bandeDrapeau = (e) => `<div class="bande-drapeau" aria-hidden="true">${bandes(e)}</div>`;
 const drapeauMini = (e) => `<span class="drapeau-mini" aria-hidden="true">${bandes(e)}</span>`;
 const embleme = (id, couleur) => `<svg class="embleme" viewBox="0 0 100 100" style="--c:${couleur}; color:${couleur}" aria-hidden="true">${EMBLEMES[id]}</svg>`;
+// Médias générés avec Higgsfield (facultatifs). Si le fichier est là, il s'affiche ; sinon le jeu garde ses dessins.
+// Vidéo d'abord, puis image de secours, puis rien. Voir MEDIAS-HIGGSFIELD.md pour les noms de fichiers.
+function media(cle, video, image, cls, { boucle = true } = {}) {
+  if (ui.mediaAbsent.has(cle)) return "";
+  const img = `<img class="${cls}" data-media="${cle}" src="${image}" alt="" onload="this.classList.add('pret')" onerror="mediaAbsente(this)">`;
+  if (!video || ui.mediaAbsent.has(cle + ":video") || matchMedia("(prefers-reduced-motion: reduce)").matches) return img;
+  return `<video class="${cls}" data-media="${cle}" data-image="${image}" muted playsinline autoplay ${boucle ? "loop" : ""} preload="auto" aria-hidden="true" onloadeddata="this.classList.add('pret')"><source src="${video}" type="video/mp4" onerror="mediaSansVideo(this.parentNode)"></video>`;
+}
+function mediaAbsente(el) { ui.mediaAbsent.add(el.dataset.media); el.remove(); }
+function mediaSansVideo(v) {
+  if (!v || !v.dataset) return;
+  ui.mediaAbsent.add(v.dataset.media + ":video");
+  const i = new Image(); i.className = v.className; i.alt = ""; i.dataset.media = v.dataset.media;
+  i.onload = () => i.classList.add("pret"); i.onerror = () => mediaAbsente(i); i.src = v.dataset.image; v.replaceWith(i);
+}
 
 // Projection équirectangulaire, recadrée sur l'Atlantique et l'océan Indien
 const proj = ({ lon, lat }) => [(lon + 180) / 360 * 1000, (90 - lat) / 180 * 500];
@@ -880,7 +1280,7 @@ function carteVol({ avion = null } = {}) {
     const [dx, dy, anchor] = ETIQUETTES[e.id] || [14, 5, "start"];
     return `<g class="pt${s.tamponne ? " visite" : ""}" data-action="ouvrir-escale" data-id="${e.id}" tabindex="0" role="button" aria-label="Escale ${esc(e.nom)}${s.tamponne ? ", déjà visitée, chiffre " + e.chiffre : ""}">
       <title>${esc(e.nom)} · ${esc(e.contact)}</title>
-      <circle class="halo" cx="${x}" cy="${y}" r="20"/>
+      <circle class="halo" cx="${x}" cy="${y}" r="20"/>${s.tamponne ? "" : `<circle class="pulse" cx="${x}" cy="${y}" r="12" style="animation-delay:${ESCALES.indexOf(e) * .35}s"/>`}
       <path class="picto" d="${AVION}" transform="translate(${x} ${y}) scale(1.25)"/>
       <text x="${x + dx}" y="${y + dy}" text-anchor="${anchor}">${esc(e.nom)}${s.tamponne ? " · " + e.chiffre : ""}</text>
       ${s.tamponne ? `<g class="croix" transform="translate(${x + 9} ${y - 11}) rotate(-8)"><path d="M-9-8 9 8M9-9-8 9"/></g>` : ""}</g>`;
@@ -931,6 +1331,7 @@ function bulleGuide(texte, intro = true) {
 function ecranAccueil() {
   return `<div class="colonne">
     <section class="couverture" aria-label="Couverture du passeport">
+      ${media("couverture", "videos/couverture.mp4", "images/couverture.jpg", "fond-media")}
       <span class="pays">MONDE FRANCOPHONE</span>${GLOBE}
       <h1>PASSEPORT<br>FRANCOPHONE</h1>
       <p class="sous">${ESCALES.map((e) => esc(e.nom)).join(" · ")}</p>
@@ -945,11 +1346,31 @@ function ecranAccueil() {
   </div>`;
 }
 
+// Avant le décollage : trois écrans successifs (briefing → équipage → guide)
+function equipageComplet() { return membresInscrits().length >= 3 && rolesTires() && etat.equipe.nom.trim().length > 0; }
+function filAriane(n) {
+  return `<p class="fil" aria-label="Préparation du voyage">${["Briefing", "Équipage", "Guide"].map((t, i) => `<span class="${i < n ? "ok" : i === n ? "ici" : ""}"${i === n ? ' aria-current="step"' : ""}>${i < n ? "✓ " : ""}${t}</span>`).join("")}</p>`;
+}
 function ecranCapitaine() {
+  return `<div class="colonne">
+    ${filAriane(0)}
+    <section class="page">
+      <span class="etiquette">Message de la Capitaine · cockpit, Paris</span>
+      <div class="message">
+        <p>Raoul, l'agent chargé du Passeport francophone, a disparu. Avant de partir, il a verrouillé le coffre qui contient la clé de son enquête. Pour l'ouvrir, il faut un code à ${NB} chiffres.</p>
+        <p>Chaque chiffre est gardé par un contact, dans une communauté francophone : au Québec, au Sénégal, au Maroc, en Martinique, à Madagascar et à La Réunion. Pour l'obtenir, lisez le document de chaque escale et répondez à ses questions. Notez aussi ce que vous découvrez dans votre carnet de voyage : il vous servira pour votre dernière mission.</p>
+        <p>L'avion décolle dans 45 minutes. Embarquez !</p>
+      </div>
+    </section>
+    <section class="page"><h2>Règles du voyage</h2><ol class="regles">${REGLES.map((r) => `<li>${esc(r)}</li>`).join("")}</ol></section>
+    <div class="rangee"><button class="btn or" data-action="aller" data-ecran="equipage">Former l'équipage</button></div>
+  </div>`;
+}
+function ecranEquipage() {
   const m = etat.equipe.membres;
   const inscrits = membresInscrits().length;
   const tires = rolesTires();
-  const peutPartir = inscrits >= 3 && tires && etat.equipe.nom.trim() && etat.guide;
+  const ok = equipageComplet();
   let listeRoles = "";
   if (tires) {
     listeRoles = `<ul class="roles">${m.map((nom, i) => {
@@ -958,18 +1379,8 @@ function ecranCapitaine() {
       return `<li><strong>${esc(nom)}</strong><span class="role-tag">${r.map((x) => x.nom).join(" + ")}</span><span class="doux petit">${r.map((x) => x.tache).join(" ; ")}</span></li>`;
     }).join("")}</ul>${inscrits === 3 ? `<p class="doux petit">Vous êtes trois : le navigateur surveille aussi le temps.</p>` : ""}`;
   }
-  const t = ui.tirage;
-  const g = guideActuel();
   return `<div class="colonne">
-    <section class="page">
-      <span class="etiquette">Message du Capitaine · cockpit, Paris</span>
-      <div class="message">
-        <p>Raoul, l'agent chargé du Passeport francophone, a disparu. Avant de partir, il a verrouillé le coffre qui contient la clé de son enquête. Pour l'ouvrir, il faut un code à ${NB} chiffres.</p>
-        <p>Chaque chiffre est gardé par un contact, dans une communauté francophone : au Québec, au Sénégal, au Maroc, en Martinique, à Madagascar et à La Réunion. Pour l'obtenir, lisez le document de chaque escale et répondez à ses questions. Notez aussi ce que vous découvrez dans votre carnet de voyage : il vous servira pour votre dernière mission.</p>
-        <p>L'avion décolle dans 45 minutes. Embarquez !</p>
-      </div>
-    </section>
-    <section class="page"><h2>Règles du voyage</h2><ol class="regles">${REGLES.map((r) => `<li>${esc(r)}</li>`).join("")}</ol></section>
+    ${filAriane(1)}
     <section class="page">
       <span class="etiquette">Étape 1 · l'équipage</span>
       <h2>Votre équipe</h2>
@@ -986,6 +1397,19 @@ function ecranCapitaine() {
       </div>
       <div id="liste-roles">${listeRoles}</div>
     </section>
+    <div class="rangee">
+      <button class="btn second" data-action="aller" data-ecran="capitaine">Retour au briefing</button>
+      <button class="btn or" data-action="aller" data-ecran="guide" id="btn-equipage" ${ok ? "" : "disabled"}>Tirer notre guide</button>
+      <span class="doux petit" id="aide-equipage">${ok ? "L'équipage est prêt." : "Il faut un nom d'équipe, au moins 3 voyageurs et les rôles."}</span>
+    </div>
+  </div>`;
+}
+function ecranGuide() {
+  if (!equipageComplet()) return ecranEquipage();
+  const t = ui.tirage;
+  const g = guideActuel();
+  return `<div class="colonne">
+    ${filAriane(2)}
     <section class="page">
       <span class="etiquette">Étape 2 · le compagnon de voyage</span>
       <h2>Tirez votre guide au sort</h2>
@@ -998,12 +1422,11 @@ function ecranCapitaine() {
       ${g && !t ? bulleGuide(g.devise, false) : ""}
       <div><button class="btn second" data-action="tirer-guide" ${t ? "disabled" : ""}>${g ? "Tirer un autre guide" : "Tirer notre guide"}</button></div>
     </section>
-    <section class="page">
-      <div class="rangee">
-        <button class="btn or" data-action="decoller" id="btn-decoller" ${peutPartir ? "" : "disabled"}>Décoller</button>
-        <span class="doux petit" id="aide-decoller">${peutPartir ? `Le chronomètre de ${REGLAGES.DUREE_JEU_MIN} minutes démarre au décollage.` : "Il faut un nom d'équipe, au moins 3 voyageurs, les rôles et un guide."}</span>
-      </div>
-    </section>
+    <div class="rangee">
+      <button class="btn second" data-action="aller" data-ecran="equipage">Retour à l'équipage</button>
+      <button class="btn or" data-action="decoller" id="btn-decoller" ${g && !t ? "" : "disabled"}>Décoller</button>
+      <span class="doux petit" id="aide-decoller">${g && !t ? `Le chronomètre de ${REGLAGES.DUREE_JEU_MIN} minutes démarre au décollage.` : "Tirez d'abord votre guide."}</span>
+    </div>
   </div>`;
 }
 
@@ -1069,7 +1492,11 @@ function ecranTransit() {
   const reste = Math.max(0, 3 - (Date.now() - t.debut) / 1000);
   return `<div class="colonne"><section class="page transit">
       <span class="etiquette">${dest ? "Arrivée à destination…" : "Embarquement…"}</span>
-      ${dest ? carteVol({ avion: arc(t.depuis, dest) }) : GLOBE.replace('style="color: var(--or-clair)"', 'style="color: var(--or)"')}
+      <div class="hublot" aria-hidden="true" style="--c:${dest ? dest.couleur : "var(--or)"}">
+        <div class="hublot-ciel">${dest ? embleme(dest.id, "#fff") : embleme("moi", "#fff")}<span class="nuage n1"></span><span class="nuage n2"></span><span class="nuage n3"></span></div>
+        ${dest ? media("hublot-" + dest.id, `videos/escales/${dest.id}.mp4`, `images/escales/${dest.id}.jpg`, "hublot-media") : media("hublot-cheznous", "videos/cheznous.mp4", "images/cheznous.jpg", "hublot-media")}
+      </div>
+      ${dest ? carteVol({ avion: arc(t.depuis, dest) }) : ""}
       <p class="compte" id="compte">00:0${Math.ceil(reste)}</p>
       <p class="ambiance">${esc(dest ? dest.ambiance : "Les moteurs chauffent. Mais avant de partir, une première escale vous attend : chez vous.")}</p>
       <button class="btn second" data-action="fin-transit">Passer</button>
@@ -1127,6 +1554,7 @@ function ecranEscale() {
 
   return `<div class="colonne" style="--c:${e.couleur}">
     <section class="entete-escale" style="--c:${e.couleur}">
+      ${media("escale-" + e.id, `videos/escales/${e.id}.mp4`, `images/escales/${e.id}.jpg`, "fond-media")}
       ${bandeDrapeau(e)}
       <div><span class="etiquette">Escale ${index + 1} sur ${NB} · ${esc(e.region)}</span>
       <h2>${drapeauMini(e)} ${esc(e.nom)}</h2>
@@ -1177,8 +1605,8 @@ function champCarnet(e, c, prefixe) {
 function prochaineEscaleBouton(e) {
   const i = ESCALES.indexOf(e);
   const suite = [...ESCALES.slice(i + 1), ...ESCALES.slice(0, i)].find((x) => !etat.escales[x.id].tamponne);
-  if (suite) return `<button class="btn" data-action="ouvrir-escale" data-id="${suite.id}" data-depuis="${e.id}">Escale suivante : ${esc(suite.nom)}</button>
-    <button class="btn second" data-action="aller" data-ecran="carte">Voir le passeport</button>`;
+  // La carte est le point de passage central : on y revient après chaque escale.
+  if (suite) return `<button class="btn" data-action="aller" data-ecran="carte">Retour à la carte : choisir la prochaine escale</button>`;
   return `<button class="btn or" data-action="aller" data-ecran="coffre">Les ${NB_LETTRES} chiffres sont réunis : ouvrir le coffre</button>`;
 }
 
@@ -1210,10 +1638,22 @@ const SERRURE = (ouverte) => `<svg class="serrure" viewBox="0 0 80 80" fill="non
   <circle cx="40" cy="50" r="5" fill="currentColor" stroke="none"/><path d="M40 54v8" stroke-linecap="round"/></svg>`;
 function ecranCoffre() {
   if (etat.coffreOuvert) {
-    return `<div class="colonne"><section class="page coffre">${SERRURE(true)}
+    const anime = ui.coffreAnime; ui.coffreAnime = false;
+    return `<div class="colonne"><section class="page coffre">
+      <div class="coffre-scene${anime ? " ouvre" : ""}">${media("coffre", "videos/coffre.mp4", "images/coffre.jpg", "coffre-media", { boucle: false })}${SERRURE(true)}</div>
       <h2>Le coffre est ouvert !</h2>
       <p class="fin">${esc(TEXTE_FIN)}</p>
       <button class="btn or" data-action="aller" data-ecran="mission">Découvrir la dernière mission</button>
+    </section></div>`;
+  }
+  const n = nbTampons();
+  if (n < NB) {
+    return `<div class="colonne"><section class="page coffre">${SERRURE(false)}
+      <h2>Le coffre du passeport</h2>
+      <p>Le cadran reste bloqué tant que les ${NB_LETTRES} tampons ne sont pas dans le passeport.</p>
+      <div class="code-ligne" style="justify-content:center">${ESCALES.map((e) => `<span class="case${etat.escales[e.id].tamponne ? " pleine" : ""}" aria-label="${esc(e.nom)}">${etat.escales[e.id].tamponne ? e.chiffre : ""}</span>`).join("")}</div>
+      <p class="doux petit">${n} tampon${n > 1 ? "s" : ""} sur ${NB}. Il en manque ${NB - n}.</p>
+      <button class="btn" data-action="aller" data-ecran="carte">Retour à la carte</button>
     </section></div>`;
   }
   return `<div class="colonne"><section class="page coffre">${SERRURE(false)}
@@ -1281,6 +1721,59 @@ function ecranMission() {
       <p class="doux">Après l'exposé, écoutez l'enregistrement et cochez ce qui est réussi.</p>
       <div class="coches">${AUTO_EVAL.map((a, i) => `<label><input type="checkbox" data-autoeval="${i}" ${etat.autoEval.includes(i) ? "checked" : ""}><span>${esc(a)}</span></label>`).join("")}</div>
       <p class="doux petit" id="score-ae">${etat.autoEval.length} critère${etat.autoEval.length > 1 ? "s" : ""} réussi${etat.autoEval.length > 1 ? "s" : ""} sur ${AUTO_EVAL.length}.</p>
+    </section>
+    <div class="rangee"><button class="btn or" data-action="terminer">Terminer le voyage : voir le bilan</button></div>
+  </div>`;
+}
+
+// Fin / bilan : ce que l'équipe a accompli, pensé comme un retour, pas comme une note.
+function ecranBilan() {
+  if (!etat.coffreOuvert) return ecranCoffre();
+  const g = guideActuel();
+  const fin = etat.finJeu || Date.now();
+  const duree = etat.debutJeu ? (fin - etat.debutJeu) / 1000 : 0;
+  const dansLeTemps = duree <= REGLAGES.DUREE_JEU_MIN * 60;
+  const questions = ESCALES.flatMap((e) => etat.escales[e.id].essais);
+  const premierCoup = questions.filter((n) => n === 1).length;
+  const indices = ESCALES.filter((e) => etat.escales[e.id].indiceVu).length;
+  const erreursLex = ESCALES.reduce((t, e) => t + (etat.escales[e.id].lexiqueEssais || 0), 0);
+  const mots = ESCALES.reduce((t, e) => t + etat.escales[e.id].lexique.length, 0);
+  const comparee = etat.preparation.escale ? escaleParId(etat.preparation.escale).nom : null;
+  const stat = (val, txt) => `<div class="stat"><strong>${val}</strong><span>${txt}</span></div>`;
+  return `<div class="colonne">
+    <section class="page coffre">
+      <span class="etiquette">Fin du voyage · équipe ${esc(etat.equipe.nom || "")}</span>
+      <h2>Mission accomplie !</h2>
+      <div class="tampons-bilan">${etat.chezNous.tamponne ? TAMPON_CHEZ_NOUS(false, false) : ""}${ESCALES.map((e) => tamponHTML(e)).join("")}</div>
+      <p class="doux">${membresInscrits().map(esc).join(" · ")}${g ? ` · avec ${esc(g.nom)}, ${esc(g.metier)}` : ""}</p>
+    </section>
+    ${g ? bulleGuide(`Bravo ! Vous avez visité ${NB_LETTRES} communautés francophones et vous les avez comparées avec la vôtre. Bon retour à la maison !`, false) : ""}
+    <section class="page">
+      <h2>Votre voyage en chiffres</h2>
+      <div class="stats">
+        ${stat(mmss(duree), dansLeTemps ? `de voyage, avant le décollage des ${REGLAGES.DUREE_JEU_MIN} minutes` : `de voyage (le temps de ${REGLAGES.DUREE_JEU_MIN} minutes est dépassé)`)}
+        ${stat(`${premierCoup}/${questions.length}`, "questions réussies du premier coup")}
+        ${stat(`${mots}`, `mots de lexique appris${erreursLex ? ` (${erreursLex} essai${erreursLex > 1 ? "s" : ""} faux)` : ""}`)}
+        ${stat(`${indices}/${NB}`, "indices du guide utilisés")}
+        ${stat(etat.coffreEssais, `essai${etat.coffreEssais > 1 ? "s" : ""} pour ouvrir le coffre`)}
+        ${stat(`${etat.autoEval.length}/${AUTO_EVAL.length}`, "critères réussis à l'auto-évaluation")}
+      </div>
+    </section>
+    <section class="page">
+      <h2>La dernière mission</h2>
+      <p><strong>Sujet :</strong> ${etat.sujetTire !== null ? esc(SUJETS[etat.sujetTire]) : "<span class='doux'>non choisi</span>"}</p>
+      <p><strong>Communauté comparée :</strong> ${comparee ? esc(comparee) + " et chez nous" : "<span class='doux'>non choisie</span>"}</p>
+      ${AUTO_EVAL.some((_, i) => !etat.autoEval.includes(i)) ? `<div><p class="petit"><strong>Pour la prochaine fois :</strong></p>
+        <ul class="regles">${AUTO_EVAL.filter((_, i) => !etat.autoEval.includes(i)).map((a) => `<li>${esc(a)}</li>`).join("")}</ul></div>`
+        : `<p>Tous les critères de l'auto-évaluation sont réussis. Bravo !</p>`}
+    </section>
+    <section class="page">
+      <h2>Garder une trace</h2>
+      <p class="doux">Copiez ou imprimez le carnet de voyage : il contient vos notes, votre préparation et votre auto-évaluation.</p>
+      <div class="rangee"><button class="btn second" data-action="copier-carnet">Copier le carnet</button>
+        <button class="btn second" data-action="imprimer">Imprimer</button>
+        <button class="btn second" data-action="aller" data-ecran="mission">Retour à la mission</button></div>
+      ${blocCopie()}
     </section>
   </div>`;
 }
@@ -1394,20 +1887,37 @@ function afficherBarre() {
       <button data-action="aller" data-ecran="carnet" aria-current="${actif("carnet")}">Carnet</button>
       <button data-action="aller" data-ecran="coffre" aria-current="${actif("coffre")}">Coffre</button>
       ${etat.coffreOuvert ? `<button data-action="aller" data-ecran="mission" aria-current="${actif("mission")}">Mission</button>` : ""}
+      ${etat.finJeu ? `<button data-action="aller" data-ecran="bilan" aria-current="${actif("bilan")}">Bilan</button>` : ""}
     </nav><span class="chrono" id="chrono" role="timer"></span>` : `<span style="margin-left:auto"></span>`}
-    <button class="icone-btn" data-action="son" aria-pressed="${etat.son}" title="Sons">${etat.son ? "Son : oui" : "Son : non"}</button>`;
+    <button class="icone-btn" data-action="son" aria-pressed="${etat.son}" title="Bruitages">${etat.son ? "Son : oui" : "Son : non"}</button>
+    <button class="icone-btn" data-action="musique" aria-pressed="${etat.musique}" title="Musique d'ambiance de chaque escale">${etat.musique ? "♪ Musique : oui" : "♪ Musique : non"}</button>`;
   majChrono();
 }
 function majChrono() {
   const el = document.getElementById("chrono"); if (!el) return;
   const r = resteJeu();
-  el.classList.toggle("urgent", r < 300);
-  el.innerHTML = r > 0 ? `<small>Décollage dans</small>${mmss(r)}` : `L'avion décolle !`;
+  el.classList.toggle("urgent", r < 300 && !etat.finJeu);
+  el.innerHTML = etat.finJeu ? `<small>Voyage terminé</small>${mmss(REGLAGES.DUREE_JEU_MIN * 60 - r)}` : r > 0 ? `<small>Décollage dans</small>${mmss(r)}` : `L'avion décolle !`;
 }
 function afficher() {
-  const ecrans = { accueil: ecranAccueil, capitaine: ecranCapitaine, cheznous: ecranChezNous, carte: ecranCarte, escale: ecranEscale, carnet: ecranCarnet, coffre: ecranCoffre, mission: ecranMission, enseignante: ecranEnseignante };
+  const ecrans = { accueil: ecranAccueil, capitaine: ecranCapitaine, equipage: ecranEquipage, guide: ecranGuide, cheznous: ecranChezNous, carte: ecranCarte, escale: ecranEscale, carnet: ecranCarnet, coffre: ecranCoffre, mission: ecranMission, bilan: ecranBilan, enseignante: ecranEnseignante };
   const fn = ui.transit ? ecranTransit : ecrans[etat.ecran] || ecranAccueil;
-  document.getElementById("app").innerHTML = fn();
+  const app = document.getElementById("app");
+  // On garde les vidéos et images déjà chargées d'un affichage à l'autre (sinon elles repartiraient de zéro à chaque clic)
+  const garde = new Map([...app.querySelectorAll("[data-media]")].map((n) => [n.dataset.media, n]));
+  app.innerHTML = fn();
+  app.querySelectorAll("[data-media]").forEach((n) => {
+    const o = garde.get(n.dataset.media); if (!o) return;
+    n.replaceWith(o);
+    if (o.tagName === "VIDEO" && o.loop && o.paused) o.play().catch(() => {});
+  });
+  // Animation d'entrée seulement quand on change d'écran (pas à chaque mise à jour)
+  const cle = ui.transit ? "transit" : etat.ecran + ":" + (etat.escaleActive || "");
+  if (cle !== ui.dernierEcran) {
+    app.classList.remove("entree"); void app.offsetWidth; app.classList.add("entree"); ui.dernierEcran = cle;
+    clearTimeout(ui.finEntree); ui.finEntree = setTimeout(() => app.classList.remove("entree"), 1100);
+  }
+  musique.pour(themeEcran());
   afficherBarre();
   document.getElementById("pied").innerHTML = `<span>Escape game de FLE · Prototype 2 · contenus culturels à valider</span>
     <button class="lien" data-action="aller" data-ecran="enseignante">Espace enseignante</button>`;
@@ -1465,6 +1975,7 @@ const actions = {
   embarquer() { if (!etat.debutJeu) aller("capitaine"); else aller(etat.ecran === "accueil" ? "carte" : etat.ecran); },
   aller(b) { aller(b.dataset.ecran); },
   son() { etat.son = !etat.son; sauver(); afficherBarre(); son.clic(); },
+  musique() { etat.musique = !etat.musique; sauver(); afficherBarre(); musique.pour(themeEcran()); },
   "tirer-roles"() {
     const idx = etat.equipe.membres.map((m, i) => (m.trim() ? i : -1)).filter((i) => i >= 0);
     if (idx.length < 3) return;
@@ -1489,7 +2000,7 @@ const actions = {
     pas();
   },
   decoller() {
-    if (membresInscrits().length < 3 || !rolesTires() || !etat.guide) return;
+    if (!equipageComplet() || !etat.guide || ui.tirage) return;
     if (supabaseActif) ui.envoi.statut = "en attente";
     etat = { ...etat, debutJeu: Date.now(), ecran: "cheznous" };
     sauver();
@@ -1500,13 +2011,15 @@ const actions = {
     ui.tamponAnime = "moi"; son.tampon();
     maj({ chezNous: { ...etat.chezNous, tamponne: true } });
     annoncer("Tampon Chez nous obtenu");
+    setTimeout(() => confettis({ couleurs: ["#d99a2b", "#f0c35a", "#8a5a1f"], nombre: 70, origine: centreDe(".tampon.anime") }), 250);
   },
   "ouvrir-escale"(b) {
     const id = b.dataset.id;
     if (etat.escales[id].tamponne || (etat.ecran === "escale" && etat.escaleActive === id)) {
       ui.tamponAnime = null; aller("escale", { escaleActive: id }); return;
     }
-    lancerTransit(id, b.dataset.depuis || null);
+    // L'avion part de la dernière escale visitée (Paris au premier vol)
+    lancerTransit(id, b.dataset.depuis || etat.escaleActive);
   },
   "fin-transit"() { finTransit(); },
   lire() { lireDocument(escaleParId(etat.escaleActive)); },
@@ -1526,7 +2039,7 @@ const actions = {
     window.scrollTo({ top: y });
     annoncer(bon ? "Bonne réponse" : `Pas encore. Relisez le paragraphe ${e.questions[i].paragraphe}.`);
     const q = document.querySelectorAll(".question")[i];
-    if (q) q.querySelector(bon ? ".option.juste" : ".option.faux")?.focus({ preventScroll: true });
+    if (q) { q.classList.add("vient"); const opt = q.querySelector(bon ? ".option.juste" : ".option.faux"); opt?.classList.add("vient"); opt?.focus({ preventScroll: true }); }
   },
   indice() { son.clic(); const y = window.scrollY; majEscale(etat.escaleActive, { indiceVu: true }); window.scrollTo({ top: y }); },
   "lex-mot"(b) { ui.lexSel = +b.dataset.i; ui.lexSecoue = null; son.clic(); const y = window.scrollY; afficher(); window.scrollTo({ top: y }); document.querySelector(`.tuile.def:not(.trouve)`)?.focus({ preventScroll: true }); },
@@ -1538,6 +2051,7 @@ const actions = {
     if (i === ui.lexSel) {
       son.juste(); ui.lexSel = null; ui.lexSecoue = null;
       majEscale(e.id, { lexique: [...s.lexique, i] });
+      document.querySelectorAll(`.tuile[data-i="${i}"]`).forEach((x) => x.classList.add("vient"));
       annoncer("Bonne association");
     } else {
       son.faux(); ui.lexSecoue = i;
@@ -1560,11 +2074,13 @@ const actions = {
     majEscale(e.id, { tamponne: true, fin: Date.now() });
     annoncer(`Tampon obtenu. Chiffre gagné : ${e.chiffre}`);
     document.querySelector(".recompense")?.scrollIntoView({ block: "center", behavior: "smooth" });
+    setTimeout(() => { confettis({ couleurs: [...e.drapeau, "#d99a2b"], nombre: 90, origine: centreDe(".tampon.anime") }); son.etincelles(); }, 550);
   },
   "valider-coffre"() {
     const code = [...document.querySelectorAll("[data-chiffre]")].map((x) => x.value).join("");
+    if (nbTampons() < NB) return;
     if (code.length < NB) { ui.coffreMsg = `Il faut ${NB_LETTRES} chiffres, un par escale.`; son.faux(); afficher(); return; }
-    if (code === CODE_COFFRE) { ui.coffreMsg = null; son.coffre(); maj({ coffreOuvert: true, coffreEssais: etat.coffreEssais + 1 }); }
+    if (code === CODE_COFFRE) { ui.coffreMsg = null; son.coffre(); ui.coffreAnime = true; maj({ coffreOuvert: true, coffreEssais: etat.coffreEssais + 1 }); setTimeout(() => confettis({ nombre: 160, origine: centreDe(".serrure") }), 300); }
     else {
       son.faux();
       ui.coffreMsg = nbTampons() < NB
@@ -1573,6 +2089,12 @@ const actions = {
       maj({ coffreEssais: etat.coffreEssais + 1 });
       document.getElementById("chiffre-0")?.focus();
     }
+  },
+  terminer() {
+    if (!etat.coffreOuvert) return;
+    son.fanfare();
+    aller("bilan", etat.finJeu ? {} : { finJeu: Date.now() });
+    setTimeout(() => confettis({ couleurs: ESCALES.flatMap((x) => x.drapeau).filter((c) => c !== "#ffffff"), nombre: 200 }), 200);
   },
   "choisir-sujet"(b) { const y = window.scrollY; maj({ sujetTire: +b.dataset.i }); window.scrollTo({ top: y }); },
   "tirer-sujet"() {
@@ -1607,7 +2129,8 @@ const actions = {
     ui.erreurs = {}; ui.lexOrdre = {}; ui.confirmerReset = false; ui.corrigeVisible = false; dernierEnvoye = "";
     ui.envoi = { statut: supabaseActif ? "en attente" : "inactif", dernier: null };
     const sonPref = etat.son;
-    etat = etatInitial(); etat.son = sonPref; etat.ecran = "enseignante";
+    const musiquePref = etat.musique;
+    etat = etatInitial(); etat.son = sonPref; etat.musique = musiquePref; etat.ecran = "enseignante";
     sauver(); afficher();
   },
   "sortir-enseignante"() { ui.enseignanteOk = false; ui.corrigeVisible = false; aller(etat.debutJeu ? "carte" : "accueil"); },
@@ -1638,11 +2161,11 @@ document.addEventListener("input", (ev) => {
     else { equipe.membres[+t.dataset.membre] = t.value; if (rolesTires()) { equipe.roles = {}; document.getElementById("liste-roles").innerHTML = ""; } }
     maj({ equipe }, { rendu: false });
     const n = membresInscrits().length;
-    const ok = n >= 3 && rolesTires() && etat.equipe.nom.trim() && etat.guide;
+    const ok = equipageComplet();
     document.getElementById("btn-tirer").disabled = n < 3;
     document.getElementById("aide-tirage").textContent = n >= 3 ? "Chaque voyageur reçoit un rôle au hasard." : "Inscrivez au moins 3 voyageurs.";
-    document.getElementById("btn-decoller").disabled = !ok;
-    document.getElementById("aide-decoller").textContent = ok ? `Le chronomètre de ${REGLAGES.DUREE_JEU_MIN} minutes démarre au décollage.` : "Il faut un nom d'équipe, au moins 3 voyageurs, les rôles et un guide.";
+    document.getElementById("btn-equipage").disabled = !ok;
+    document.getElementById("aide-equipage").textContent = ok ? "L'équipage est prêt." : "Il faut un nom d'équipe, au moins 3 voyageurs et les rôles.";
   } else if (t.dataset.cheznous) {
     maj({ chezNous: { ...etat.chezNous, [t.dataset.cheznous]: t.value } }, { rendu: false });
     const n = chezNousRemplis();
@@ -1670,6 +2193,7 @@ document.addEventListener("input", (ev) => {
     document.getElementById("score-ae").textContent = `${n} critère${n > 1 ? "s" : ""} réussi${n > 1 ? "s" : ""} sur ${AUTO_EVAL.length}.`;
   } else if (t.dataset.chiffre !== undefined) {
     t.value = t.value.replace(/\D/g, "").slice(-1);
+    if (t.value) son.cadran();
     if (t.value) document.getElementById("chiffre-" + (+t.dataset.chiffre + 1))?.focus();
   }
 });
