@@ -530,6 +530,50 @@ main.livret.tourne-arriere { transform-origin: right center; animation: tourner-
 .identite .mrz { grid-column: 1 / -1; margin: 0; background: color-mix(in srgb, var(--page) 70%, transparent); }
 .identite .hologramme { position: absolute; right: 14px; top: 14px; width: 54px; height: 54px; border-radius: 50%; background: conic-gradient(from 0deg, #ffd6e0, #d6f5ff, #e6ffd6, #fff1c2, #ffd6e0); opacity: .55; mix-blend-mode: multiply; animation: holo 8s linear infinite; }
 @keyframes holo { to { transform: rotate(360deg); } }
+/* Page 3 (option A) : le visa du compagnon de voyage */
+.identite.visa-compagnon, .identite.saisie { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: clamp(16px, 3vw, 24px); }
+.planche { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(8px, 2vw, 16px); }
+.pp-guide { --g: #555; display: grid; gap: 4px; justify-items: center; text-align: center; padding: 8px 6px 10px; border-radius: 8px; border: 1px solid var(--trait);
+  background: color-mix(in srgb, var(--g) 6%, var(--page)); transition: transform .12s, box-shadow .12s, opacity .4s, filter .4s; }
+.pp-guide strong { font-family: var(--f-code); font-size: .85rem; letter-spacing: .06em; text-transform: uppercase; }
+.pp-guide span:not(.pp-portrait) { font-size: .78rem; color: var(--encre-douce); }
+.pp-portrait { --g: #555; position: relative; width: 100%; max-width: 92px; aspect-ratio: 4 / 5; border-radius: 5px; overflow: hidden; display: grid; place-items: center;
+  background: color-mix(in srgb, var(--g) 22%, var(--page)); color: var(--g); font-family: var(--f-titre); font-weight: 700; font-size: 2rem; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
+.pp-portrait img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; }
+.pp-guide.vise { transform: translateY(-4px) scale(1.05); box-shadow: 0 0 0 3px var(--or-clair), 0 8px 18px -8px rgba(192, 122, 28, .5); }
+.pp-guide.choisi { box-shadow: 0 0 0 3px var(--g); }
+.pp-guide.ecarte { opacity: .45; filter: grayscale(.8); }
+.visa-zone { position: relative; display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 18px; align-items: start; padding: 16px; border-radius: 10px;
+  border: 1.5px dashed color-mix(in srgb, var(--encre-douce) 50%, transparent); background: color-mix(in srgb, var(--page) 70%, transparent); min-height: 150px; }
+.visa-zone.accorde { border-style: solid; border-color: var(--trait); }
+.visa-photo { position: relative; width: 140px; }
+.visa-photo .pp-portrait { max-width: none; width: 140px; font-size: 3rem; box-shadow: 0 6px 14px -8px rgba(0,0,0,.5), inset 0 0 0 1px rgba(0,0,0,.08); transform: rotate(-2deg); }
+.visa-photo.vide { aspect-ratio: 4 / 5; border-radius: 6px; border: 1.5px dashed color-mix(in srgb, var(--encre-douce) 55%, transparent); display: grid; place-items: center; color: color-mix(in srgb, var(--encre) 25%, transparent); }
+.visa-photo.vide .silhouette { width: 55%; }
+.agrafe { position: absolute; top: -6px; left: 50%; width: 46px; height: 12px; transform: translateX(-50%) rotate(-4deg); z-index: 2;
+  border: 3px solid #9aa3ad; border-bottom: 0; border-radius: 3px 3px 0 0; box-shadow: 0 1px 0 rgba(0,0,0,.25); }
+.visa-champs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 18px; align-content: start; }
+.visa-champs > div { display: grid; gap: 3px; }
+.visa-champs .dd { display: flex; align-items: center; gap: 6px; }
+.visa-champs .dd .ico-guide { width: 18px; height: 18px; }
+.devise-visa { grid-column: 1 / -1; margin: 4px 0 0; font-family: var(--f-titre); font-style: italic; font-size: 1.05rem; border-left: 3px solid var(--or); padding-left: 12px; padding-right: 170px; }
+@media (max-width: 640px) { .devise-visa { padding-right: 0; } }
+.tampon-visa { position: absolute; right: 18px; bottom: 14px; display: grid; justify-items: center; gap: 2px; padding: 6px 12px; border: 3px double var(--ok); border-radius: 10px; color: var(--ok);
+  font-family: var(--f-code); font-weight: 600; font-size: .9rem; letter-spacing: .12em; text-transform: uppercase; transform: rotate(-12deg); background: color-mix(in srgb, var(--page) 70%, transparent); }
+.tampon-visa small { font-size: .65rem; letter-spacing: .1em; }
+/* L'animation : la photo glisse et s'agrafe, puis le tampon s'abat */
+.visa-zone.anime .visa-photo { animation: agrafer .5s cubic-bezier(.2, 1.3, .4, 1) both; }
+.visa-zone.anime .agrafe { animation: monter .2s .35s both; }
+.visa-zone.anime .visa-champs { animation: monter .4s .45s both; }
+.visa-zone.anime .tampon-visa { animation: tamponner .5s .85s cubic-bezier(.2, 1.4, .4, 1) both; }
+@keyframes agrafer { from { opacity: 0; transform: translate(-30px, -30px) rotate(-14deg) scale(1.1); } to { opacity: 1; transform: none; } }
+@media (max-width: 640px) {
+  .planche { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .visa-zone { grid-template-columns: 96px minmax(0, 1fr); gap: 12px; padding: 12px 12px 64px; }
+  .visa-photo, .visa-photo .pp-portrait { width: 96px; font-size: 2.2rem; }
+  .visa-champs { grid-template-columns: minmax(0, 1fr); }
+}
+
 /* Page d'identité à remplir (option A) : on écrit dans le passeport */
 .identite.saisie { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: clamp(16px, 3vw, 24px); }
 .identite .dt { font-family: var(--f-code); font-size: .66rem; letter-spacing: .14em; text-transform: uppercase; color: var(--encre-douce); font-weight: 400; }
@@ -1685,19 +1729,37 @@ function ecranGuide() {
   if (!equipageComplet()) return ecranEquipage();
   const t = ui.tirage;
   const g = guideActuel();
+  const fini = g && !t;
+  const anime = ui.guideAnime && fini; if (fini) ui.guideAnime = false;
+  const portrait = (x) => `<span class="pp-portrait" style="--g:${x.couleur}" aria-hidden="true">${x.initiale}<img src="${DOSSIER_PORTRAITS}${x.photo}" alt="" onerror="this.remove()"></span>`;
+  const date = new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase();
+  const mrzGuide = fini ? ("V<FRA<COMPAGNON<<" + (g.nom + "<<" + g.metier).normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/[^A-Z]+/g, "<")).padEnd(44, "<").slice(0, 44) : "V<FRA<COMPAGNON<<".padEnd(44, "<");
+  // Option A : la page de visa du compagnon de voyage
   return `<div class="colonne">
     ${filAriane(2)}
-    <section class="page">
-      <span class="etiquette">Étape 2 · le compagnon de voyage</span>
-      <h2>Tirez votre guide au sort</h2>
+    <section class="identite visa-compagnon" aria-label="Visa du compagnon de voyage">
+      <span class="hologramme" aria-hidden="true"></span>
+      <div class="ligne-pp"><span class="dt">Visa · Compagnon de voyage</span><span class="dd">Équipe ${esc(etat.equipe.nom || "")}</span></div>
       <p class="doux">Votre guide vous accompagne pendant tout le voyage. À chaque escale, il ou elle peut vous donner un indice, un seul, pour vous aider à répondre aux questions.</p>
-      <div class="guides${g && !t ? " fini" : ""}">
-        ${GUIDES.map((x, i) => `<div class="guide${t && t.vise === i ? " vise" : ""}${g && !t && g.id === x.id ? " choisi" : ""}" style="--g:${x.couleur}">
-          ${avatarGuide(x)}<strong>${esc(x.nom)}</strong><span>${esc(x.metier)}</span>${iconeGuide(x)}
-          ${g && !t && g.id === x.id ? `<span class="tampon-choisi" aria-hidden="true">Choisi !</span>` : ""}</div>`).join("")}
+      <div class="planche" role="group" aria-label="Les quatre guides possibles">
+        ${GUIDES.map((x, i) => `<div class="pp-guide${t && t.vise === i ? " vise" : ""}${fini && g.id === x.id ? " choisi" : ""}${fini && g.id !== x.id ? " ecarte" : ""}" style="--g:${x.couleur}">
+          ${portrait(x)}<strong>${esc(x.nom)}</strong><span>${esc(x.metier)}</span></div>`).join("")}
       </div>
-      ${g && !t ? bulleGuide(g.devise, false) : ""}
-      <div><button class="btn second" data-action="tirer-guide" ${t ? "disabled" : ""}>${g ? "Tirer un autre guide" : "Tirer notre guide"}</button></div>
+      <div class="visa-zone${fini ? " accorde" : ""}${anime ? " anime" : ""}">
+        ${fini ? `<div class="visa-photo" style="--g:${g.couleur}"><span class="agrafe" aria-hidden="true"></span>${portrait(g)}</div>
+          <div class="visa-champs">
+            <div><span class="dt">Nom</span><span class="dd">${esc(g.nom)}</span></div>
+            <div><span class="dt">Fonction</span><span class="dd">${esc(g.metier)} ${iconeGuide(g)}</span></div>
+            <div><span class="dt">Droit accordé</span><span class="dd">1 indice par escale</span></div>
+            <div><span class="dt">Délivré le</span><span class="dd">${date}</span></div>
+            <p class="devise-visa">« ${esc(g.devise)} »</p>
+          </div>
+          <span class="tampon-visa" aria-hidden="true">Visa accordé<small>${date}</small></span>`
+        : `<div class="visa-photo vide" aria-hidden="true"><svg class="silhouette" viewBox="0 0 60 70" fill="currentColor"><circle cx="30" cy="24" r="13"/><path d="M6 70c2-16 12-24 24-24s22 8 24 24Z"/></svg></div>
+          <div class="visa-champs"><p class="doux">${t ? "Tirage en cours…" : "La photo de votre guide sera agrafée ici, puis le visa sera tamponné."}</p></div>`}
+      </div>
+      <div><button class="btn ${fini ? "second" : "or"}" data-action="tirer-guide" ${t ? "disabled" : ""}>${g ? "Tirer un autre guide" : "Tirer notre guide"}</button></div>
+      <pre class="mrz" aria-hidden="true">${esc(mrzGuide)}</pre>
     </section>
     <div class="rangee">
       <button class="btn second" data-action="aller" data-ecran="equipage">Retour à l'équipage</button>
@@ -2391,7 +2453,13 @@ const actions = {
       ui.tirage.vise = ui.tirage.n % GUIDES.length;
       son.clic(); afficher();
       if (ui.tirage.n++ < total) setTimeout(pas, 60 + ui.tirage.n * 12);
-      else { const id = GUIDES[ui.tirage.vise].id; ui.tirage = null; son.juste(); maj({ guide: id }); annoncer("Votre guide est " + guideActuel().nom + ", " + guideActuel().metier); }
+      else {
+        const id = GUIDES[ui.tirage.vise].id; ui.tirage = null; ui.guideAnime = true;
+        const y = window.scrollY; maj({ guide: id }); window.scrollTo({ top: y });
+        // la photo est agrafée, puis le visa est tamponné
+        setTimeout(() => son.cadran(), 350); setTimeout(() => son.tampon(), 900); setTimeout(() => son.juste(), 1250);
+        annoncer("Votre guide est " + guideActuel().nom + ", " + guideActuel().metier + ". Visa accordé.");
+      }
     };
     pas();
   },
