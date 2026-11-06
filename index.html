@@ -605,7 +605,14 @@ main.livret.tourne-arriere { transform-origin: right center; animation: tourner-
 .intro .intro-passer { position: absolute; top: 12px; right: 12px; z-index: 2; color: #fff6e2; border-color: rgba(255, 246, 226, .6); background: rgba(20, 8, 4, .6); padding: 6px 14px; }
 .intro .intro-passer:hover:not(:disabled) { background: rgba(20, 8, 4, .8); color: #fff; }
 .revoir-intro { color: #e9c77e !important; font-size: .9rem; }
+/* La Capitaine sur la page du briefing, dans son hublot de cuir */
+.portrait-capitaine { position: relative; margin: 0; border-radius: 14px; overflow: hidden; }
+.portrait-capitaine img { display: block; width: 100%; height: auto; }
+.portrait-capitaine .revoir-capitaine { position: absolute; left: 50%; bottom: 6%; transform: translateX(-50%); font-size: clamp(.95rem, 2.2vw, 1.2rem); padding: 8px 22px; white-space: nowrap; }
+.portrait-capitaine .revoir-capitaine:active:not(:disabled) { transform: translateX(-50%) scale(.97); }
 .intro img.intro-video { object-fit: cover; }
+.intro-video.fondu { animation: fondu-intro .7s ease-out both; }
+@keyframes fondu-intro { from { opacity: 0; filter: brightness(1.4) sepia(.4); } to { opacity: 1; filter: none; } }
 .intro-depart { position: absolute; inset: auto 0 0; z-index: 2; display: grid; justify-items: center; gap: 8px; padding: 40px 16px 22px; text-align: center;
   background: linear-gradient(180deg, transparent, rgba(20, 8, 4, .75)); color: #fff6e2; font-size: .95rem; }
 .intro-jouer { font-size: clamp(1rem, 2.4vw, 1.25rem); padding: 12px 26px; animation: respirer 2.4s ease-in-out infinite; }
@@ -1911,11 +1918,11 @@ const etaler = (phrases, duree, debut = 0) => {
   return phrases.map((p) => { const d = t; t += (duree - debut) * p.length / total; return [d, p]; });
 };
 const INTRO_HOTESSE = {
-  poster: "images/hotesse.jpg",
+  poster: "images/capitaine.jpg",
   clips: [
-    { src: "videos/intro-hotesse-1.mp4", voix: "audio/intro-hotesse-1.wav", st: etaler(["Bienvenue !", "Attachez vos ceintures : le Passeport francophone est verrouillé, et l'avion décolle dans 45 minutes.",
+    { src: "videos/intro-capitaine-1.mp4", voix: "audio/intro-hotesse-1.wav", st: etaler(["Bienvenue !", "Attachez vos ceintures : le Passeport francophone est verrouillé, et l'avion décolle dans 45 minutes.",
       "Avant de partir, présentez-vous : votre culture est votre première escale.", "Ensuite, à chaque destination, lisez le document, discutez en équipe et répondez aux questions pour gagner un chiffre."], 21.5, .3) },
-    { src: "videos/intro-hotesse-2.mp4", voix: "audio/intro-hotesse-2.wav", st: etaler(["Une erreur ? Pas de panique : le jeu vous dit pourquoi, et un indice vous aide à trouver les bonnes réponses.",
+    { src: "videos/intro-capitaine-2.mp4", voix: "audio/intro-hotesse-2.wav", st: etaler(["Une erreur ? Pas de panique : le jeu vous dit pourquoi, et un indice vous aide à trouver les bonnes réponses.",
       "Réunissez les six chiffres pour ouvrir le coffre… et préparer votre dernière mission !"], 12.3, .2) },
   ],
 };
@@ -1927,8 +1934,8 @@ function introHTML() {
   const I = introActuelle(), hotesse = I === INTRO_HOTESSE, attente = hotesse && !ui.introEnCours;
   return `<div class="colonne"><section class="intro${attente ? " attente" : ""}" aria-label="Introduction du jeu">
       ${attente ? `<img class="intro-video" src="${I.poster}" alt="" onerror="ui.mediaAbsent.add('intro-hotesse'); afficher()">
-        <div class="intro-depart"><button class="btn or intro-jouer" data-action="jouer-intro">▶ Écouter l'annonce</button>
-          <span>Activez le son : l'hôtesse vous accueille à bord.</span></div>`
+        <div class="intro-depart"><button class="btn or intro-jouer" data-action="jouer-intro">▶ Écouter la Capitaine</button>
+          <span>Activez le son : la Capitaine vous accueille avant le décollage.</span></div>`
       : `<video class="intro-video" id="intro-video" ${hotesse ? "" : "autoplay muted"} playsinline preload="auto" ontimeupdate="sousTitresIntro(this)" onended="clipSuivant()">
           <source src="${I.clips[ui.introClip || 0].src}" type="video/mp4" onerror="${hotesse ? "ui.mediaAbsent.add('intro-hotesse'); ui.introEnCours = false; afficher()" : "ui.mediaAbsent.add('intro'); finIntro()"}"></video>
         <p class="intro-st" id="intro-st" aria-live="polite"></p>
@@ -1966,13 +1973,17 @@ function clipSuivant() {
   const c = I.clips[ui.introClip], v = document.getElementById("intro-video");
   if (!c || !v) return finIntro();
   v.querySelector("source").src = c.src; v.load(); jouerSequence(v);
+  // Fondu enchaîné : la 1re séquence finit en gros plan, la 2e repart en plan large
+  v.classList.remove("fondu"); void v.offsetWidth; v.classList.add("fondu");
 }
 function finIntro() {
   if (!ui.intro) return;
   if (ui.introVoix) { ui.introVoix.pause(); ui.introVoix = null; }
   ui.intro = false; ui.introEnCours = false; ui.introClip = 0; ui.dernierEcran = null;
   musique.attenuer(false);
-  maj({ introVue: true });
+  // Revenir là où l'on était (le briefing) si l'annonce a été relancée depuis le jeu
+  const retour = ui.retourIntro; ui.retourIntro = null;
+  maj(retour ? { introVue: true, ecran: retour } : { introVue: true });
 }
 function ecranAccueil() {
   if (ui.intro) return introHTML();
@@ -2005,7 +2016,9 @@ function ecranCapitaine() {
   return `<div class="colonne">
     ${filAriane(0)}
     <section class="page">
-      <span class="etiquette">Message de la Capitaine · cockpit, Paris</span>
+      <span class="etiquette">Message de la Capitaine · aérodrome de Paris</span>
+      <figure class="portrait-capitaine"><img src="images/capitaine.jpg" alt="La Capitaine, une aviatrice en veste de cuir, tient le passeport et une carte devant son avion." onerror="this.parentNode.remove()">
+        ${ui.mediaAbsent.has("intro-hotesse") ? "" : `<button class="btn-cuir revoir-capitaine" data-action="revoir-capitaine">▶ Écouter la Capitaine</button>`}</figure>
       <div class="message">
         <p>Raoul, l'agent chargé du Passeport francophone, a disparu. Avant de partir, il a verrouillé le coffre qui contient la clé de son enquête. Pour l'ouvrir, il faut un code à ${NB} chiffres.</p>
         <p>Chaque chiffre est gardé par un contact, dans une communauté francophone : au Québec, au Sénégal, au Maroc, en Martinique, à Madagascar et à La Réunion. Pour l'obtenir, lisez le document de chaque escale et répondez à ses questions. Notez aussi ce que vous découvrez dans votre carnet de voyage : il vous servira pour votre dernière mission.</p>
@@ -2894,6 +2907,8 @@ const actions = {
     jouerSequence(document.getElementById("intro-video"));
   },
   "passer-intro"() { finIntro(); },
+  // Depuis le briefing : revoir l'annonce de la Capitaine, puis revenir au briefing
+  "revoir-capitaine"() { ui.retourIntro = etat.ecran; etat.ecran = "accueil"; ui.intro = true; ui.introEnCours = false; ui.introClip = 0; ui.dernierEcran = null; afficher(); },
   // Carte interactive : sélectionner une escale (ou fermer la fiche), sans faire sauter la page ni la carte
   "choisir-escale"(b) {
     const id = b.dataset.id || null;
