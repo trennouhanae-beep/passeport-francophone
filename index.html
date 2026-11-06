@@ -2816,7 +2816,7 @@ function afficherBarre() {
   const enJeu = Boolean(etat.debutJeu);
   const actif = (ec) => (etat.ecran === ec || (ec === "carte" && etat.ecran === "escale") ? "true" : "false");
   document.getElementById("barre").innerHTML = `
-    <button class="marque" data-action="aller" data-ecran="${enJeu ? "carte" : "accueil"}">Passeport francophone</button>
+    <button class="marque" data-action="couverture" title="Revenir à la couverture du passeport">Passeport francophone</button>
     ${enJeu ? `<nav class="nav" aria-label="Navigation du jeu">
       <button data-action="aller" data-ecran="carte" aria-current="${actif("carte")}">Passeport</button>
       <button data-action="aller" data-ecran="carnet" aria-current="${actif("carnet")}">Carnet</button>
@@ -2927,7 +2927,8 @@ function animerAvion() {
    ===================================================================== */
 const actions = {
   embarquer() {
-    const suite = () => { if (!etat.debutJeu) aller("capitaine"); else aller(etat.ecran === "accueil" ? "carte" : etat.ecran); };
+    // On reprend le voyage là où on l'avait laissé (le jeu rouvre toujours sur la couverture)
+    const suite = () => { if (!etat.debutJeu) aller("capitaine"); else { const r = ui.ecranRepris; ui.ecranRepris = null; aller(r && r !== "accueil" ? r : "carte"); } };
     // La couverture s'ouvre comme un vrai passeport, puis on arrive sur la première page
     const c = document.querySelector(".couverture");
     if (!c || c.classList.contains("ouvre") || matchMedia("(prefers-reduced-motion: reduce)").matches) return suite();
@@ -2993,6 +2994,12 @@ const actions = {
   },
   "fin-transit"() { finTransit(); },
   "voir-album"() { apresVol(ui.transit); },
+  // Le titre « Passeport francophone » referme le passeport sur sa couverture (on garde la page où l'on était)
+  couverture() {
+    if (ui.transit) return;
+    if (etat.ecran !== "accueil" && etat.ecran !== "enseignante") ui.ecranRepris = etat.ecran;
+    aller("accueil");
+  },
   "voir-intro"() { ui.intro = true; ui.introEnCours = false; ui.introClip = 0; ui.dernierEcran = null; afficher(); },
   // Le clic autorise le son : on lance l'annonce de l'hôtesse (la musique se fait discrète)
   "jouer-intro"() {
@@ -3258,6 +3265,8 @@ setInterval(() => {
 if (ttsOk) speechSynthesis.onvoiceschanged = () => {};
 if (etat.ecran === "escale" && !escaleParId(etat.escaleActive)) etat.ecran = "carte";
 // Première visite sur ce poste : la vidéo d'introduction se joue d'abord (sauf si le poste demande moins d'animations)
+// À chaque ouverture, le passeport s'ouvre sur sa couverture, même si une partie est en cours
+if (etat.debutJeu && etat.ecran !== "accueil" && etat.ecran !== "enseignante") { ui.ecranRepris = etat.ecran; etat.ecran = "accueil"; }
 if (etat.ecran === "accueil" && !etat.introVue && !etat.debutJeu && !matchMedia("(prefers-reduced-motion: reduce)").matches) ui.intro = true;
 afficher();
 </script>
