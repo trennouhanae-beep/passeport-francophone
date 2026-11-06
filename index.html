@@ -382,7 +382,7 @@ const REGLES = [
   "Le français est la seule langue du passeport.",
   "Lisez le document, discutez, puis répondez ensemble.",
   "Une réponse fausse ? Relisez et réessayez : il n'y a aucune pénalité.",
-  "Vous avez droit à un indice par escale : votre guide vous le donne.",
+  "Vous avez droit à un indice par escale : votre guide vous le donne. Il vous aide à répondre aux questions du quiz ; il ne contient pas le chiffre du code, qui se gagne en réussissant l'escale.",
   "Avant de quitter une escale, répondez à la question « Et chez toi ? » dans le carnet.",
 ];
 
@@ -483,7 +483,7 @@ const ESCALES = [
     document: [
       "En Martinique, île française des Caraïbes, on parle le français et le créole martiniquais. La culture martiniquaise est née du métissage d'héritages africains, européens, indiens et caribéens.",
       "Le carnaval est la grande fête de l'année : pendant plusieurs jours, les rues s'animent de défilés, de costumes et de musique. Le mercredi des Cendres, on brûle Vaval, le roi du carnaval, et les participants s'habillent en noir et blanc.",
-      "En cuisine, le colombo, un plat épicé venu de l'héritage indien, et les accras, de petits beignets, sont très appréciés. Le madras, un tissu à carreaux colorés, fait partie du costume traditionnel.",
+      "En cuisine, le colombo, un plat épicé venu de l'héritage indien, et les accras, de petits beignets salés, sont très appréciés. Le madras, un tissu à carreaux colorés, fait partie du costume traditionnel.",
     ],
     questions: [
       { q: "Que fait-on le mercredi des Cendres ?", options: ["On mange des accras", "On brûle Vaval", "On plante des fleurs"], correcte: 1, paragraphe: 2 },
@@ -492,7 +492,7 @@ const ESCALES = [
     ],
     lexique: [
       ["Vaval", "le roi du carnaval, brûlé le mercredi des Cendres"],
-      ["les accras", "de petits beignets"],
+      ["les accras", "de petits beignets salés"],
       ["le créole martiniquais", "la langue parlée avec le français sur l'île"],
     ],
     indice: "Le carnaval est dans le deuxième paragraphe, la cuisine et le costume dans le troisième.",
@@ -529,12 +529,12 @@ const ESCALES = [
     document: [
       "La Réunion est une île française de l'océan Indien, connue pour son volcan, le Piton de la Fournaise. On y parle le français et le créole réunionnais. La société réunionnaise réunit des populations d'origine africaine, malgache, européenne, indienne et chinoise.",
       "Le 20 décembre, on célèbre la fête de l'abolition de l'esclavage, la « Fèt Kaf », avec des concerts et des défilés. Le maloya, une musique et une danse héritées des esclaves, est inscrit au patrimoine culturel immatériel de l'UNESCO.",
-      "Le plat le plus courant est le cari : de la viande ou du poisson cuits avec des épices, servis avec du riz et des grains, comme des haricots ou des lentilles.",
+      "Le plat le plus courant est le cari : de la viande ou du poisson cuits avec des épices, servis avec du riz et des légumineuses, comme des haricots ou des lentilles (à La Réunion, on les appelle les « grains »).",
     ],
     questions: [
       { q: "Que célèbre-t-on le 20 décembre ?", options: ["La fête du volcan", "L'abolition de l'esclavage", "Le Nouvel An créole"], correcte: 1, paragraphe: 2 },
       { q: "Qu'est-ce que le maloya ?", options: ["Une musique et une danse", "Un plat épicé", "Un sommet du volcan"], correcte: 0, paragraphe: 2 },
-      { q: "Avec quoi sert-on le cari ?", options: ["Avec du pain", "Avec des frites", "Avec du riz et des grains"], correcte: 2, paragraphe: 3 },
+      { q: "Avec quoi sert-on le cari ?", options: ["Avec du pain", "Avec des frites", "Avec du riz et des légumineuses (haricots, lentilles)"], correcte: 2, paragraphe: 3 },
     ],
     lexique: [
       ["le Piton de la Fournaise", "le volcan de l'île"],
@@ -940,7 +940,7 @@ function ecranAccueil() {
       <p class="bienvenue">B I E N V E N U E !</p>
       <p>Attachez vos ceintures : le Passeport francophone est verrouillé, et l'avion décolle dans 45 minutes.</p>
       <p>Avant de partir, présentez-vous : votre culture est votre première escale. Ensuite, à chaque destination, lisez le document, discutez en équipe et répondez aux questions pour gagner un chiffre.</p>
-      <p>Une erreur ? Pas de panique : le jeu vous dit pourquoi, et un indice vous attend. Réunissez les ${NB_LETTRES} chiffres pour ouvrir le coffre… et préparer votre dernière mission !</p>
+      <p>Une erreur ? Pas de panique : le jeu vous dit pourquoi, et un indice vous aide à trouver les bonnes réponses. Réunissez les ${NB_LETTRES} chiffres pour ouvrir le coffre… et préparer votre dernière mission !</p>
     </section>
   </div>`;
 }
@@ -989,7 +989,7 @@ function ecranCapitaine() {
     <section class="page">
       <span class="etiquette">Étape 2 · le compagnon de voyage</span>
       <h2>Tirez votre guide au sort</h2>
-      <p class="doux">Votre guide vous accompagne pendant tout le voyage. À chaque escale, il ou elle peut vous donner un indice, un seul.</p>
+      <p class="doux">Votre guide vous accompagne pendant tout le voyage. À chaque escale, il ou elle peut vous donner un indice, un seul, pour vous aider à répondre aux questions.</p>
       <div class="guides${g && !t ? " fini" : ""}">
         ${GUIDES.map((x, i) => `<div class="guide${t && t.vise === i ? " vise" : ""}${g && !t && g.id === x.id ? " choisi" : ""}" style="--g:${x.couleur}">
           ${avatarGuide(x)}<strong>${esc(x.nom)}</strong><span>${esc(x.metier)}</span>${iconeGuide(x)}
@@ -1145,7 +1145,7 @@ function ecranEscale() {
     <section class="page">
       <span class="etiquette">Épreuve 1 · le quiz · discutez, puis répondez ensemble</span>
       ${questions}
-      <div>${s.indiceVu ? bulleGuide(e.indice) : `<button class="btn second" data-action="indice">Demander l'indice à ${esc(guideActuel()?.nom || "votre guide")} (un seul par escale)</button>`}</div>
+      <div>${s.indiceVu ? `<p class="doux petit">Indice pour les questions du quiz : il vous dit où chercher dans le document. Le chiffre du code se gagne en réussissant l'escale.</p>${bulleGuide(e.indice)}` : `<button class="btn second" data-action="indice">Demander à ${esc(guideActuel()?.nom || "votre guide")} un indice pour les questions (un seul par escale)</button>`}</div>
     </section>
     <section class="page">
       <span class="etiquette">Épreuve 2 · le lexique du contact</span>

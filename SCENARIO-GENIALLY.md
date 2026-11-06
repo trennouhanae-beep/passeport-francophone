@@ -99,7 +99,7 @@ Pour aller vite, **montez une escale complète** (le Québec), puis **dupliquez 
 - Texte :
   > Attachez vos ceintures : le Passeport francophone est verrouillé, et l'avion décolle dans 45 minutes.
   > Avant de partir, présentez-vous : votre culture est votre première escale. Ensuite, à chaque destination, lisez le document, discutez en équipe et répondez aux questions pour gagner un chiffre.
-  > Une erreur ? Pas de panique : le jeu vous dit pourquoi, et un indice vous attend. Réunissez les six chiffres pour ouvrir le coffre… et préparer votre dernière mission !
+  > Une erreur ? Pas de panique : le jeu vous dit pourquoi, et un indice vous aide à trouver les bonnes réponses. Réunissez les six chiffres pour ouvrir le coffre… et préparer votre dernière mission !
 - Widget **Chronomètre** : mode compte à rebours **45:00** (s'il n'y a pas de compte à rebours, gardez le chronomètre normal et dites « on s'arrête à 45 minutes »). À afficher sur toutes les diapos de jeu.
 - Bouton : **SUIVANT**
 
@@ -113,7 +113,7 @@ Pour aller vite, **montez une escale complète** (le Québec), puis **dupliquez 
 2. Le français est la seule langue du passeport.
 3. Lisez le document, discutez, puis répondez ensemble.
 4. Une réponse fausse ? Relisez et réessayez : il n'y a aucune pénalité.
-5. Vous avez droit à un indice par escale : votre guide vous le donne.
+5. Vous avez droit à un indice par escale : votre guide vous le donne. Il vous aide à répondre aux questions du quiz ; il ne contient pas le chiffre du code, qui se gagne en réussissant l'escale.
 6. Avant de quitter une escale, répondez à la question « Et chez toi ? » dans le carnet.
 
 ### Diapo 4 · Tirage du guide
@@ -162,7 +162,7 @@ Structure identique pour chacune :
 
 **Fenêtre d'erreur** (modèle unique, à dupliquer) : GIF ou icône + texte *« Ce n'est pas encore ça. Relisez le paragraphe N, puis réessayez. »* + bouton **RÉESSAYER** (fermer la fenêtre).
 
-**Fenêtre d'indice** : pastille du guide + *« Votre guide vous souffle : … »* + l'indice + bouton **FERMER**.
+**Fenêtre d'indice** : pastille du guide + *« Votre guide vous souffle, pour répondre aux questions : … »* + l'indice + bouton **FERMER**.
 
 ---
 
@@ -230,7 +230,7 @@ Structure identique pour chacune :
 - **Document**
   - §1 En Martinique, île française des Caraïbes, on parle le français et le créole martiniquais. La culture martiniquaise est née du métissage d'héritages africains, européens, indiens et caribéens.
   - §2 Le carnaval est la grande fête de l'année : pendant plusieurs jours, les rues s'animent de défilés, de costumes et de musique. Le mercredi des Cendres, on brûle Vaval, le roi du carnaval, et les participants s'habillent en noir et blanc.
-  - §3 En cuisine, le colombo, un plat épicé venu de l'héritage indien, et les accras, de petits beignets, sont très appréciés. Le madras, un tissu à carreaux colorés, fait partie du costume traditionnel.
+  - §3 En cuisine, le colombo, un plat épicé venu de l'héritage indien, et les accras, de petits beignets salés, sont très appréciés. Le madras, un tissu à carreaux colorés, fait partie du costume traditionnel.
 - **Indice** : Le carnaval est dans le deuxième paragraphe, la cuisine et le costume dans le troisième.
 
 | Quiz | Question | ✓ Bonne réponse | Mauvaises | Erreur : relire |
@@ -239,7 +239,7 @@ Structure identique pour chacune :
 | 2 | D'où vient le colombo ? | De l'héritage indien | De la cuisine française · De la cuisine caribéenne | §3 |
 | 3 | Qu'est-ce que le madras ? | Un tissu à carreaux colorés | Une danse · Un plat épicé | §3 |
 
-- **Lexique** : Vaval → *le roi du carnaval, brûlé le mercredi des Cendres* · les accras → *de petits beignets* · le créole martiniquais → *la langue parlée avec le français sur l'île*
+- **Lexique** : Vaval → *le roi du carnaval, brûlé le mercredi des Cendres* · les accras → *de petits beignets salés* · le créole martiniquais → *la langue parlée avec le français sur l'île*
 - **Et chez toi ?** Quelle fête de ta communauté se vit dans la rue, avec de la musique et des costumes ?
 
 ### Escale 5 · Madagascar (Océan Indien) · chiffre **7**
@@ -268,14 +268,14 @@ Structure identique pour chacune :
 - **Document** (idéalement avec un **audio** lu à voix haute : Genially > Insérer > Audio)
   - §1 La Réunion est une île française de l'océan Indien, connue pour son volcan, le Piton de la Fournaise. On y parle le français et le créole réunionnais. La société réunionnaise réunit des populations d'origine africaine, malgache, européenne, indienne et chinoise.
   - §2 Le 20 décembre, on célèbre la fête de l'abolition de l'esclavage, la « Fèt Kaf », avec des concerts et des défilés. Le maloya, une musique et une danse héritées des esclaves, est inscrit au patrimoine culturel immatériel de l'UNESCO.
-  - §3 Le plat le plus courant est le cari : de la viande ou du poisson cuits avec des épices, servis avec du riz et des grains, comme des haricots ou des lentilles.
+  - §3 Le plat le plus courant est le cari : de la viande ou du poisson cuits avec des épices, servis avec du riz et des légumineuses, comme des haricots ou des lentilles (à La Réunion, on les appelle les « grains »).
 - **Indice** : La fête et la musique sont dans le deuxième paragraphe, le cari dans le dernier.
 
 | Quiz | Question | ✓ Bonne réponse | Mauvaises | Erreur : relire |
 |---|---|---|---|---|
 | 1 | Que célèbre-t-on le 20 décembre ? | L'abolition de l'esclavage | La fête du volcan · Le Nouvel An créole | §2 |
 | 2 | Qu'est-ce que le maloya ? | Une musique et une danse | Un plat épicé · Un sommet du volcan | §2 |
-| 3 | Avec quoi sert-on le cari ? | Avec du riz et des grains | Avec du pain · Avec des frites | §3 |
+| 3 | Avec quoi sert-on le cari ? | Avec du riz et des légumineuses (haricots, lentilles) | Avec du pain · Avec des frites | §3 |
 
 - **Lexique** : le Piton de la Fournaise → *le volcan de l'île* · la Fèt Kaf → *la fête de l'abolition de l'esclavage, le 20 décembre* · le cari → *de la viande ou du poisson cuits avec des épices*
 - **Et chez toi ?** Quelle musique traditionnelle de ta communauté raconte son histoire ?
