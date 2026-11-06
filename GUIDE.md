@@ -46,13 +46,13 @@ Un tampon d'escale demande : les 3 bonnes réponses au quiz, le lexique complet,
 Ce qui ne change pas par rapport à la version en ligne :
 - Pour donner un lien aux élèves : glissez le dossier sur https://app.netlify.com/drop. Ajoutez `?classe=AP-1A` à l'adresse pour reconnaître chaque classe.
 - Pour recevoir les données : dans Supabase, exécutez `schema.sql`, puis remplissez `SUPABASE_URL` et `SUPABASE_CLE` (la clé publique, jamais la clé secrète) dans `REGLAGES`, en haut du script de `index.html`.
-- Espace enseignante : lien en bas de page. Le code par défaut est `prof2026` : **changez-le** dans `REGLAGES`.
+- Espace enseignante : lien en bas de page. Le code est `classedefle2026` (modifiable dans `REGLAGES`).
 - Entre deux groupes : espace enseignante > Réinitialiser la partie.
 - La sauvegarde de cette version porte un nouveau nom (`passeport-francophone-v3`). Une partie commencée avec l'ancienne version ne sera donc pas reprise.
 
 ## Avant l'usage en classe
 
-- Faites valider les contenus culturels, et en particulier le **lexique**, qui est nouveau, ainsi que l'escale du **Maroc**. La Martinique est à revoir avec la collègue partenaire.
+- Faites valider les contenus culturels, et en particulier le **lexique**, qui est nouveau, ainsi que l'escale du **Maroc**. La Martinique a été validée avec la collègue partenaire.
 - Remplacez les documents de travail par des documents authentiques.
 - La synthèse vocale dépend des voix installées sur le poste. S'il n'y a aucune voix française, le bouton « Écouter » lit avec une autre voix. Testez sur les postes de la classe.
 - Pour modifier le contenu : tout est dans la partie `CONTENU PÉDAGOGIQUE` du script (`ESCALES`, `GUIDES`, `CHEZ_NOUS`, `SUJETS`, `CANEVAS`, `OUTILS`, `AUTO_EVAL`).

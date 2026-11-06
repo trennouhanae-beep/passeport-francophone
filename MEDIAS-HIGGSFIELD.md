@@ -56,7 +56,7 @@ Ce style reprend la palette du jeu (parchemin, sépia, or). Il évite le texte, 
 - **Image** : `[style commun] Carnival in a Martinique town street, colorful costumes and feathers seen from afar, hibiscus and tropical plants in the foreground, a pot of colombo, turquoise sea in the background.`
 - **Vidéo** : `Hibiscus leaves swaying in the breeze, carnival colors moving in the distance, slow camera pan, festive but gentle, seamless loop.`
 
-> La Martinique est encore à valider avec la collègue partenaire. Attendez sa validation avant de générer cette escale.
+> La Martinique a été validée avec la collègue partenaire : son image, sa vidéo et son album sont générés.
 
 ### Madagascar · Hery, guide à Antananarivo
 - **Image** : `[style commun] Terraced rice fields in the Malagasy highlands, the Avenue of the Baobabs on the horizon at sunset, a zebu cart on a red earth path.`

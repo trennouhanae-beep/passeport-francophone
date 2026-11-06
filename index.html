@@ -401,6 +401,9 @@ tr.actif td { background: color-mix(in srgb, var(--or) 16%, transparent); }
 .temps-rec { font-family: var(--f-code); font-size: 1.4rem; font-variant-numeric: tabular-nums; margin-left: auto; }
 .lecteur-expose { width: 100%; }
 .depot { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding-top: 12px; border-top: 1px dashed var(--trait); }
+.secours-enreg { display: grid; gap: 8px; justify-items: start; padding: 14px 16px; border-radius: 10px; background: var(--page-2); border: 1px solid var(--trait); }
+.secours-enreg ol { margin: 0; padding-left: 1.3em; display: grid; gap: 4px; }
+.secours-enreg ol li::marker { color: var(--or); font-weight: 700; }
 
 /* Bilan */
 .tampons-bilan { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
@@ -890,7 +893,7 @@ const REGLAGES = {
   // Laisser vide pour jouer sans envoi en ligne (sauvegarde dans le navigateur seulement).
   SUPABASE_URL: "",             // ex. "https://abcdefgh.supabase.co"
   SUPABASE_CLE: "",             // clé publique « anon » ou « publishable », JAMAIS la clé secrète
-  CODE_ENSEIGNANTE: "prof2026", // code de l'espace enseignante : à changer
+  CODE_ENSEIGNANTE: "classedefle2026", // code de l'espace enseignante
   DUREE_JEU_MIN: 45,
   PREPARATION_MIN: 4,
   PRESENTATION_MIN: 2,
@@ -898,6 +901,8 @@ const REGLAGES = {
   // Laisser vide pour cacher le bouton « Déposer ».
   LIEN_DEPOT: "https://digipad.app/p/1969325/81d79e72d91fd8",
   NOM_DEPOT: "le Digipad", // affiché sur le bouton : « Déposer l'enregistrement sur le Digipad »
+  // Secours quand le jeu ne peut pas utiliser le micro : enregistrement en ligne, sans compte (laisser vide pour le cacher)
+  LIEN_SECOURS: "https://vocaroo.com",
 };
 
 /* =====================================================================
@@ -2652,18 +2657,26 @@ function nomFichierExpose() {
 function enregistrementHTML() {
   const depot = REGLAGES.LIEN_DEPOT
     ? `<div class="depot"><a class="btn${enreg.etat === "fini" ? " or" : " second"}" href="${esc(REGLAGES.LIEN_DEPOT)}" target="_blank" rel="noopener noreferrer">Déposer l'enregistrement ${REGLAGES.NOM_DEPOT ? "sur " + esc(REGLAGES.NOM_DEPOT) : ""} ↗</a>
-        <span class="doux petit">${enreg.etat === "fini" ? "Téléchargez d'abord le fichier, puis déposez-le sur la page qui s'ouvre." : "Vous avez enregistré avec un téléphone ? Déposez le fichier ici."}</span></div>` : "";
+        <span class="doux petit">${enreg.etat === "fini" ? "Téléchargez d'abord le fichier, puis déposez-le sur la page qui s'ouvre." : "Vous avez enregistré avec Vocaroo ou un téléphone ? Déposez le lien ou le fichier ici."}</span></div>` : "";
+  // Solution de secours : Vocaroo (enregistrement en ligne, sans compte), quand le jeu ne peut pas utiliser le micro
+  const vocaroo = REGLAGES.LIEN_SECOURS ? `<div class="secours-enreg">
+      <strong>Pas d'enregistrement possible dans le jeu ? Utilisez Vocaroo.</strong>
+      <ol><li>Ouvrez Vocaroo et cliquez sur le bouton rouge pour enregistrer votre exposé.</li>
+        <li>Arrêtez l'enregistrement, puis cliquez sur « Enregistrer et partager ».</li>
+        <li>Copiez le lien obtenu et collez-le dans une capsule ${REGLAGES.NOM_DEPOT ? "sur " + esc(REGLAGES.NOM_DEPOT) : "dans le dépôt de la classe"}.</li></ol>
+      <a class="btn second" href="${esc(REGLAGES.LIEN_SECOURS)}" target="_blank" rel="noopener noreferrer">Enregistrer sur Vocaroo ↗</a></div>` : "";
+  const petitVocaroo = REGLAGES.LIEN_SECOURS ? `<p class="doux petit">Pas de micro sur cet ordinateur ? <a href="${esc(REGLAGES.LIEN_SECOURS)}" target="_blank" rel="noopener noreferrer">Enregistrez-vous sur Vocaroo ↗</a>, puis collez le lien ${REGLAGES.NOM_DEPOT ? "sur " + esc(REGLAGES.NOM_DEPOT) : "dans le dépôt"}.</p>` : "";
   let corps;
-  if (!micOk) corps = `<p class="msg-coffre">Ce navigateur ne permet pas d'enregistrer. Enregistrez l'exposé avec un téléphone.</p>`;
+  if (!micOk) corps = `<p class="msg-coffre">Ce navigateur ne permet pas d'enregistrer dans le jeu.</p>${vocaroo}`;
   else if (enreg.etat === "enregistre") corps = `<div class="enreg-live" role="status"><span class="point-rec" aria-hidden="true"></span><strong>Enregistrement en cours</strong><span class="temps-rec" id="enreg-temps">${mmss((Date.now() - enreg.debut) / 1000)}</span></div>
       <div><button class="btn" data-action="enreg-stop">■ Arrêter l'enregistrement</button></div>`;
   else if (enreg.etat === "fini") corps = `<p>Votre exposé est enregistré (${mmss(enreg.duree)}). Écoutez-le pour l'auto-évaluation :</p>
       <audio controls src="${enreg.url}" class="lecteur-expose"></audio>
       <div class="rangee"><a class="btn second" href="${enreg.url}" download="${nomFichierExpose()}">Télécharger l'enregistrement</a>
         <button class="btn second" data-action="enreg-recommencer">Recommencer</button></div>`;
-  else corps = `${enreg.etat === "erreur" ? `<p class="msg-coffre" role="alert">${esc(enreg.msg)}</p>` : ""}
+  else corps = `${enreg.etat === "erreur" ? `<p class="msg-coffre" role="alert">${esc(enreg.msg)}</p>${vocaroo}` : ""}
       <p class="doux">Le micro de l'ordinateur enregistre l'exposé. Le minuteur « Présentation » démarre en même temps. Le fichier reste sur cet ordinateur : rien n'est envoyé en ligne.</p>
-      <div><button class="btn or" data-action="enreg-go">● Démarrer l'enregistrement</button></div>`;
+      <div><button class="btn or" data-action="enreg-go">● Démarrer l'enregistrement</button></div>${enreg.etat === "erreur" ? "" : petitVocaroo}`;
   return `<h2>4. L'enregistrement</h2>${corps}${depot}`;
 }
 function majEnregistrement() { const s = document.getElementById("enregistrement"); if (s) s.innerHTML = enregistrementHTML(); }
@@ -2673,7 +2686,7 @@ async function demarrerEnregistrement() {
     enreg.flux = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
   } catch (e) {
     enreg.etat = "erreur";
-    enreg.msg = e && e.name === "NotAllowedError" ? "Le micro a été refusé. Autorisez-le dans la barre d'adresse du navigateur, puis réessayez (ou enregistrez avec un téléphone)." : "Aucun micro n'est disponible sur cet ordinateur. Enregistrez l'exposé avec un téléphone.";
+    enreg.msg = e && e.name === "NotAllowedError" ? "Le micro a été refusé. Autorisez-le dans la barre d'adresse du navigateur et réessayez, ou utilisez Vocaroo ci-dessous." : "Aucun micro n'est disponible dans le jeu sur cet ordinateur. Utilisez Vocaroo ci-dessous.";
     majEnregistrement(); return;
   }
   const mime = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"].find((t) => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) || "";
@@ -2779,7 +2792,7 @@ function ecranEnseignante() {
     <section class="page">
       <h2>Avant l'usage en classe</h2>
       <ul class="regles">
-        <li>Faire valider les contenus culturels, en particulier la Martinique avec la collègue partenaire (documents et lexique).</li>
+        <li>Faire valider les contenus culturels, en particulier le Maroc et les lexiques (la Martinique a été validée avec la collègue partenaire).</li>
         <li>Remplacer les documents de travail par des documents authentiques (textes, images, audios).</li>
         <li>Sans Supabase, les progrès sont gardés seulement dans le navigateur utilisé : une équipe par poste.</li>
         <li>Changer le code de cet espace dans les réglages du fichier (il est visible dans le code source).</li>
