@@ -137,8 +137,39 @@ input:focus, textarea:focus, select:focus { border-color: var(--or); outline: no
 .titre-carte { font-family: var(--f-titre); font-weight: 500; text-align: center; letter-spacing: .06em; text-transform: uppercase; font-size: clamp(1.1rem, 3vw, 1.5rem); color: var(--sepia-fonce); }
 .carte-vol { width: 100%; height: auto; display: block; border-radius: 10px; border: 2px dashed color-mix(in srgb, var(--sepia) 70%, transparent); background: var(--parch); }
 .carte-cadre { overflow-x: auto; border-radius: 10px; -webkit-overflow-scrolling: touch; }
-@media (max-width: 640px) { .carte-vol { min-width: 640px; } }
+.carte-zone { position: relative; }
+@media (max-width: 640px) { .carte-zone { min-width: 640px; } }
 .carte-vol .parchemin { fill: var(--parch); }
+/* Carte interactive : escale sélectionnée ou survolée, punaise-drapeau, fiche de l'escale */
+.carte-vol .pt.sel .halo, .carte-vol .pt.survol .halo { fill: color-mix(in srgb, var(--or) 35%, transparent); stroke: var(--or); stroke-width: 2.5; }
+.carte-vol .pt.sel .picto { fill: var(--x); }
+.carte-vol .pt .picto, .carte-vol .pt .punaise { transform-box: fill-box; transform-origin: center; }
+.carte-vol .pt.sel .punaise, .carte-vol .pt.survol .punaise { transform: scale(1.25); }
+.carte-vol .pt .punaise { transition: transform .2s; }
+.visa-vignette.survol { transform: translateY(-3px); box-shadow: 0 0 0 2px var(--or), 0 12px 22px -14px rgba(60, 20, 10, .5); }
+.fiche-carte { --c: #333; position: absolute; z-index: 3; width: min(280px, 62%); padding: 16px 14px 12px; border-radius: 10px; overflow: hidden;
+  background: var(--page); background-image: var(--guilloche); background-size: 300px 150px; border: 1px solid color-mix(in srgb, var(--c) 35%, var(--trait));
+  box-shadow: 0 16px 30px -14px rgba(40, 15, 5, .55); display: grid; gap: 8px; animation: fiche .28s cubic-bezier(.2, 1.3, .4, 1) both; }
+.fiche-carte.a-droite { margin-left: 26px; } .fiche-carte.a-gauche { transform: translateX(-100%); margin-left: -26px; }
+.fiche-carte.en-bas { margin-top: -20px; } .fiche-carte.en-haut { translate: 0 -100%; margin-top: 20px; }
+@keyframes fiche { from { opacity: 0; scale: .9; } to { opacity: 1; scale: 1; } }
+.fiche-carte .bande-drapeau { height: 6px; }
+.fermer-fiche { position: absolute; top: 8px; right: 6px; width: 28px; height: 28px; border: 0; background: transparent; color: var(--encre-douce); font-size: 1.3rem; line-height: 1; border-radius: 50%; }
+.fermer-fiche:hover { background: var(--papier-2); }
+.fc-tete { display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 10px; align-items: center; padding-right: 22px; }
+.fc-tete strong { display: block; font-family: var(--f-titre); font-size: 1.2rem; color: color-mix(in srgb, var(--c) var(--mix-titre), var(--encre)); }
+.fc-tete span { font-size: .8rem; color: var(--encre-douce); }
+.fc-contact { font-size: .85rem; font-weight: 700; }
+.fc-ambiance { font-family: var(--f-titre); font-style: italic; font-size: .92rem; line-height: 1.35; color: var(--encre-douce); }
+.fc-pied { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.fc-pied .vv-etat.ok { border-color: var(--ok); color: var(--ok); background: var(--ok-fond); }
+.fc-pied .btn { padding: 8px 14px; }
+.carte-wrap { position: relative; display: grid; }
+.carte-wrap > .carte-cadre { order: 1; } .carte-wrap > .fiche-carte { order: 2; }
+/* Sur téléphone, la carte défile : la fiche se place sous la carte au lieu de flotter dessus */
+@media (max-width: 640px) {
+  .fiche-carte, .fiche-carte.a-gauche, .fiche-carte.en-haut { position: relative; left: auto !important; top: auto !important; width: 100%; margin: 12px 0 0; transform: none; translate: none; }
+}
 .carte-vol .grille { stroke: color-mix(in srgb, var(--sepia) 22%, transparent); stroke-width: .8; fill: none; }
 .carte-vol .terres { fill: var(--terre); stroke: var(--sepia); stroke-width: 1; stroke-linejoin: round; }
 .carte-vol .route { fill: none; stroke: var(--x); stroke-width: 1.4; stroke-dasharray: 4 5; opacity: .55; }
@@ -454,6 +485,10 @@ main.livret { position: relative; width: calc(100% - 32px); max-width: 1000px; m
   background-size: 420px 210px, auto; border-radius: 6px 16px 16px 6px; border: 1px solid var(--trait);
   box-shadow: 2px 2px 0 -1px var(--page-2), 2px 2px 0 0 var(--trait), 5px 5px 0 -1px var(--page-2), 5px 5px 0 0 var(--trait), 8px 8px 0 -1px var(--page-2), 8px 8px 0 0 var(--trait), 0 26px 50px -26px rgba(60, 20, 10, .45);
   transform-origin: left center; }
+/* Page d'un pays : fond aux couleurs du drapeau, et la tranche des pages rayée de ses couleurs */
+main.livret.pays { background-image: var(--guilloche), linear-gradient(90deg, rgba(0,0,0,.07), transparent 40px), var(--fond-pays); background-size: 420px 210px, auto, auto; transition: background-color .4s; }
+main.livret.pays .pied-page .folio { border-color: transparent; background: var(--page); box-shadow: 0 0 0 2px var(--c, var(--lisere)); }
+main.livret.pays .page { background: color-mix(in srgb, var(--carte) 82%, transparent); }
 /* Reliure : couture dorée et ombre du pli */
 main.livret::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 22px; border-radius: 6px 0 0 6px;
   background: linear-gradient(90deg, var(--cuir-ombre), var(--cuir) 60%, var(--cuir-2)); box-shadow: inset -2px 0 3px rgba(0,0,0,.35); }
@@ -1563,7 +1598,7 @@ const TERRES_D = TERRES.map((t) => {
 const ETIQUETTES = { quebec: [16, 6, "start"], senegal: [-16, 6, "end"], maroc: [16, 4, "start"], martinique: [-16, 6, "end"], madagascar: [-18, 0, "end"], reunion: [16, 18, "start"] };
 const AVION = "M0-9 1.6-3.5 9-0.5V1.8L1.6 0.6 1 6 3.4 8V9.6L0 8.6-3.4 9.6V8L-1 6-1.6 0.6-9 1.8V-0.5L-1.6-3.5Z";
 
-function carteVol({ avion = null } = {}) {
+function carteVol({ avion = null, interactive = false } = {}) {
   let grille = "";
   for (let lon = -150; lon <= 180; lon += 30) { const [x] = proj({ lon, lat: 0 }); grille += `M${x} 28V383`; }
   for (let lat = 60; lat >= -40; lat -= 20) { const [, y] = proj({ lon: 0, lat }); grille += `M0 ${y}H1000`; }
@@ -1572,16 +1607,22 @@ function carteVol({ avion = null } = {}) {
   const points = ESCALES.map((e) => {
     const [x, y] = proj(e); const s = etat.escales[e.id];
     const [dx, dy, anchor] = ETIQUETTES[e.id] || [14, 5, "start"];
-    return `<g class="pt${s.tamponne ? " visite" : ""}" data-action="ouvrir-escale" data-id="${e.id}" tabindex="0" role="button" aria-label="Escale ${esc(e.nom)}${s.tamponne ? ", déjà visitée, chiffre " + e.chiffre : ""}">
+    // Carte interactive : un clic sélectionne l'escale (fiche), le bouton de la fiche fait décoller
+    const sel = interactive && ui.carteSel === e.id;
+    // Escale visitée : un petit drapeau rond, comme une punaise-tampon
+    const drapeau = s.tamponne && DRAPEAUX[e.id] ? `<g class="punaise"><clipPath id="disc-${e.id}"><circle cx="${x + 13}" cy="${y - 13}" r="9"/></clipPath>
+        <svg x="${x + 4}" y="${y - 22}" width="18" height="18" viewBox="0 0 60 40" preserveAspectRatio="xMidYMid slice" clip-path="url(#disc-${e.id})">${DRAPEAUX[e.id]}</svg>
+        <circle cx="${x + 13}" cy="${y - 13}" r="9" fill="none" stroke="#fff" stroke-width="2"/><circle cx="${x + 13}" cy="${y - 13}" r="10.5" fill="none" stroke="var(--sepia-fonce)" stroke-width=".8"/></g>` : "";
+    return `<g class="pt${s.tamponne ? " visite" : ""}${sel ? " sel" : ""}" data-action="${interactive ? "choisir-escale" : "ouvrir-escale"}" data-id="${e.id}" tabindex="0" role="button" aria-pressed="${sel}" aria-label="Escale ${esc(e.nom)}${s.tamponne ? ", déjà visitée, chiffre " + e.chiffre : ""}">
       <title>${esc(e.nom)} · ${esc(e.contact)}</title>
       <circle class="halo" cx="${x}" cy="${y}" r="20"/>${s.tamponne ? "" : `<circle class="pulse" cx="${x}" cy="${y}" r="12" style="animation-delay:${ESCALES.indexOf(e) * .35}s"/>`}
       <path class="picto" d="${AVION}" transform="translate(${x} ${y}) scale(1.25)"/>
       <text x="${x + dx}" y="${y + dy}" text-anchor="${anchor}">${esc(e.nom)}${s.tamponne ? " · " + e.chiffre : ""}</text>
-      ${s.tamponne ? `<g class="croix" transform="translate(${x + 9} ${y - 11}) rotate(-8)"><path d="M-9-8 9 8M9-9-8 9"/></g>` : ""}</g>`;
+      ${drapeau}</g>`;
   }).join("");
   const av = avion ? `<path id="trajet" d="${avion}" fill="none" stroke="var(--nuit)" stroke-width="2.2" stroke-dasharray="1 0"/>
     <g class="avion" id="avion"><path d="${AVION}" transform="scale(1.4)" fill="var(--nuit)"/></g>` : "";
-  return `<div class="carte-cadre"><svg class="carte-vol" viewBox="0 28 1000 355" role="img" aria-label="Carte du monde : choisissez une des ${NB_LETTRES} escales au départ de Paris">
+  return `<div class="carte-wrap">${interactive ? ficheCarte() : ""}<div class="carte-cadre${interactive ? " interactive" : ""}"><div class="carte-zone"><svg class="carte-vol" viewBox="0 28 1000 355" role="img" aria-label="Carte du monde : choisissez une des ${NB_LETTRES} escales au départ de Paris">
     <defs><filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .35  0 0 0 0 .25  0 0 0 0 .12  0 0 0 .22 0"/><feComposite in2="SourceGraphic" operator="in"/></filter></defs>
     <rect x="0" y="28" width="1000" height="355" class="parchemin"/>
     <path class="grille" d="${grille}"/>
@@ -1589,7 +1630,25 @@ function carteVol({ avion = null } = {}) {
     <rect x="0" y="28" width="1000" height="355" filter="url(#grain)" fill="#000"/>
     ${routes}
     <g class="paris"><title>Paris · départ</title><circle cx="${px}" cy="${py}" r="9"/><path d="M${px} ${py + 4}l-4.2-4.2a2.4 2.4 0 0 1 4.2-2.6 2.4 2.4 0 0 1 4.2 2.6Z" fill="var(--parch)"/></g>
-    ${points}${av}</svg></div>`;
+    ${points}${av}</svg></div></div></div>`;
+}
+// Fiche de l'escale sélectionnée sur la carte interactive, posée à côté de son avion
+function ficheCarte() {
+  const e = escaleParId(ui.carteSel); if (!e) return "";
+  const [x, y] = proj(e); const s = etat.escales[e.id];
+  const gauche = (x / 1000) * 100, haut = ((y - 28) / 355) * 100;
+  const cote = gauche > 55 ? "a-gauche" : "a-droite", vert = haut > 55 ? "en-haut" : "en-bas";
+  const [, a] = PREP[e.id] || ["", "à " + e.nom];
+  return `<div class="fiche-carte ${cote} ${vert}" style="left:${gauche.toFixed(1)}%;top:${haut.toFixed(1)}%;--c:${e.teinte || e.couleur}" role="dialog" aria-label="Escale ${esc(e.nom)}">
+      ${bandeDrapeau(e)}
+      <button class="fermer-fiche" data-action="choisir-escale" data-id="" aria-label="Fermer la fiche">×</button>
+      <div class="fc-tete"><span class="vv-drapeau" aria-hidden="true"><svg viewBox="0 0 60 40" preserveAspectRatio="xMidYMid slice">${DRAPEAUX[e.id] || ""}</svg></span>
+        <div><strong>${esc(e.nom)}</strong><span>${esc(e.region)}</span></div></div>
+      <p class="fc-contact">${esc(e.contact)}</p>
+      <p class="fc-ambiance">${esc(e.ambiance)}</p>
+      <div class="fc-pied"><span class="vv-etat${s.tamponne ? " ok" : ""}">${s.tamponne ? "Visité · chiffre " + e.chiffre : "À visiter"}</span>
+        <button class="btn or" data-action="ouvrir-escale" data-id="${e.id}">${s.tamponne ? "Revoir l'escale" : "S'envoler " + esc(a)} ✈</button></div>
+    </div>`;
 }
 
 /* Drapeaux des escales, dessinés en SVG (60 × 40) pour l'empreinte des tampons.
@@ -1872,8 +1931,8 @@ function ecranCarte() {
         <span class="doux">${n} tampon${n > 1 ? "s" : ""} sur ${NB}</span>
       </div>
       <h3 class="titre-carte">Choisis ta destination</h3>
-      ${carteVol()}
-      <p class="doux">Cliquez sur un avion pour vous envoler, ou choisissez une page du passeport. Une croix rouge marque les escales déjà visitées. L'ordre de jeu est libre, mais le code du coffre suit l'ordre des pages.</p>
+      ${carteVol({ interactive: true })}
+      <p class="doux">Cliquez sur un avion pour découvrir l'escale, puis envolez-vous. Un petit drapeau marque les escales déjà visitées. L'ordre de jeu est libre, mais le code du coffre suit l'ordre des visas.</p>
     </section>
     <div class="visas" role="list" aria-label="Les visas des six escales">
       ${ESCALES.map((e, i) => {
@@ -2442,6 +2501,16 @@ function afficher() {
   // Accueil : le passeport est fermé (couverture seule) ; ailleurs, on est sur une page ouverte du livret
   const ouvert = ui.transit || etat.ecran !== "accueil";
   app.classList.toggle("livret", Boolean(ouvert)); app.classList.toggle("ferme", !ouvert);
+  // Pages d'un pays (vol, album, escale) : le fond de la page prend les couleurs de son drapeau
+  const idPays = ui.transit ? (ui.transit.vers !== "cheznous" ? ui.transit.vers : null) : etat.ecran === "escale" ? etat.escaleActive : null;
+  const pays = idPays && escaleParId(idPays);
+  app.classList.toggle("pays", Boolean(pays));
+  if (pays) {
+    const cs = (pays.drapeau || [pays.couleur]).map((c) => (c.toLowerCase() === "#ffffff" ? pays.teinte || pays.couleur : c));
+    const [c1, c2 = c1, c3 = c1] = cs;
+    app.style.setProperty("--fond-pays", `linear-gradient(125deg, color-mix(in srgb, ${c1} 26%, var(--page)) 0%, color-mix(in srgb, ${c2} 19%, var(--page)) 50%, color-mix(in srgb, ${c3} 26%, var(--page)) 100%)`);
+    app.style.setProperty("--bord-pays", `linear-gradient(180deg, ${cs.join(", ")})`);
+  } else { app.style.removeProperty("--fond-pays"); app.style.removeProperty("--bord-pays"); }
   app.innerHTML = (ouvert ? decorLivret() : "") + fn();
   app.querySelectorAll("[data-media]").forEach((n) => {
     const o = garde.get(n.dataset.media); if (!o) return;
@@ -2582,6 +2651,15 @@ const actions = {
   },
   "fin-transit"() { finTransit(); },
   "voir-album"() { apresVol(ui.transit); },
+  // Carte interactive : sélectionner une escale (ou fermer la fiche), sans faire sauter la page ni la carte
+  "choisir-escale"(b) {
+    const id = b.dataset.id || null;
+    ui.carteSel = ui.carteSel === id ? null : id;
+    const cadre = document.querySelector(".carte-cadre.interactive"), sx = cadre ? cadre.scrollLeft : 0, y = window.scrollY;
+    son.clic(); afficher(); window.scrollTo({ top: y });
+    const c2 = document.querySelector(".carte-cadre.interactive"); if (c2 && cadre) c2.scrollLeft = sx;
+    document.querySelector(ui.carteSel ? ".fiche-carte .btn" : `.carte-vol .pt[data-id="${id}"]`)?.focus({ preventScroll: true });
+  },
   lire() { lireDocument(escaleParId(etat.escaleActive)); },
   repondre(b) {
     const e = escaleParId(etat.escaleActive);
@@ -2706,9 +2784,17 @@ document.addEventListener("click", (ev) => {
   const f = actions[b.dataset.action];
   if (f) { ev.preventDefault(); f(b); }
 });
+// Carte ↔ visas : survoler un visa allume son avion sur la carte, et inversement
+document.addEventListener("mouseover", (ev) => {
+  const v = ev.target.closest && ev.target.closest(".visa-vignette[data-id], .carte-vol .pt[data-id]");
+  const id = v ? v.dataset.id : null;
+  if (id === ui.survol) return; ui.survol = id;
+  document.querySelectorAll(".carte-vol .pt, .visa-vignette").forEach((x) => x.classList.toggle("survol", Boolean(id) && x.dataset.id === id));
+});
 document.addEventListener("keydown", (ev) => {
   const t = ev.target;
-  if (t.matches && t.matches(".pt") && (ev.key === "Enter" || ev.key === " ")) { ev.preventDefault(); actions["ouvrir-escale"](t); return; }
+  if (t.matches && t.matches(".pt") && (ev.key === "Enter" || ev.key === " ")) { ev.preventDefault(); actions[t.dataset.action || "ouvrir-escale"](t); return; }
+  if (ev.key === "Escape" && ui.carteSel) { actions["choisir-escale"]({ dataset: { id: ui.carteSel } }); return; }
   if (t.dataset && t.dataset.chiffre !== undefined) {
     if (ev.key === "Backspace" && !t.value) document.getElementById("chiffre-" + (+t.dataset.chiffre - 1))?.focus();
     if (ev.key === "Enter") { ev.preventDefault(); actions["valider-coffre"](); }
