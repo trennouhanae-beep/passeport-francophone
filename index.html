@@ -565,6 +565,21 @@ main.livret.tourne-arriere { transform-origin: right center; animation: tourner-
 .identite .mrz { grid-column: 1 / -1; margin: 0; background: color-mix(in srgb, var(--page) 70%, transparent); }
 .identite .hologramme { position: absolute; right: 14px; top: 14px; width: 54px; height: 54px; border-radius: 50%; background: conic-gradient(from 0deg, #ffd6e0, #d6f5ff, #e6ffd6, #fff1c2, #ffd6e0); opacity: .55; mix-blend-mode: multiply; animation: holo 8s linear infinite; }
 @keyframes holo { to { transform: rotate(360deg); } }
+/* Vidéo d'introduction : écran de cinéma sur la couverture, sous-titres et bouton « Passer » */
+.intro { position: relative; aspect-ratio: 16 / 9; width: 100%; max-width: 900px; margin: 0 auto; border-radius: 14px; overflow: hidden; background: #0c0705;
+  box-shadow: 0 0 0 6px var(--cuir), 0 0 0 7px var(--lisere), 0 30px 50px -24px rgba(40, 8, 12, .7); }
+.intro-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.intro::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,.35), transparent 22%, transparent 62%, rgba(0,0,0,.7)); }
+.intro-st { position: absolute; left: 50%; transform: translateX(-50%); width: max-content; max-width: 88%; bottom: 8%; z-index: 1; margin: 0; text-align: center; color: #fff6e2; font-family: var(--f-titre); font-style: italic;
+  font-size: clamp(1rem, 2.6vw, 1.45rem); line-height: 1.3; text-shadow: 0 1px 3px rgba(0,0,0,.8); background: rgba(20, 8, 4, .62); padding: .35em .8em; border-radius: 8px; }
+.intro-st.apparait { animation: st-apparait .45s ease-out both; }
+@keyframes st-apparait { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.intro-barre { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.15); z-index: 1; }
+.intro-barre span { display: block; height: 100%; width: 0; background: var(--or-clair); transition: width .25s linear; }
+.intro .intro-passer { position: absolute; top: 12px; right: 12px; z-index: 2; color: #fff6e2; border-color: rgba(255, 246, 226, .6); background: rgba(20, 8, 4, .6); padding: 6px 14px; }
+.intro .intro-passer:hover:not(:disabled) { background: rgba(20, 8, 4, .8); color: #fff; }
+.revoir-intro { color: #e9c77e !important; font-size: .9rem; }
+
 /* Page 5 (option A) : la double page des visas et la serrure du code */
 .visas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 2vw, 18px); }
 .visa-vignette { --c: #333; position: relative; overflow: hidden; text-align: left; display: grid; gap: 10px; padding: 18px 14px 12px; border-radius: 8px; color: var(--encre);
@@ -1045,6 +1060,7 @@ function etatInitial() {
     preparation: { escale: null, ressemblance: "", difference: "", explication: "" },
     autoEval: [],
     expose: { enregistre: false, duree: 0, nb: 0 }, // l'exposé enregistré dans le jeu (le son lui-même n'est pas sauvegardé)
+    introVue: false,       // la vidéo d'introduction a déjà été vue sur ce poste
     finJeu: null,          // heure de fin du voyage (premier passage au bilan)
     son: true,
     musique: false,        // la musique d'ambiance se lance seulement si l'équipe le choisit
@@ -1747,7 +1763,37 @@ function decorLivret() {
     <div class="pied-page" aria-hidden="true" style="${f.c ? `--c:${f.c}` : ""}"><span class="serie">N° ${serie}</span>${f.n ? `<span class="folio"><span class="pastille"></span>${f.n}</span>` : ""}<span class="serie-2">${f.c ? "Visa" : "Page"}</span></div>`;
 }
 
+/* Vidéo d'introduction (Higgsfield) : elle se joue sur la couverture à la première visite, avec des sous-titres */
+const SOUS_TITRES_INTRO = [
+  [0, "Paris, à l'aube. Raoul, l'agent du Passeport francophone, a disparu…"],
+  [2.3, "Il a laissé un coffre verrouillé, et six chiffres cachés dans le monde francophone."],
+  [4.6, "Votre mission : partir à leur recherche. L'avion décolle !"],
+];
+// On s'arrête dans les nuages : la fin de la vidéo générée montre une carte aux noms de lieux inventés
+const FIN_INTRO = 6.6;
+function introHTML() {
+  return `<div class="colonne"><section class="intro" aria-label="Introduction du jeu">
+      <video class="intro-video" id="intro-video" autoplay muted playsinline preload="auto" ontimeupdate="sousTitresIntro(this)" onended="finIntro()">
+        <source src="videos/intro.mp4" type="video/mp4" onerror="ui.mediaAbsent.add('intro'); finIntro()"></video>
+      <p class="intro-st" id="intro-st" aria-live="polite">${esc(SOUS_TITRES_INTRO[0][1])}</p>
+      <div class="intro-barre" aria-hidden="true"><span id="intro-progres"></span></div>
+      <button class="btn second intro-passer" data-action="passer-intro">Passer ▸</button>
+    </section></div>`;
+}
+function sousTitresIntro(v) {
+  const t = v.currentTime, st = document.getElementById("intro-st"), pr = document.getElementById("intro-progres");
+  const ligne = [...SOUS_TITRES_INTRO].reverse().find(([d]) => t >= d);
+  if (st && ligne && st.textContent !== ligne[1]) { st.textContent = ligne[1]; st.classList.remove("apparait"); void st.offsetWidth; st.classList.add("apparait"); }
+  if (pr) pr.style.width = Math.min(100, 100 * t / FIN_INTRO).toFixed(1) + "%";
+  if (t >= FIN_INTRO) { v.pause(); finIntro(); }
+}
+function finIntro() {
+  if (!ui.intro) return;
+  ui.intro = false; ui.dernierEcran = null;
+  maj({ introVue: true });
+}
 function ecranAccueil() {
+  if (ui.intro) return introHTML();
   return `<div class="colonne">
     <section class="couverture" aria-label="Couverture du passeport">
       ${media("couverture", "videos/couverture.mp4", "images/couverture.jpg", "fond-media")}
@@ -1756,6 +1802,7 @@ function ecranAccueil() {
       <h1>PASSEPORT<br>FRANCOPHONE</h1>
       <p class="sous">${ESCALES.map((e) => esc(e.nom)).join(" · ")}</p>
       <button class="btn or" data-action="embarquer">${sauvegardeTrouvee || etat.debutJeu ? "REPRENDRE LE VOYAGE" : "ON EMBARQUE ?"}</button>
+      ${ui.mediaAbsent.has("intro") ? "" : `<button class="lien revoir-intro" data-action="voir-intro">▶ Voir l'introduction</button>`}
       ${PUCE_BIO}
     </section>
     <section class="page">
@@ -2651,6 +2698,8 @@ const actions = {
   },
   "fin-transit"() { finTransit(); },
   "voir-album"() { apresVol(ui.transit); },
+  "voir-intro"() { ui.intro = true; ui.dernierEcran = null; afficher(); son.avion(); },
+  "passer-intro"() { finIntro(); },
   // Carte interactive : sélectionner une escale (ou fermer la fiche), sans faire sauter la page ni la carte
   "choisir-escale"(b) {
     const id = b.dataset.id || null;
@@ -2892,6 +2941,8 @@ setInterval(() => {
 
 if (ttsOk) speechSynthesis.onvoiceschanged = () => {};
 if (etat.ecran === "escale" && !escaleParId(etat.escaleActive)) etat.ecran = "carte";
+// Première visite sur ce poste : la vidéo d'introduction se joue d'abord (sauf si le poste demande moins d'animations)
+if (etat.ecran === "accueil" && !etat.introVue && !etat.debutJeu && !matchMedia("(prefers-reduced-motion: reduce)").matches) ui.intro = true;
 afficher();
 </script>
 </body>
