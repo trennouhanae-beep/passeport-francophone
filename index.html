@@ -530,6 +530,22 @@ main.livret.tourne-arriere { transform-origin: right center; animation: tourner-
 .identite .mrz { grid-column: 1 / -1; margin: 0; background: color-mix(in srgb, var(--page) 70%, transparent); }
 .identite .hologramme { position: absolute; right: 14px; top: 14px; width: 54px; height: 54px; border-radius: 50%; background: conic-gradient(from 0deg, #ffd6e0, #d6f5ff, #e6ffd6, #fff1c2, #ffd6e0); opacity: .55; mix-blend-mode: multiply; animation: holo 8s linear infinite; }
 @keyframes holo { to { transform: rotate(360deg); } }
+/* Page 4 (option A) : « Chez nous », notre album à nous, à légender */
+.album-cn .polaroid { animation: none; }
+main.entree .album-cn .polaroid { animation: poser .55s cubic-bezier(.2, 1.3, .4, 1) backwards; animation-delay: calc(.25s + var(--i) * .32s); }
+.album-cn .cliche { --cn-a: #b9b1a3; --cn-b: #9d9486; --cn-c: #cfc7b8; background: linear-gradient(160deg, #ded8cc, #cbc3b4); filter: grayscale(1) contrast(.9); transition: filter 1.4s ease, background 1.4s ease; }
+.album-cn .cliche svg { width: 58%; height: auto; }
+.album-cn .polaroid.developpe .cliche { --cn-a: #e2344c; --cn-b: #d99a2b; --cn-c: #14a39a; background: linear-gradient(160deg, #fff1d6, #ffd9c2 55%, #d6f1ec); filter: none; }
+.album-cn .polaroid:hover { transform: rotate(var(--r)); }
+.album-cn .polaroid figcaption { display: grid; gap: 4px; text-align: left; padding: 8px 4px 10px; }
+.q-cn { font-family: var(--f-texte); font-style: normal; font-size: .74rem; line-height: 1.3; color: #6b5243; }
+.legende { font-family: var(--f-titre) !important; font-style: italic; font-size: 1rem !important; line-height: 24px; color: #2b1a12 !important; min-height: 74px;
+  background: repeating-linear-gradient(transparent 0 23px, rgba(107, 82, 67, .28) 23px 24px) !important; border: 0 !important; border-radius: 0 !important; padding: 0 2px !important; resize: vertical; box-shadow: none !important; }
+.legende::placeholder { color: rgba(107, 82, 67, .55); }
+.legende:focus { background-color: rgba(217, 154, 43, .08) !important; }
+.album-cn .recompense { display: grid; justify-items: center; gap: 12px; text-align: center; padding-top: 6px; }
+@media (max-width: 480px) { .album-cn .polaroids { grid-template-columns: minmax(0, 1fr); max-width: 320px; margin: 0 auto; width: 100%; } }
+
 /* Page 3 (option A) : le visa du compagnon de voyage */
 .identite.visa-compagnon, .identite.saisie { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: clamp(16px, 3vw, 24px); }
 .planche { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(8px, 2vw, 16px); }
@@ -1778,19 +1794,30 @@ function ecranChezNous() {
       <p class="accroche">« Votre culture est votre première escale. »</p></div>${embleme("moi", "var(--or)")}
     </section>
     ${bulleGuide("Avant de découvrir les autres, parlez de vous. Ces notes vous serviront pour l'exposé final.", false)}
-    <section class="page">
-      <span class="etiquette">Discutez en équipe · le secrétaire écrit</span>
-      <p class="doux">Répondez en français, en une ou deux phrases. Remplissez au moins deux cases pour obtenir le tampon.</p>
-      ${CHEZ_NOUS.map((c) => `<div class="champ"><label for="cn-${c.id}">${esc(c.q)}</label>
-        <textarea id="cn-${c.id}" data-cheznous="${c.id}" placeholder="Chez nous, …">${esc(etat.chezNous[c.id])}</textarea></div>`).join("")}
+    <section class="page album album-cn" style="--c:var(--or)">
+      <span class="etiquette">Album · Souvenirs de chez nous · le secrétaire écrit</span>
+      <h2>Notre album à nous</h2>
+      <p class="doux">Les autres pays ont leur album : voici le vôtre. Discutez en équipe, puis écrivez la légende de chaque photo, en français, en une ou deux phrases. Deux photos légendées suffisent pour le tampon.</p>
+      <div class="polaroids">${CHEZ_NOUS.map((c, i) => `<figure class="polaroid${(etat.chezNous[c.id] || "").trim() ? " developpe" : ""}" style="--i:${i}">
+          <div class="cliche" aria-hidden="true">${ICONES_CN[c.id] || ""}</div>
+          <figcaption><label class="q-cn" for="cn-${c.id}">${esc(c.q)}</label>
+            <textarea class="legende" id="cn-${c.id}" data-cheznous="${c.id}" rows="3" placeholder="Chez nous, …">${esc(etat.chezNous[c.id])}</textarea></figcaption>
+        </figure>`).join("")}</div>
+      ${t ? `<div class="recompense">${TAMPON_CHEZ_NOUS(true, ui.tamponAnime === "moi")}
+          <p>Votre premier tampon ! Gardez cet album en tête : à chaque escale, vous comparerez.</p>
+          <button class="btn or" data-action="aller" data-ecran="carte">Ouvrir le passeport</button></div>`
+        : `<div class="rangee"><div class="condition${n >= 2 ? " ok" : ""}" id="cond-cn"><span class="puce">${n >= 2 ? "✓" : ""}</span><span id="cond-cn-txt">${n} photo${n > 1 ? "s" : ""} légendée${n > 1 ? "s" : ""} sur 4</span></div>
+          <button class="btn or" data-action="tamponner-cheznous" id="btn-cn" ${n >= 2 ? "" : "disabled"}>Obtenir le tampon</button></div>`}
     </section>
-    ${t ? `<section class="page recompense">${TAMPON_CHEZ_NOUS(true, ui.tamponAnime === "moi")}
-        <p>Votre premier tampon ! Direction le reste du monde francophone.</p>
-        <button class="btn or" data-action="aller" data-ecran="carte">Ouvrir le passeport</button></section>`
-      : `<section class="page"><div class="condition${n >= 2 ? " ok" : ""}" id="cond-cn"><span class="puce">${n >= 2 ? "✓" : ""}</span><span id="cond-cn-txt">${n} case${n > 1 ? "s" : ""} remplie${n > 1 ? "s" : ""} sur 4</span></div>
-        <div><button class="btn or" data-action="tamponner-cheznous" id="btn-cn" ${n >= 2 ? "" : "disabled"}>Obtenir le tampon</button></div></section>`}
   </div>`;
 }
+// Les icônes des quatre polaroïds de « Chez nous » (elles se colorent quand la photo est légendée)
+const ICONES_CN = {
+  fete: `<svg viewBox="0 0 64 48"><path d="M10 40 24 12l16 16Z" fill="var(--cn-a)"/><path d="M24 12l16 16" stroke="var(--cn-b)" stroke-width="2"/><g fill="var(--cn-b)"><circle cx="44" cy="10" r="3"/><circle cx="52" cy="22" r="2.5"/><rect x="34" y="4" width="4" height="7" rx="1" transform="rotate(25 36 7)"/><rect x="48" y="32" width="4" height="7" rx="1" transform="rotate(-30 50 35)"/></g><g fill="var(--cn-c)"><circle cx="56" cy="12" r="2"/><circle cx="42" cy="36" r="2.4"/><rect x="28" y="2" width="3" height="6" rx="1" transform="rotate(-20 29 5)"/></g></svg>`,
+  plat: `<svg viewBox="0 0 64 48"><path d="M18 8c0 4 4 4 4 8M30 6c0 4 4 4 4 8M42 8c0 4 4 4 4 8" stroke="var(--cn-c)" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M8 24h48c0 12-10 18-24 18S8 36 8 24Z" fill="var(--cn-a)"/><path d="M8 24h48" stroke="var(--cn-b)" stroke-width="3" stroke-linecap="round"/></svg>`,
+  accueil: `<svg viewBox="0 0 64 48"><rect x="20" y="6" width="24" height="38" rx="2" fill="var(--cn-a)"/><rect x="24" y="10" width="16" height="30" fill="var(--cn-b)" opacity=".5"/><circle cx="37" cy="26" r="2" fill="var(--cn-c)"/><path d="M8 44h48" stroke="var(--cn-b)" stroke-width="3" stroke-linecap="round"/><path d="M50 14c-3-4-8 0-4 4l4 4 4-4c4-4-1-8-4-4Z" fill="var(--cn-c)"/></svg>`,
+  famille: `<svg viewBox="0 0 64 48"><g fill="var(--cn-a)"><circle cx="16" cy="14" r="6"/><path d="M6 44c0-10 4-16 10-16s10 6 10 16Z"/><circle cx="48" cy="14" r="6"/><path d="M38 44c0-10 4-16 10-16s10 6 10 16Z"/></g><g fill="var(--cn-b)"><circle cx="32" cy="22" r="5"/><path d="M24 44c0-8 3-13 8-13s8 5 8 13Z"/></g><path d="M29 6c-2-3-6 0-3 3l3 3 3-3c3-3-1-6-3-3Z" fill="var(--cn-c)"/></svg>`,
+};
 
 function ecranCarte() {
   const n = nbTampons();
@@ -2652,7 +2679,9 @@ document.addEventListener("input", (ev) => {
     const n = chezNousRemplis();
     const btn = document.getElementById("btn-cn"); if (btn) btn.disabled = n < 2;
     const c = document.getElementById("cond-cn");
-    if (c) { c.classList.toggle("ok", n >= 2); c.querySelector(".puce").textContent = n >= 2 ? "✓" : ""; document.getElementById("cond-cn-txt").textContent = `${n} case${n > 1 ? "s" : ""} remplie${n > 1 ? "s" : ""} sur 4`; }
+    if (c) { c.classList.toggle("ok", n >= 2); c.querySelector(".puce").textContent = n >= 2 ? "✓" : ""; document.getElementById("cond-cn-txt").textContent = `${n} photo${n > 1 ? "s" : ""} légendée${n > 1 ? "s" : ""} sur 4`; }
+    // Le polaroïd se « développe » dès qu'il a une légende
+    const pol = t.closest(".polaroid"); if (pol) pol.classList.toggle("developpe", Boolean(t.value.trim()));
   } else if (t.dataset.carnet) {
     const id = t.dataset.carnet;
     maj({ carnet: { ...etat.carnet, [id]: { ...etat.carnet[id], [t.dataset.col]: t.value } } }, { rendu: false });
