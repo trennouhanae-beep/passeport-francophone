@@ -1104,6 +1104,10 @@ function afficherLecture() {
 function arreterLecture() { if (ttsOk) speechSynthesis.cancel(); ui.lecture = null; if (musique.attenue) musique.attenuer(false); }
 // Les navigateurs bloquent le son avant le premier geste : on réveille l'audio au premier clic ou à la première touche.
 ["pointerdown", "keydown"].forEach((ev) => document.addEventListener(ev, () => { if (ctxAudio && ctxAudio.state === "suspended") ctxAudio.resume(); }, { passive: true }));
+// Le navigateur met les vidéos en pause quand la page est cachée : on relance les vidéos en boucle au retour.
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") document.querySelectorAll("video[data-media][loop]").forEach((v) => { if (v.paused) v.play().catch(() => {}); });
+});
 
 /* Confettis (couleurs de l'escale ou du drapeau), dessinés sur un canevas posé au-dessus de la page */
 function confettis({ couleurs = ["#d99a2b", "#f0c35a", "#c1272d", "#00853f", "#0b4ea2"], nombre = 120, origine = null } = {}) {
