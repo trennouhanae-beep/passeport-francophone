@@ -530,6 +530,42 @@ main.livret.tourne-arriere { transform-origin: right center; animation: tourner-
 .identite .mrz { grid-column: 1 / -1; margin: 0; background: color-mix(in srgb, var(--page) 70%, transparent); }
 .identite .hologramme { position: absolute; right: 14px; top: 14px; width: 54px; height: 54px; border-radius: 50%; background: conic-gradient(from 0deg, #ffd6e0, #d6f5ff, #e6ffd6, #fff1c2, #ffd6e0); opacity: .55; mix-blend-mode: multiply; animation: holo 8s linear infinite; }
 @keyframes holo { to { transform: rotate(360deg); } }
+/* Page d'identité à remplir (option A) : on écrit dans le passeport */
+.identite.saisie { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: clamp(16px, 3vw, 24px); }
+.identite .dt { font-family: var(--f-code); font-size: .66rem; letter-spacing: .14em; text-transform: uppercase; color: var(--encre-douce); font-weight: 400; }
+.identite .dd { font-family: var(--f-code); font-weight: 600; text-transform: uppercase; }
+.ligne-pp { display: grid; gap: 4px; padding-right: 70px; }
+.pp-input { font-family: var(--f-code); font-weight: 600; font-size: 1.15rem; letter-spacing: .06em; text-transform: uppercase; color: var(--encre);
+  background: transparent !important; border: 0 !important; border-bottom: 1.5px dashed color-mix(in srgb, var(--encre-douce) 70%, transparent) !important; border-radius: 0 !important;
+  padding: 4px 2px !important; box-shadow: none !important; caret-color: var(--or); width: 100%; }
+.pp-input:focus { border-bottom: 2px solid var(--or) !important; background: color-mix(in srgb, var(--or) 7%, transparent) !important; }
+.pp-input::placeholder { text-transform: none; letter-spacing: 0; font-weight: 400; color: color-mix(in srgb, var(--encre-douce) 60%, transparent); font-family: var(--f-texte); }
+.pp-nom { font-size: clamp(1.2rem, 3.4vw, 1.6rem); }
+.voyageurs-pp { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(10px, 2.4vw, 20px); }
+.voy { display: grid; gap: 6px; align-content: start; }
+.photo-pp { position: relative; width: 100%; max-width: 110px; aspect-ratio: 4 / 5; border-radius: 6px; display: grid; place-items: center; overflow: visible;
+  background: color-mix(in srgb, var(--encre) 6%, var(--page)); border: 1.5px dashed color-mix(in srgb, var(--encre-douce) 55%, transparent); color: color-mix(in srgb, var(--encre) 28%, transparent); transition: background .25s, border-color .25s; }
+.photo-pp .silhouette { width: 60%; grid-area: 1 / 1; transition: opacity .25s; }
+.photo-pp .initiale { grid-area: 1 / 1; font-family: var(--f-titre); font-size: clamp(2rem, 6vw, 2.8rem); font-weight: 700; color: var(--cuir-2); opacity: 0; transform: scale(.6); transition: opacity .25s, transform .3s cubic-bezier(.2, 1.4, .4, 1); position: relative; z-index: 1; }
+.photo-pp.remplie { border-style: solid; border-color: var(--trait); background: linear-gradient(160deg, color-mix(in srgb, #2a8a8a 12%, var(--page)), color-mix(in srgb, #c0506a 10%, var(--page))); }
+.photo-pp.remplie .initiale { opacity: 1; transform: none; }
+.photo-pp.remplie .silhouette { opacity: .25; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .photo-pp .initiale { color: var(--or-clair); } }
+:root[data-theme="dark"] .photo-pp .initiale { color: var(--or-clair); }
+.tampons-voy { position: absolute; right: -12px; bottom: 6px; display: grid; gap: 4px; justify-items: end; z-index: 2; }
+.tampon-role { font-family: var(--f-code); font-size: .62rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--x); background: color-mix(in srgb, var(--page) 88%, transparent);
+  border: 2px double var(--x); border-radius: 6px; padding: 2px 6px; transform: rotate(-10deg); white-space: nowrap; box-shadow: 0 1px 0 rgba(0,0,0,.05); }
+.tampon-role.anime { animation: tamponner .5s cubic-bezier(.2, 1.4, .4, 1) both; animation-delay: calc(.12s + var(--d)); }
+.tache-voy { font-size: .8rem; color: var(--encre-douce); line-height: 1.35; }
+.dates-pp { display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: 10px 26px; align-items: end; }
+.dates-pp > div { display: grid; gap: 4px; }
+.signature { justify-items: start; border-left: 1px dashed var(--trait); padding-left: 20px; }
+@media (max-width: 640px) {
+  .voyageurs-pp { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dates-pp { grid-template-columns: auto auto; }
+  .signature { grid-column: 1 / -1; border-left: 0; padding-left: 0; border-top: 1px dashed var(--trait); padding-top: 12px; }
+  .ligne-pp { padding-right: 56px; }
+}
 @media (max-width: 560px) {
   main.livret { width: calc(100% - 20px); padding: 46px 14px 52px 30px; margin-top: 14px; }
   main.livret::before { width: 16px; } main.livret::after { left: 7px; }
@@ -1587,23 +1623,6 @@ function ecranCapitaine() {
     <div class="rangee"><button class="btn or" data-action="aller" data-ecran="equipage">Former l'équipage</button></div>
   </div>`;
 }
-// Page d'identité du passeport : elle se remplit pendant que l'équipe tape son nom et ses prénoms
-function pageIdentite() {
-  const date = (d) => d.toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase();
-  const auj = new Date();
-  return `<section class="identite" aria-label="Page d'identité du passeport">
-    <span class="hologramme" aria-hidden="true"></span>
-    <div class="photo" aria-hidden="true"><svg viewBox="0 0 60 70" fill="currentColor"><circle cx="30" cy="24" r="13"/><path d="M6 70c2-16 12-24 24-24s22 8 24 24Z"/></svg></div>
-    <dl>
-      <div class="large"><dt>Type / Code · Passeport n°</dt><dd>P · FR · PF${String(etat.partieId || "").replace(/[^0-9a-f]/gi, "").slice(0, 7).toUpperCase()}</dd></div>
-      <div class="large"><dt>Nom de l'équipe</dt><dd id="id-nom">${esc(etat.equipe.nom) || "…"}</dd></div>
-      <div class="large"><dt>Voyageurs</dt><dd id="id-membres">${membresInscrits().map(esc).join(" · ") || "…"}</dd></div>
-      <div><dt>Délivré le</dt><dd>${date(auj)}</dd></div>
-      <div><dt>Valable</dt><dd>${REGLAGES.DUREE_JEU_MIN} minutes</dd></div>
-    </dl>
-    <pre class="mrz" id="id-mrz" aria-hidden="true">${esc(mrz())}</pre>
-  </section>`;
-}
 function ecranEquipage() {
   const m = etat.equipe.membres;
   const inscrits = membresInscrits().length;
@@ -1617,24 +1636,43 @@ function ecranEquipage() {
       return `<li><strong>${esc(nom)}</strong><span class="role-tag">${r.map((x) => x.nom).join(" + ")}</span><span class="doux petit">${r.map((x) => x.tache).join(" ; ")}</span></li>`;
     }).join("")}</ul>${inscrits === 3 ? `<p class="doux petit">Vous êtes trois : le navigateur surveille aussi le temps.</p>` : ""}`;
   }
+  // Option A : on écrit directement dans la page d'identité du passeport
+  const anime = ui.rolesAnime; ui.rolesAnime = false;
+  const date = new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase();
+  const numero = "PF" + String(etat.partieId || "").replace(/[^0-9a-f]/gi, "").slice(0, 7).toUpperCase();
+  let rang = 0;
+  const voyageurs = m.map((nom, i) => {
+    const r = tires ? rolesDuMembre(i).map((id) => ROLES.find((x) => x.id === id)) : [];
+    const tampons = r.map((x) => `<span class="tampon-role${anime ? " anime" : ""}" style="--d:${(rang++) * .35}s">${esc(x.nom)}</span>`).join("");
+    return `<div class="voy">
+        <div class="photo-pp${nom.trim() ? " remplie" : ""}" id="photo-${i}" aria-hidden="true">
+          <span class="initiale">${esc(nom.trim().charAt(0).toUpperCase())}</span>
+          <svg class="silhouette" viewBox="0 0 60 70" fill="currentColor"><circle cx="30" cy="24" r="13"/><path d="M6 70c2-16 12-24 24-24s22 8 24 24Z"/></svg>
+          <span class="tampons-voy">${tampons}</span>
+        </div>
+        <label class="dt" for="membre-${i}">Voyageur ${i + 1}${i === 3 ? " · facultatif" : ""}</label>
+        <input class="pp-input" type="text" id="membre-${i}" data-membre="${i}" maxlength="40" value="${esc(nom)}" placeholder="Prénom" autocomplete="off" spellcheck="false">
+        ${r.length ? `<span class="tache-voy">${r.map((x) => esc(x.tache)).join(" ; ")}</span>` : ""}
+      </div>`;
+  }).join("");
   return `<div class="colonne">
     ${filAriane(1)}
-    ${pageIdentite()}
-    <section class="page">
-      <span class="etiquette">Étape 1 · l'équipage</span>
-      <h2>Votre équipe</h2>
-      <div class="champ"><label for="equipe-nom">Nom de l'équipe</label>
-        <input type="text" id="equipe-nom" data-equipe="nom" maxlength="60" value="${esc(etat.equipe.nom)}" placeholder="Les Baobabs, Les Érables…"></div>
-      <div class="voyageurs">
-        ${m.map((nom, i) => `<div class="champ"><label for="membre-${i}">Voyageur ${i + 1}${i === 3 ? " (facultatif)" : ""}</label>
-          <input type="text" id="membre-${i}" data-membre="${i}" maxlength="40" value="${esc(nom)}" placeholder="Prénom"></div>`).join("")}
+    <section class="identite saisie" aria-label="Page d'identité du passeport, à remplir">
+      <span class="hologramme" aria-hidden="true"></span>
+      <div class="ligne-pp"><span class="dt">Type / Code · Passeport n°</span><span class="dd">P · FR · ${numero}</span></div>
+      <div class="ligne-pp">
+        <label class="dt" for="equipe-nom">Nom de l'équipe</label>
+        <input class="pp-input pp-nom" type="text" id="equipe-nom" data-equipe="nom" maxlength="60" value="${esc(etat.equipe.nom)}" placeholder="Les Baobabs, Les Érables…" autocomplete="off" spellcheck="false">
       </div>
-      <p class="doux petit">Prénoms seulement, pas de nom de famille.</p>
-      <div class="rangee">
-        <button class="btn second" data-action="tirer-roles" id="btn-tirer" ${inscrits >= 3 ? "" : "disabled"}>Tirer les rôles au sort</button>
-        <span class="doux petit" id="aide-tirage">${inscrits >= 3 ? "Chaque voyageur reçoit un rôle au hasard." : "Inscrivez au moins 3 voyageurs."}</span>
+      <div class="voyageurs-pp">${voyageurs}</div>
+      <p class="doux petit">Prénoms seulement, pas de nom de famille. ${inscrits === 3 && tires ? "Vous êtes trois : le navigateur surveille aussi le temps." : ""}</p>
+      <div class="dates-pp"><div><span class="dt">Délivré le</span><span class="dd">${date}</span></div><div><span class="dt">Valable</span><span class="dd">${REGLAGES.DUREE_JEU_MIN} minutes</span></div>
+        <div class="signature"><span class="dt">Visa de l'équipage</span>
+          <button class="btn ${tires ? "second" : "or"}" data-action="tirer-roles" id="btn-tirer" ${inscrits >= 3 ? "" : "disabled"}>${tires ? "Tirer à nouveau les rôles" : "Tirer les rôles au sort"}</button>
+          <span class="doux petit" id="aide-tirage">${inscrits >= 3 ? "Chaque voyageur reçoit un rôle, tamponné sur sa photo." : "Inscrivez au moins 3 voyageurs."}</span></div>
       </div>
-      <div id="liste-roles">${listeRoles}</div>
+      <pre class="mrz" id="id-mrz" aria-hidden="true">${esc(mrz())}</pre>
+      <div id="liste-roles" class="sr">${listeRoles}</div>
     </section>
     <div class="rangee">
       <button class="btn second" data-action="aller" data-ecran="capitaine">Retour au briefing</button>
@@ -2338,8 +2376,12 @@ const actions = {
     if (idx.length === 3) distribues = distribues.filter((r) => r !== "gardien");
     melanger(distribues).forEach((r, k) => { roles[ordre[k]] = [r]; });
     if (idx.length === 3) { const nav = ordre.find((i) => roles[i][0] === "navigateur"); roles[nav].push("gardien"); }
-    son.clic();
+    ui.rolesAnime = true;
+    const y = window.scrollY;
     maj({ equipe: { ...etat.equipe, roles } });
+    window.scrollTo({ top: y });
+    // un coup de tampon par rôle
+    Object.values(roles).flat().forEach((_, k) => setTimeout(() => son.tampon(), 120 + k * 350));
   },
   "tirer-guide"() {
     const cible = Math.floor(Math.random() * GUIDES.length);
@@ -2516,11 +2558,20 @@ document.addEventListener("input", (ev) => {
   if (t.dataset.equipe === "nom" || t.dataset.membre !== undefined) {
     const equipe = { ...etat.equipe, membres: [...etat.equipe.membres] };
     if (t.dataset.equipe === "nom") equipe.nom = t.value;
-    else { equipe.membres[+t.dataset.membre] = t.value; if (rolesTires()) { equipe.roles = {}; document.getElementById("liste-roles").innerHTML = ""; } }
+    else {
+      equipe.membres[+t.dataset.membre] = t.value;
+      // Un prénom change : les rôles déjà tamponnés ne valent plus, on les efface
+      if (rolesTires()) {
+        equipe.roles = {};
+        document.getElementById("liste-roles").innerHTML = "";
+        document.querySelectorAll(".tampons-voy, .tache-voy").forEach((x) => { if (x.classList.contains("tache-voy")) x.remove(); else x.innerHTML = ""; });
+        const bt = document.getElementById("btn-tirer"); if (bt) { bt.textContent = "Tirer les rôles au sort"; bt.className = "btn or"; }
+      }
+      // La photo d'identité prend l'initiale du prénom
+      const ph = document.getElementById("photo-" + t.dataset.membre);
+      if (ph) { ph.classList.toggle("remplie", Boolean(t.value.trim())); ph.querySelector(".initiale").textContent = t.value.trim().charAt(0).toUpperCase(); }
+    }
     maj({ equipe }, { rendu: false });
-    // La page d'identité se remplit en direct
-    const idNom = document.getElementById("id-nom"); if (idNom) idNom.textContent = etat.equipe.nom || "…";
-    const idM = document.getElementById("id-membres"); if (idM) idM.textContent = membresInscrits().join(" · ") || "…";
     const idMrz = document.getElementById("id-mrz"); if (idMrz) idMrz.textContent = mrz();
     const n = membresInscrits().length;
     const ok = equipageComplet();
