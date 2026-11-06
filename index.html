@@ -111,15 +111,25 @@ input:focus, textarea:focus, select:focus { border-color: var(--or); outline: no
 
 /* Compagnons (tirage du guide) */
 .guides { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
-.guide { --g: #555; border: 2px solid var(--trait); border-radius: 10px; padding: 12px 8px; display: grid; justify-items: center; gap: 6px; text-align: center; background: var(--papier); transition: transform .12s, border-color .12s, opacity .2s; }
-.guide .av { width: 58px; height: 58px; border-radius: 50%; background: var(--g); color: #fff; display: grid; place-items: center; font-family: var(--f-titre); font-size: 1.5rem; }
-.guide strong { font-size: .92rem; line-height: 1.2; }
-.guide span { font-size: .78rem; color: var(--encre-douce); line-height: 1.3; }
-.guide.vise { border-color: var(--or); transform: scale(1.04); }
-.guide.choisi { border-color: var(--g); background: color-mix(in srgb, var(--g) 12%, var(--carte)); }
-.guides.fini .guide:not(.choisi) { opacity: .4; }
+/* Cartes de jeu : papier crème, liseré doré, médaillon et bordure à la couleur du guide */
+.guide { --g: #555; position: relative; border: 2px solid color-mix(in srgb, var(--g) 55%, var(--or)); border-radius: 14px; padding: 16px 8px 12px; display: grid; justify-items: center; align-content: start; gap: 6px; text-align: center;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--g) 9%, var(--carte)), var(--carte) 55%);
+  box-shadow: inset 0 0 0 4px var(--carte), inset 0 0 0 5px color-mix(in srgb, var(--or) 45%, transparent), 0 2px 6px rgba(74, 36, 23, .12);
+  transition: transform .15s, box-shadow .15s, opacity .25s, filter .25s; }
+.av { position: relative; overflow: hidden; }
+.av img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 25%; }
+.guide .av { width: 84px; height: 84px; border-radius: 50%; background: var(--g); color: #fff; display: grid; place-items: center; font-family: var(--f-titre); font-size: 2rem;
+  border: 3px solid var(--g); box-shadow: 0 0 0 2px var(--carte), 0 0 0 4px var(--or); }
+.guide strong { font-family: var(--f-titre); font-size: 1.02rem; line-height: 1.2; margin-top: 4px; }
+.guide span { font-size: .8rem; color: var(--encre-douce); line-height: 1.3; }
+.ico-guide { width: 22px; height: 22px; fill: none; stroke: color-mix(in srgb, var(--g) var(--mix-titre), var(--encre)); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; opacity: .85; }
+.guide.vise { transform: translateY(-4px) scale(1.04); box-shadow: inset 0 0 0 4px var(--carte), inset 0 0 0 5px var(--or), 0 0 0 3px var(--or-clair), 0 8px 18px rgba(192, 122, 28, .35); }
+.guide.choisi { transform: translateY(-4px) scale(1.05); border-color: var(--or);
+  box-shadow: inset 0 0 0 4px var(--carte), inset 0 0 0 5px var(--or), 0 0 0 4px color-mix(in srgb, var(--or-clair) 70%, transparent), 0 10px 26px rgba(192, 122, 28, .45); }
+.guides.fini .guide:not(.choisi) { opacity: .5; filter: saturate(.5); transform: scale(.96); }
+.tampon-choisi { position: absolute; top: 8px; right: 6px; transform: rotate(-9deg); padding: 3px 7px; border: 2px double var(--x); border-radius: 6px; color: var(--x) !important; font-family: var(--f-code); font-size: .68rem !important; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; background: color-mix(in srgb, var(--carte) 85%, transparent); animation: tamponner .5s cubic-bezier(.2,1.4,.4,1) both; }
 .bulle { --g: #555; display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 12px; align-items: start; background: color-mix(in srgb, var(--g) 10%, var(--carte)); border: 1px solid color-mix(in srgb, var(--g) 40%, var(--trait)); border-radius: 10px; padding: 12px 14px; }
-.bulle .av { width: 48px; height: 48px; border-radius: 50%; background: var(--g); color: #fff; display: grid; place-items: center; font-family: var(--f-titre); font-size: 1.2rem; }
+.bulle .av { width: 48px; height: 48px; border-radius: 50%; background: var(--g); color: #fff; display: grid; place-items: center; font-family: var(--f-titre); font-size: 1.2rem; box-shadow: 0 0 0 2px var(--carte), 0 0 0 3px var(--or); }
 .bulle p { font-style: italic; }
 
 /* Carte de vol */
@@ -339,17 +349,30 @@ const ROLES = [
 
 // Compagnons de voyage : le « Companion Randomizer » du modèle Genially, adapté.
 // Le guide tiré au sort donne l'indice de chaque escale, avec sa propre voix.
+// Portraits : déposez les photos dans images/guides/ (awa.jpg, leon.jpg, mireille.jpg, teva.jpg).
+// Tant qu'une photo manque, la carte affiche l'initiale du guide.
+const DOSSIER_PORTRAITS = "images/guides/";
+const ICONES_GUIDES = {
+  boussole: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11z"/>',
+  carnet: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+  livre: '<path d="M3 5.5C5.5 4.5 9 4.5 12 6.5c3-2 6.5-2 9-1V19c-2.5-1-6-1-9 1-3-2-6.5-2-9-1z"/><path d="M12 6.5V20"/>',
+  sac: '<path d="M8 6V5a4 4 0 0 1 8 0v1"/><rect x="5" y="6" width="14" height="15" rx="3"/><path d="M9 13h6v4H9z"/>',
+};
 const GUIDES = [
   { id: "aminata", nom: "Awa", metier: "la cartographe", couleur: "#00785a", initiale: "A",
+    photo: "awa.jpg", icone: "boussole",
     devise: "Un bon voyageur lit la carte… et le texte, paragraphe par paragraphe.",
     intro: "Awa déplie sa carte et pose le doigt sur le document :" },
   { id: "leon", nom: "Léon", metier: "le rapporteur", couleur: "#9c4a12", initiale: "L",
+    photo: "leon.jpg", icone: "carnet",
     devise: "Qui ? Quoi ? Quand ? Un bon rapporteur note toujours les mots-clés.",
     intro: "Léon ouvre son carnet de rapporteur :" },
   { id: "mireille", nom: "Mireille", metier: "la conteuse", couleur: "#7a3e9d", initiale: "M",
+    photo: "mireille.jpg", icone: "livre",
     devise: "Chaque histoire a un début, un milieu et une fin : écoutez-la bien.",
     intro: "Mireille baisse la voix, comme pour raconter un secret :" },
   { id: "tahina", nom: "Teva", metier: "l'explorateur", couleur: "#1f5fa8", initiale: "T",
+    photo: "teva.jpg", icone: "sac",
     devise: "Prenez votre temps, observez, et la piste apparaîtra.",
     intro: "Teva pointe sa boussole vers le texte :" },
 ];
@@ -889,9 +912,16 @@ function mrz() {
   const l2 = ("RAOUL<<" + code + "<<" + ESCALES.map((e) => e.code).join("") + "<<45MIN").padEnd(44, "<").slice(0, 44);
   return l1 + "\n" + l2;
 }
+// Médaillon du guide : la photo si elle existe, sinon l'initiale (l'image se retire si elle manque).
+function avatarGuide(g) {
+  return `<span class="av" aria-hidden="true">${g.initiale}<img src="${DOSSIER_PORTRAITS}${g.photo}" alt="" onerror="this.remove()"></span>`;
+}
+function iconeGuide(g) {
+  return `<svg class="ico-guide" viewBox="0 0 24 24" aria-hidden="true">${ICONES_GUIDES[g.icone] || ""}</svg>`;
+}
 function bulleGuide(texte, intro = true) {
   const g = guideActuel(); if (!g) return `<p class="indice">${esc(texte)}</p>`;
-  return `<div class="bulle" style="--g:${g.couleur}"><span class="av" aria-hidden="true">${g.initiale}</span>
+  return `<div class="bulle" style="--g:${g.couleur}">${avatarGuide(g)}
     <div><strong>${esc(g.nom)}, ${esc(g.metier)}</strong>${intro ? `<p class="doux petit">${esc(g.intro)}</p>` : ""}<p>« ${esc(texte)} »</p></div></div>`;
 }
 
@@ -962,7 +992,8 @@ function ecranCapitaine() {
       <p class="doux">Votre guide vous accompagne pendant tout le voyage. À chaque escale, il ou elle peut vous donner un indice, un seul.</p>
       <div class="guides${g && !t ? " fini" : ""}">
         ${GUIDES.map((x, i) => `<div class="guide${t && t.vise === i ? " vise" : ""}${g && !t && g.id === x.id ? " choisi" : ""}" style="--g:${x.couleur}">
-          <span class="av" aria-hidden="true">${x.initiale}</span><strong>${esc(x.nom)}</strong><span>${esc(x.metier)}</span></div>`).join("")}
+          ${avatarGuide(x)}<strong>${esc(x.nom)}</strong><span>${esc(x.metier)}</span>${iconeGuide(x)}
+          ${g && !t && g.id === x.id ? `<span class="tampon-choisi" aria-hidden="true">Choisi !</span>` : ""}</div>`).join("")}
       </div>
       ${g && !t ? bulleGuide(g.devise, false) : ""}
       <div><button class="btn second" data-action="tirer-guide" ${t ? "disabled" : ""}>${g ? "Tirer un autre guide" : "Tirer notre guide"}</button></div>
