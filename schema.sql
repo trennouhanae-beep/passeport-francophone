@@ -111,3 +111,39 @@ from public.parties p
 cross join lateral jsonb_each(coalesce(p.escales, '{}'::jsonb)) e;
 
 revoke all on public.suivi_escales from anon, authenticated;
+
+-- 4. Tableau des équipes dans l'espace enseignante du jeu (lecture seule)
+--    Le jeu l'appelle avec le code enseignante ; sans le bon code, rien n'est renvoyé.
+--    Si vous changez CODE_ENSEIGNANTE dans index.html, changez-le aussi ici.
+create or replace function public.tableau_equipes(p_code text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if p_code is distinct from 'classedefle2026' then
+    raise exception 'code enseignante incorrect';
+  end if;
+  return coalesce((
+    select jsonb_agg(jsonb_build_object(
+      'id',      p.id,
+      'classe',  p.classe,
+      'equipe',  p.equipe_nom,
+      'membres', coalesce((select jsonb_agg(m) from jsonb_array_elements_text(coalesce(p.membres, '[]'::jsonb)) m where btrim(m) <> ''), '[]'::jsonb),
+      'tampons', p.nb_tampons,
+      'coffre',  p.coffre_ouvert,
+      'debut',   p.debut_jeu,
+      'fin',     case when p.etat->>'finJeu' is null then null else to_timestamp((p.etat->>'finJeu')::numeric / 1000) end,
+      'miles',   coalesce((p.etat->>'miles')::int, 0),
+      'escales', (select coalesce(jsonb_agg(e.key), '[]'::jsonb) from jsonb_each(coalesce(p.escales, '{}'::jsonb)) e where (e.value->>'tamponne')::boolean),
+      'maj',     p.maj_le
+    ) order by p.maj_le desc)
+    from public.parties p
+    where p.maj_le > now() - interval '90 days'
+  ), '[]'::jsonb);
+end;
+$$;
+
+revoke all on function public.tableau_equipes(text) from public;
+grant execute on function public.tableau_equipes(text) to anon;
