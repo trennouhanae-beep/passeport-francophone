@@ -944,6 +944,43 @@ canvas.confettis { position: fixed; inset: 0; width: 100%; height: 100%; pointer
 @keyframes sablier-pouls { 50% { transform: scale(1.06); box-shadow: 0 0 0 1px var(--lisere) inset, 0 0 0 8px color-mix(in srgb, var(--or) 25%, transparent); } }
 @media (max-width: 560px) { .sablier-txt small { display: none; } .sablier { padding-right: 12px; } }
 
+/* « Vol suivant dans… » sous le temps global ; le sablier clignote doucement au dernier appel */
+.sablier-vol { margin-top: 2px; padding: 1px 8px; border-radius: 999px; background: rgba(255, 246, 226, .14); font-weight: 700; opacity: 1 !important; display: block; }
+.sablier.appel:not(.urgent) { box-shadow: 0 0 0 1px var(--lisere) inset, 0 0 0 4px color-mix(in srgb, var(--or) 55%, transparent), 0 12px 28px -12px rgba(30, 10, 4, .8); animation: sablier-pouls 1.4s ease-in-out infinite; }
+.sablier.appel .sablier-vol { background: var(--or); color: #2a160c; }
+
+/* ===== Carte d'embarquement (après chaque tampon) ===== */
+.embarquement { position: fixed; inset: 0; z-index: 85; display: grid; place-items: center; padding: 16px; background: rgba(30, 14, 6, .5); backdrop-filter: blur(3px); animation: fondu .3s ease both; }
+.embarquement.sort { animation: fondu .3s ease reverse both; }
+.be-billet { position: relative; width: min(560px, 100%); border-radius: 18px; overflow: hidden; background: var(--page); color: var(--encre);
+  box-shadow: 0 0 0 1px var(--lisere) inset, 0 30px 60px -20px rgba(20, 6, 2, .8); animation: billet-sort 0.75s cubic-bezier(.2, 1.3, .35, 1) both; }
+@keyframes billet-sort { 0% { transform: translateY(70px) rotate(-4deg) scale(.85); opacity: 0; } 60% { transform: translateY(-8px) rotate(1deg); opacity: 1; } 100% { transform: none; } }
+.be-tete { display: flex; justify-content: space-between; gap: 10px; padding: 10px 16px; background: linear-gradient(135deg, var(--cuir-2), var(--cuir)); color: var(--or-clair);
+  font-family: var(--f-code); font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; }
+.be-tete span:first-child { display: inline-flex; align-items: center; gap: 6px; } .be-tete .picto-avion { transform: rotate(45deg); }
+.be-corps { padding: 16px 18px 6px; display: grid; gap: 14px; border-bottom: 2px dashed var(--trait); }
+.be-trajet { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
+.be-trajet > div:not(.be-avion) { display: grid; gap: 2px; }
+.be-trajet > div:last-child { text-align: right; justify-items: end; }
+.be-trajet small, .be-infos small { font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: var(--encre-douce); }
+.be-trajet b { font-family: var(--f-code); font-size: 2.3rem; line-height: 1; color: var(--cuir); }
+.be-trajet span { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: .9rem; }
+.be-avion { position: relative; width: min(120px, 22vw); height: 30px; display: grid; place-items: center; color: var(--or); }
+.be-avion i { position: absolute; left: 0; right: 0; top: 50%; border-top: 2px dashed var(--or); z-index: 0; }
+.be-avion .picto-avion { position: relative; z-index: 1; width: 26px; height: 26px; transform: rotate(90deg); background: var(--page); border-radius: 50%; animation: be-vol 2.4s ease-in-out infinite; }
+@keyframes be-vol { 0%, 100% { translate: -34px 0; } 50% { translate: 34px -4px; } }
+.be-infos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.be-infos > div { display: grid; gap: 2px; min-width: 0; }
+.be-infos b { font-family: var(--f-code); font-size: .95rem; overflow-wrap: anywhere; }
+.be-texte { margin: 0; font-family: var(--f-titre); font-size: 1.05rem; }
+.be-talon { display: flex; align-items: end; gap: 3px; height: 34px; padding: 8px 18px 0; opacity: .55; }
+.be-talon i { flex: 1; background: var(--encre); }
+.be-actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 18px 4px; }
+.be-actions .be-go { flex: 1 1 220px; justify-content: center; font-size: 1.05rem; animation: respirer 2.4s ease-in-out infinite; }
+.be-heure { display: block; padding: 0 18px 14px; color: var(--encre-douce); }
+@media (max-width: 480px) { .be-infos { grid-template-columns: repeat(2, minmax(0, 1fr)); } .be-trajet b { font-size: 1.8rem; } }
+@media (prefers-reduced-motion: reduce) { .be-billet, .be-avion .picto-avion, .be-actions .be-go, .sablier.appel { animation: none !important; } }
+
 /* ===== Rideau d'arrivée aux couleurs du drapeau ===== */
 .rideau { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; pointer-events: none; overflow: hidden; }
 .rideau i { position: absolute; inset: 0; transform: translateX(-102%); animation: rideau-entre .5s cubic-bezier(.7, 0, .3, 1) calc(var(--i) * .08s) forwards; }
@@ -1831,7 +1868,8 @@ const musique = {
 };
 // Quel thème pour quel écran ? Silence pendant la mission (préparation et enregistrement de l'exposé).
 function themeEcran() {
-  if (ui.transit) return ui.transit.vers === "cheznous" ? "cheznous" : ui.transit.vers;
+  // Pendant le vol (et l'album feuilleté à bord) : la musique de voyage
+  if (ui.transit) return !ui.mediaAbsent.has("musique-voyage") ? "voyage" : ui.transit.vers === "cheznous" ? "cheznous" : ui.transit.vers;
   const ec = etat.ecran;
   // Sur la carte d'un pays, la fiche ouverte joue la musique de son lieu (sinon celle du pays)
   if (ec === "escale" && ui.lieuSel && typeof CARTES_PAYS !== "undefined" && CARTES_PAYS[etat.escaleActive]?.lieux.some((l) => l.id === ui.lieuSel)) {
@@ -2771,8 +2809,9 @@ function champCarnet(e, c, prefixe) {
 function prochaineEscaleBouton(e) {
   const i = ESCALES.indexOf(e);
   const suite = [...ESCALES.slice(i + 1), ...ESCALES.slice(0, i)].find((x) => !etat.escales[x.id].tamponne);
-  // La carte est le point de passage central : on y revient après chaque escale.
-  if (suite) return `<button class="btn" data-action="aller" data-ecran="carte">Retour à la carte : choisir la prochaine escale</button>`;
+  // On propose d'embarquer directement pour l'escale suivante, ou de choisir sur la carte
+  if (suite) return `<button class="btn or" data-action="embarquer-suite" data-id="${suite.id}">Embarquer ${esc((PREP[suite.id] || ["", "pour " + suite.nom])[1])} ✈</button>
+    <button class="btn second" data-action="aller" data-ecran="carte">Choisir sur la carte</button>`;
   return `<button class="btn or" data-action="aller" data-ecran="coffre">Les ${NB_LETTRES} chiffres sont réunis : ouvrir le coffre</button>`;
 }
 
@@ -3398,7 +3437,7 @@ function cartePaysHTML(e) {
    MUSIQUE D'AMBIANCE ENREGISTRÉE · un morceau par pays (ElevenLabs Music via Higgsfield)
    Si le fichier manque, la musique générée (THEMES) prend le relais.
    ===================================================================== */
-const PISTES = ["quebec", "senegal", "maroc", "martinique", "madagascar", "reunion", "carte"];
+const PISTES = ["quebec", "senegal", "maroc", "martinique", "madagascar", "reunion", "carte", "voyage"];
 const VOLUME_PISTE = 0.32;
 const piste = { el: null, id: null };
 function volumePiste() { return musique.attenue ? VOLUME_PISTE * 0.22 : VOLUME_PISTE; }
@@ -3492,7 +3531,7 @@ function majSablier() {
   if (!visible) { if (s) s.remove(); return; }
   if (!s) {
     s = document.createElement("div"); s.id = "sablier"; s.className = "sablier"; s.setAttribute("role", "timer");
-    s.innerHTML = `${SABLIER_SVG}<div class="sablier-txt"><b id="sablier-t"></b><small>avant le décollage</small></div>
+    s.innerHTML = `${SABLIER_SVG}<div class="sablier-txt"><b id="sablier-t"></b><small>avant le décollage</small><small id="sablier-vol" class="sablier-vol" hidden></small></div>
       <svg class="anneau" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29"/><circle id="sablier-anneau" cx="32" cy="32" r="29"/></svg>`;
     document.body.appendChild(s);
   }
@@ -3509,6 +3548,83 @@ function majSablier() {
   const min = Math.floor(r / 60);
   if (s._min !== undefined && s._min !== min) { s.classList.remove("tourne"); void s.offsetWidth; s.classList.add("tourne"); }
   s._min = min;
+  majVolSuivant(s);
+}
+
+/* =====================================================================
+   CHANGER DE PAYS · temps conseillé par escale, dernier appel, embarquement
+   Pour tenir les 45 minutes, chaque escale a un temps conseillé : le sablier
+   affiche « Vol suivant dans… », puis une annonce de cabine invite l'équipe
+   à finir et à embarquer. Rien n'est bloqué : c'est une incitation.
+   ===================================================================== */
+const TEMPS_ESCALE_MIN = 6;
+function resteEscale(id) { const s = etat.escales[id]; return s && s.debut ? TEMPS_ESCALE_MIN * 60 - (Date.now() - s.debut) / 1000 : null; }
+let voixAnnonce = null;
+function annonceCabine(fichier) {
+  son.alerte();
+  if (!etat.son) return;
+  if (voixAnnonce) voixAnnonce.pause();
+  voixAnnonce = new Audio(`audio/annonces/${fichier}.wav`);
+  musique.attenuer(true);
+  const fin = () => musique.attenuer(false);
+  voixAnnonce.addEventListener("ended", fin); voixAnnonce.addEventListener("error", fin);
+  setTimeout(() => voixAnnonce && voixAnnonce.play().catch(fin), 900); // après le « ding-dong »
+}
+function majVolSuivant(s) {
+  const el = document.getElementById("sablier-vol"); if (!el) return;
+  const id = etat.escaleActive, e = etat.ecran === "escale" && escaleParId(id), st = e && etat.escales[id];
+  const r = e && !st.tamponne ? resteEscale(id) : null;
+  if (r === null) { el.hidden = true; s.classList.remove("appel"); return; }
+  el.hidden = false;
+  el.textContent = r > 0 ? `Vol suivant dans ${mmss(r)}` : "Dernier appel !";
+  s.classList.toggle("appel", r <= 60);
+  const vus = (ui.appels ||= new Set());
+  if (r <= 60 && r > 0 && !vus.has(id + ":1")) {
+    vus.add(id + ":1"); son.alerte();
+    popup({ titre: "Embarquement dans 1 minute", texte: `Le temps conseillé ${PREP[id] ? PREP[id][1] : "ici"} est presque écoulé : finissez l'épreuve en cours.`, icone: PICTO_AVION, duree: 5000 });
+  }
+  if (r <= 0 && !vus.has(id + ":0")) {
+    vus.add(id + ":0"); annonceCabine("dernier-appel");
+    popup({ titre: "Dernier appel !", texte: "L'avion pour votre prochaine escale va décoller. Terminez vite et rejoignez la porte d'embarquement.", icone: PICTO_AVION, ton: "urgent", duree: 7000 });
+  }
+}
+// Prochaine escale proposée : la suivante dans l'ordre du passeport qui n'a pas encore son tampon
+function escaleSuivante(e) {
+  const i = ESCALES.indexOf(e);
+  return [...ESCALES.slice(i + 1), ...ESCALES.slice(0, i)].find((x) => !etat.escales[x.id].tamponne) || null;
+}
+// Carte d'embarquement animée, juste après le tampon
+function carteEmbarquement(e) {
+  const dest = escaleSuivante(e); if (!dest) return;
+  document.querySelector(".embarquement")?.remove();
+  const vol = "PF " + String(100 + ESCALES.indexOf(dest) * 7 + nbTampons()).padStart(3, "0");
+  const heure = new Date(Date.now() + 5 * 60000).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  const [, a] = PREP[dest.id] || ["", "à " + dest.nom];
+  const p = document.createElement("div");
+  p.className = "embarquement"; p.setAttribute("role", "dialog"); p.setAttribute("aria-label", "Carte d'embarquement");
+  p.innerHTML = `<div class="be-billet">
+      <div class="be-tete"><span>${PICTO_AVION} Carte d'embarquement</span><span>Passeport francophone</span></div>
+      <div class="be-corps">
+        <div class="be-trajet"><div><small>De</small><b>${esc(e.code)}</b><span>${drapeauMini(e)} ${esc(e.nom)}</span></div>
+          <div class="be-avion">${PICTO_AVION}<i></i></div>
+          <div><small>Vers</small><b>${esc(dest.code)}</b><span>${drapeauMini(dest)} ${esc(dest.nom)}</span></div></div>
+        <div class="be-infos"><div><small>Passagers</small><b>${esc(etat.equipe.nom || "L'équipage")}</b></div><div><small>Vol</small><b>${vol}</b></div>
+          <div><small>Porte</small><b>${e.chiffre}</b></div><div><small>Embarquement</small><b>Immédiat</b></div></div>
+        <p class="be-texte">Escale terminée ! ${esc(dest.contact)}${dest.contact.includes(",") ? "," : ""} vous attend ${esc(a)}. Le prochain chiffre du coffre est là-bas.</p>
+      </div>
+      <div class="be-talon" aria-hidden="true">${Array.from({ length: 28 }, (_, i) => `<i style="height:${[60, 90, 40, 100, 70][i % 5]}%"></i>`).join("")}</div>
+      <div class="be-actions"><button class="btn or be-go">Embarquer ${esc(a)} ✈</button>
+        <button class="btn second be-carte">Choisir une autre escale</button></div>
+      <small class="be-heure">Décollage prévu à ${heure}</small>
+    </div>`;
+  document.body.appendChild(p);
+  const fermer = () => { p.classList.add("sort"); setTimeout(() => p.remove(), 350); };
+  p.querySelector(".be-go").addEventListener("click", () => { fermer(); lancerTransit(dest.id, e.id); });
+  p.querySelector(".be-carte").addEventListener("click", () => { fermer(); aller("carte"); window.scrollTo({ top: 0 }); });
+  p.addEventListener("keydown", (ev) => { if (ev.key === "Escape") fermer(); });
+  p.addEventListener("click", (ev) => { if (ev.target === p) fermer(); });
+  annonceCabine("embarquement");
+  setTimeout(() => p.querySelector(".be-go")?.focus({ preventScroll: true }), 80);
 }
 function verifierAlertes() {
   if (!etat.debutJeu || etat.finJeu) return;
@@ -3813,6 +3929,7 @@ const actions = {
     lancerTransit(id, b.dataset.depuis || etat.escaleActive);
   },
   "fin-transit"() { finTransit(); },
+  "embarquer-suite"(b) { document.querySelector(".embarquement")?.remove(); lancerTransit(b.dataset.id, etat.escaleActive); },
   "voir-album"() { apresVol(ui.transit); },
   // Le titre « Passeport francophone » referme le passeport sur sa couverture (on garde la page où l'on était)
   couverture() {
@@ -3948,6 +4065,7 @@ const actions = {
       popup({ titre: `Tampon ${PREP[e.id] ? PREP[e.id][0] : e.nom} obtenu !`, texte: `Chiffre gagné : ${e.chiffre} · ${nbTampons()}/${NB} tampons${rapide ? " · bonus rapidité" : ""}`, icone: drapeauMini(e), duree: 5000 });
     }, 900);
     if (nbTampons() === NB) setTimeout(() => capitaineParle("coffre"), 2600);
+    else setTimeout(() => { if (etat.ecran === "escale" && etat.escaleActive === e.id && !ui.transit) carteEmbarquement(e); }, 3600);
   },
   "valider-coffre"() {
     const code = [...document.querySelectorAll("[data-chiffre]")].map((x) => x.value).join("");
