@@ -1071,7 +1071,59 @@ canvas.confettis { position: fixed; inset: 0; width: 100%; height: 100%; pointer
 .fiche-lieu.explore { box-shadow: 0 0 0 1px var(--trait), 0 0 0 4px color-mix(in srgb, #006233 25%, transparent); }
 .quiz-verrou { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px; border-radius: 12px; border: 2px dashed color-mix(in srgb, #c1272d 45%, transparent); background: color-mix(in srgb, #c1272d 6%, transparent); }
 .quiz-verrou span { font-size: 1.6rem; } .quiz-verrou p { margin: 0; flex: 1; min-width: 200px; }
-@media (prefers-reduced-motion: reduce) { .poi::before, .fiche-lieu { animation: none !important; } }
+/* --- Version moderne de la carte --- */
+.cp-plan.moderne { border-radius: 16px; box-shadow: 0 0 0 1px rgba(255, 255, 255, .5) inset, 0 0 0 1px var(--lisere), 0 24px 44px -22px rgba(6, 28, 36, .8); }
+.carte-pays-svg text { font-family: var(--f-texte); }
+.cm-mer { font-family: var(--f-titre) !important; font-style: italic; font-size: 40px; fill: rgba(222, 242, 248, .62); letter-spacing: .06em; }
+.cm-voisin { font-size: 26px; fill: #8a6f4e; letter-spacing: .32em; font-weight: 700; }
+.cm-detroit { font-size: 21px; fill: rgba(222, 242, 248, .75); font-style: italic; }
+.cm-relief { font-size: 20px; fill: rgba(255, 238, 230, .9); letter-spacing: .28em; font-weight: 700; paint-order: stroke; stroke: rgba(80, 6, 10, .45); stroke-width: 3px; }
+.cm-ville { fill: #fff; stroke: #5a0f14; stroke-width: 2.5; }
+.cm-nom-ville { font-size: 25px; fill: #fff; font-weight: 700; paint-order: stroke; stroke: rgba(60, 8, 12, .7); stroke-width: 5px; }
+.cm-suite { font-size: 23px; fill: rgba(255, 255, 255, .78); font-style: italic; }
+.cm-rose circle { fill: rgba(255, 255, 255, .12); stroke: rgba(255, 255, 255, .55); stroke-width: 1.5; }
+.cm-rose-n { fill: rgba(255, 255, 255, .5); } .cm-rose-pointe { fill: #f0c27a; }
+.cm-rose text, .cm-echelle text { font-size: 20px; font-weight: 700; fill: #fff; }
+.cm-echelle path { stroke: #fff; stroke-width: 3; fill: none; stroke-linecap: round; }
+.cm-route { fill: none; stroke: #f0c27a; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 2 14; filter: drop-shadow(0 0 6px rgba(240, 194, 122, .9)); animation: cm-route 1.2s linear infinite; }
+@keyframes cm-route { to { stroke-dashoffset: -16; } }
+/* Marqueurs en goutte, avec une icône par lieu */
+.cp-plan.moderne .poi { transform: translate(-50%, -100%); padding-bottom: 6px; }
+.cp-plan.moderne .poi::before { width: 22px; height: 10px; left: 50%; bottom: -1px; top: auto; margin-left: -11px; border-radius: 50%; border-color: #f0c27a; }
+.poi-goutte { display: grid; place-items: center; width: clamp(28px, 4.4vw, 40px); height: clamp(28px, 4.4vw, 40px); border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
+  background: linear-gradient(135deg, #ffe7b0, var(--or) 55%, #9a5f16); box-shadow: 0 0 0 2.5px #fff, 0 8px 16px -4px rgba(4, 22, 29, .7); transition: transform .25s cubic-bezier(.3, 1.6, .5, 1); }
+.poi-goutte svg { width: 58%; height: 58%; transform: rotate(45deg); fill: none; stroke: #3a1d0e; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.poi-ombre { position: absolute; bottom: 0; left: 50%; width: 14px; height: 5px; margin-left: -7px; border-radius: 50%; background: rgba(4, 22, 29, .45); filter: blur(1px); }
+.poi.vu .poi-goutte { background: linear-gradient(135deg, #8fe0ab, #00703a 60%, #00401f); }
+.poi.vu .poi-goutte svg { stroke: #fff; stroke-width: 3; }
+.poi.sel .poi-goutte, .poi:hover .poi-goutte, .poi:focus-visible .poi-goutte { transform: rotate(-45deg) scale(1.2); }
+.poi:focus-visible .poi-goutte { box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--cuir); }
+.poi.vient .poi-goutte { animation: poi-valide .7s cubic-bezier(.2, 1.6, .4, 1); }
+@keyframes poi-valide { 0% { transform: rotate(-45deg) scale(1.9); } 100% { transform: rotate(-45deg) scale(1); } }
+.cp-plan.tombe .poi { animation: poi-tombe .65s cubic-bezier(.3, 1.45, .5, 1) both; animation-delay: calc(.25s + var(--i) * .13s); }
+.poi.bord-g .poi-bulle { left: -6px; transform: translate(0, 6px); } .poi.bord-g:hover .poi-bulle, .poi.bord-g.sel .poi-bulle, .poi.bord-g:focus-visible .poi-bulle { transform: translate(0, 0); }
+.poi.bord-d .poi-bulle { left: auto; right: -6px; transform: translate(0, 6px); } .poi.bord-d:hover .poi-bulle, .poi.bord-d.sel .poi-bulle, .poi.bord-d:focus-visible .poi-bulle { transform: translate(0, 0); }
+@keyframes poi-tombe { from { opacity: 0; transform: translate(-50%, -260%); } to { opacity: 1; transform: translate(-50%, -100%); } }
+.cm-legende { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font-size: .82rem; color: var(--encre-douce); }
+.cm-legende span { display: inline-flex; align-items: center; gap: 6px; }
+.cm-legende i { width: 12px; height: 12px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); }
+.cm-legende .l-a { background: var(--or); } .cm-legende .l-v { background: #00703a; }
+.cm-legende .l-r { width: 22px; height: 0; border-radius: 0; transform: none; border-top: 3px dotted #c98a2b; }
+/* Fiche : la voix de l'habitante et l'ambiance musicale */
+.fl-voix { margin: 0; padding: 12px 14px; border-left: 4px solid #c1272d; border-radius: 0 10px 10px 0; background: color-mix(in srgb, #c1272d 7%, var(--carte)); }
+.fl-voix p { margin: 0; font-family: var(--f-titre); font-style: italic; line-height: 1.5; }
+.fl-voix p::before { content: "« "; } .fl-voix p::after { content: " »"; }
+.fl-voix footer { display: block; max-width: none; margin: 6px 0 0; padding: 0; font-size: .85rem; color: #8e1c21; font-weight: 700; }
+/* Sur grand écran, la carte reste visible pendant la lecture de la fiche */
+@media (min-width: 761px) { .cp-grille > div:first-child { position: sticky; top: 76px; } }
+.fl-ambiance { display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 4px 10px; border-radius: 999px; width: fit-content; max-width: 100%;
+  font-size: .82rem; background: color-mix(in srgb, #00703a 10%, var(--carte)); color: #00582e; }
+.egaliseur { display: inline-flex; align-items: end; gap: 2px; height: 14px; }
+.egaliseur i { width: 3px; height: 30%; background: currentColor; border-radius: 2px; }
+.fl-ambiance.joue .egaliseur i { animation: egaliseur .9s ease-in-out infinite alternate; }
+.fl-ambiance.joue .egaliseur i:nth-child(2) { animation-delay: .2s; } .fl-ambiance.joue .egaliseur i:nth-child(3) { animation-delay: .4s; } .fl-ambiance.joue .egaliseur i:nth-child(4) { animation-delay: .1s; }
+@keyframes egaliseur { from { height: 20%; } to { height: 100%; } }
+@media (prefers-reduced-motion: reduce) { .poi::before, .fiche-lieu, .cm-route, .cp-plan.tombe .poi, .egaliseur i { animation: none !important; } }
 
 /* ===== Tableau des équipes ===== */
 .table-classe td { vertical-align: middle; }
@@ -1772,6 +1824,11 @@ const musique = {
 function themeEcran() {
   if (ui.transit) return ui.transit.vers === "cheznous" ? "cheznous" : ui.transit.vers;
   const ec = etat.ecran;
+  // Sur la carte d'un pays, la fiche ouverte joue la musique de son lieu (sinon celle du pays)
+  if (ec === "escale" && ui.lieuSel && typeof CARTES_PAYS !== "undefined" && CARTES_PAYS[etat.escaleActive]?.lieux.some((l) => l.id === ui.lieuSel)) {
+    const id = "lieux/" + etat.escaleActive + "-" + ui.lieuSel;
+    if (!ui.mediaAbsent.has("musique-" + id)) return id;
+  }
   if (ec === "escale") return etat.escaleActive;
   if (ec === "cheznous") return "cheznous";
   if (ec === "coffre") return etat.coffreOuvert ? "bilan" : "coffre";
@@ -3187,9 +3244,10 @@ const CARTES_PAYS = {
       { id: "chefchaouen", nom: "Chefchaouen", sous: "La ville bleue", lonlat: [-5.27, 35.17],
         texte: "Dans les montagnes du Rif, Chefchaouen est célèbre pour ses rues et ses maisons peintes en bleu. Pourquoi ce bleu ? On raconte qu'il rappelle le ciel, qu'il rafraîchit les maisons ou qu'il éloigne les moustiques : chacun a son explication !",
         mot: ["zwin", "beau, joli (en darija)"], q: "Dans quelles montagnes se trouve Chefchaouen ?", options: ["Le Rif", "L'Atlas", "Les Alpes"], correcte: 0 },
-      { id: "fes", nom: "Fès", sous: "La médina de Yasmine", lonlat: [-4.99, 34.03],
-        texte: "Fès est la plus ancienne des villes impériales du Maroc. Sa médina, Fès el-Bali, est un labyrinthe de milliers de ruelles où les voitures ne passent pas : on y transporte les marchandises à dos d'âne ! Dans le quartier des tanneurs, les artisans teignent les peaux dans de grandes cuves de couleurs.",
-        mot: ["un derb", "une ruelle de la médina (en darija)"], q: "Comment transporte-t-on les marchandises dans la médina de Fès ?", options: ["En tramway", "À dos d'âne", "En voiture"], correcte: 1 },
+      // Fès racontée par son habitante : Yasmine présente son riad et l'ancienne médina
+      { id: "fes", nom: "Fès", sous: "Le riad de Yasmine · l'ancienne médina", lonlat: [-4.99, 34.03], voix: "Yasmine, habitante de Fès el-Bali",
+        texte: "Bienvenue chez moi ! J'habite un riad de Fès el-Bali, l'ancienne médina. De la ruelle, on ne voit qu'une porte en bois clouté. Mais derrière, surprise : un patio ouvert sur le ciel, une fontaine en zellige, un oranger, et des murs décorés de bois de cèdre sculpté. Ma médina est un labyrinthe de milliers de ruelles où les voitures ne passent pas : ici, les marchandises voyagent à dos d'âne ! Elle est inscrite au patrimoine mondial de l'UNESCO depuis 1981.",
+        mot: ["un riad", "une maison traditionnelle construite autour d'un patio-jardin"], q: "Que trouve-t-on au centre d'un riad ?", options: ["Une boutique", "Un patio ouvert sur le ciel", "Un garage"], correcte: 1 },
       { id: "rabat", nom: "Rabat", sous: "La capitale", lonlat: [-6.84, 34.02],
         texte: "Rabat est la capitale du Maroc : le roi, le gouvernement et le Parlement y siègent. Ce n'est pourtant pas la plus grande ville du pays : c'est Casablanca, la capitale économique. À Rabat, la tour Hassan, un minaret inachevé du XIIe siècle, domine une grande esplanade.",
         mot: ["salam", "bonjour, la paix (en arabe et en darija)"], q: "Quelle est la plus grande ville du Maroc ?", options: ["Rabat", "Fès", "Casablanca"], correcte: 2 },
@@ -3208,56 +3266,93 @@ const CARTES_PAYS = {
 const lieuxExplores = (e) => (etat.escales[e.id].lieux || []).length;
 const carteDebloquee = (e) => !CARTES_PAYS[e.id] || lieuxExplores(e) >= CARTES_PAYS[e.id].seuil;
 function projLieu(g, [lon, lat]) { return [(lon - g.LON0) * g.C * g.K, (g.LAT1 - lat) * g.K]; }
-// Le fond de carte : mer, pays voisins, le Maroc aux couleurs du drapeau (texture, reliefs, étoile verte)
-function fondCartePays(id) {
-  const g = CARTES_PAYS[id].geo();
-  const relief = (pts) => pts.slice(0, -1).map(([x, y], i) => {
-    const [x2, y2] = pts[i + 1], n = Math.max(2, Math.round(Math.hypot(x2 - x, y2 - y) / 22));
-    return Array.from({ length: n }, (_, k) => { const px = x + (x2 - x) * (k + .5) / n, py = y + (y2 - y) * (k + .5) / n, h = 10 + ((i + k) % 3) * 3; return `M${(px - 8).toFixed(1)} ${(py + 5).toFixed(1)}L${px.toFixed(1)} ${(py - h).toFixed(1)}L${(px + 8).toFixed(1)} ${(py + 5).toFixed(1)}`; }).join("");
-  }).join("");
-  const R = g.reliefs, ville = (nom, lonlat, dx = 10, dy = 5) => { const [x, y] = projLieu(g, lonlat); return `<circle cx="${x}" cy="${y}" r="6" class="cp-ville"/><text x="${x + dx}" y="${y + dy}" class="cp-nom-ville">${nom}</text>`; };
+// Icône et ambiance musicale de chaque lieu (fichiers audio/musique/lieux/<pays>-<lieu>.mp3)
+const ICONES_LIEUX = {
+  chefchaouen: `<path d="M4 21V10l8-6 8 6v11h-5v-5a3 3 0 0 0-6 0v5Z"/>`,
+  fes: `<path d="M5 21V11a7 7 0 0 1 14 0v10M5 21h14M9 21v-5a3 3 0 0 1 6 0v5M12 4V2"/>`,
+  rabat: `<path d="M9 21V7l3-4 3 4v14M6 21h12M11 10h2M11 14h2"/>`,
+  marrakech: `<path d="M12 2v3M9 5h6l-1 3h-4ZM7.5 8h9l-1.5 9h-6ZM9.5 20h5M12 17v3"/>`,
+  atlas: `<path d="m2 20 7-12 4 6 3-4 6 10ZM8 10l1.5 2 1.5-2"/>`,
+  essaouira: `<path d="M3 15h18l-3 4H6ZM12 3v11M12 4l6 9h-6"/>`,
+};
+const MUSIQUES_LIEUX = {
+  chefchaouen: "musique jbala des montagnes du Rif", fes: "musique arabo-andalouse de Fès", rabat: "musique malhoun",
+  marrakech: "musiciens de la place Jemaa el-Fna", atlas: "ahidous amazigh du Haut Atlas", essaouira: "musique gnaoua d'Essaouira",
+};
+// Carte moderne : mer profonde avec lignes de fond, relief ombré, voisins sobres, itinéraire de l'équipe
+function fondCartePays(id, vus = []) {
+  const C = CARTES_PAYS[id], g = C.geo();
+  const P = (ll) => projLieu(g, ll);
+  const ligne = (pts) => "M" + pts.map(([x, y]) => `${x} ${y}`).join("L");
+  const R = g.reliefs, chaines = [R.rif, R.moyen, R.haut, R.anti].map(ligne).join("");
+  const terres = `${g.maroc}${g.espagne}${g.portugal}${g.algerie}`;
+  // Quadrillage (méridiens et parallèles tous les degrés)
+  const grille = [...Array.from({ length: 11 }, (_, k) => { const x = P([-11 + k, 0])[0]; return `M${x.toFixed(1)} 0V${g.H}`; }),
+    ...Array.from({ length: 8 }, (_, k) => { const y = P([0, 29 + k])[1]; return `M0 ${y.toFixed(1)}H${g.W}`; })].join("");
+  // Itinéraire : les lieux explorés, dans l'ordre de la visite
+  const route = vus.map((v) => C.lieux.find((l) => l.id === v)).filter(Boolean).map((l) => P(l.lonlat));
+  const ville = (nom, ll, dx, dy, ancre = "start") => { const [x, y] = P(ll); return `<circle cx="${x}" cy="${y}" r="5.5" class="cm-ville"/><text x="${x + dx}" y="${y + dy}" text-anchor="${ancre}" class="cm-nom-ville">${nom}</text>`; };
+  const km100 = 100 / 111 * g.K; // 1° de latitude ≈ 111 km
   return `<svg class="carte-pays-svg" viewBox="0 0 ${g.W} ${g.H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Carte du nord du Maroc avec six lieux à explorer">
     <defs>
-      <pattern id="cp-vagues" width="46" height="20" patternUnits="userSpaceOnUse"><path d="M0 12q11.5-8 23 0t23 0" fill="none" stroke="#9fbccb" stroke-width="1.2" opacity=".55"/></pattern>
-      <linearGradient id="cp-rouge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d33a3f"/><stop offset=".55" stop-color="#c1272d"/><stop offset="1" stop-color="#9e1c22"/></linearGradient>
-      <filter id="cp-grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" seed="7"/><feColorMatrix values="0 0 0 0 .25  0 0 0 0 .05  0 0 0 0 .05  0 0 0 .22 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
-      <filter id="cp-ombre" x="-5%" y="-5%" width="110%" height="110%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#3a0d0c" flood-opacity=".45"/></filter>
-      <clipPath id="cp-clip-maroc"><path d="${g.maroc}"/></clipPath>
-      <linearGradient id="cp-fondu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6ecd9" stop-opacity="0"/><stop offset="1" stop-color="#f6ecd9" stop-opacity=".95"/></linearGradient>
+      <radialGradient id="cm-mer" cx="38%" cy="42%" r="80%"><stop offset="0" stop-color="#2e8299"/><stop offset=".6" stop-color="#17586c"/><stop offset="1" stop-color="#0c3442"/></radialGradient>
+      <linearGradient id="cm-maroc" x1="0" y1="0" x2=".7" y2="1"><stop offset="0" stop-color="#e2444a"/><stop offset=".5" stop-color="#c1272d"/><stop offset="1" stop-color="#93141c"/></linearGradient>
+      <linearGradient id="cm-sable" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#efe5d0"/><stop offset="1" stop-color="#d9c9a8"/></linearGradient>
+      <filter id="cm-flou" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="9"/></filter>
+      <filter id="cm-flou-l" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="16"/></filter>
+      <filter id="cm-ombre" x="-6%" y="-6%" width="112%" height="112%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#04161d" flood-opacity=".55"/></filter>
+      <filter id="cm-lueur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <filter id="cm-grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .07 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+      <clipPath id="cm-clip"><path d="${g.maroc}"/></clipPath>
+      <linearGradient id="cm-bas" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c3442" stop-opacity="0"/><stop offset="1" stop-color="#0c3442" stop-opacity=".85"/></linearGradient>
     </defs>
-    <rect width="${g.W}" height="${g.H}" fill="#cfe1ea"/><rect width="${g.W}" height="${g.H}" fill="url(#cp-vagues)"/>
-    <g fill="#efe3c8" stroke="#a88b62" stroke-width="1.5"><path d="${g.espagne}"/><path d="${g.portugal}"/><path d="${g.algerie}"/></g>
-    <path d="${g.maroc}" fill="url(#cp-rouge)" stroke="#6e1418" stroke-width="2.5" stroke-linejoin="round" filter="url(#cp-ombre)"/>
-    <g clip-path="url(#cp-clip-maroc)">
-      <rect width="${g.W}" height="${g.H}" filter="url(#cp-grain)" fill="#000"/>
-      <polygon points="${etoile(560, 470, 150, 2)}" fill="none" stroke="#006233" stroke-width="16" stroke-linejoin="miter" opacity=".92"/>
-      <path d="${relief(R.rif)}${relief(R.moyen)}${relief(R.haut)}${relief(R.anti)}" fill="rgba(110,20,24,.35)" stroke="rgba(255,225,200,.45)" stroke-width="1.4" stroke-linejoin="round"/>
+    <rect width="${g.W}" height="${g.H}" fill="url(#cm-mer)"/>
+    <path d="${grille}" stroke="rgba(255,255,255,.07)" stroke-width="1" stroke-dasharray="3 6"/>
+    <!-- Lignes de fond autour des côtes -->
+    <g fill="none" stroke="#bfe6f0" stroke-linejoin="round"><path d="${terres}" stroke-width="110" opacity=".035"/><path d="${terres}" stroke-width="70" opacity=".05"/><path d="${terres}" stroke-width="38" opacity=".08"/><path d="${terres}" stroke-width="14" opacity=".14"/></g>
+    <g fill="url(#cm-sable)" stroke="rgba(255,255,255,.55)" stroke-width="1.4"><path d="${g.espagne}"/><path d="${g.portugal}"/><path d="${g.algerie}"/></g>
+    <path d="${g.maroc}" fill="url(#cm-maroc)" filter="url(#cm-ombre)"/>
+    <g clip-path="url(#cm-clip)">
+      <!-- Relief ombré : ombre portée au sud-est, lumière au nord-ouest -->
+      <path d="${chaines}" fill="none" stroke="#3d0306" stroke-opacity=".28" stroke-width="46" stroke-linecap="round" stroke-linejoin="round" filter="url(#cm-flou-l)" transform="translate(10 14)"/>
+      <path d="${chaines}" fill="none" stroke="#ffd7c9" stroke-opacity=".26" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" filter="url(#cm-flou)" transform="translate(-6 -7)"/>
+      <path d="${chaines}" fill="none" stroke="#fff1e8" stroke-opacity=".5" stroke-width="2" stroke-dasharray="1 9" stroke-linecap="round"/>
+      <rect width="${g.W}" height="${g.H}" filter="url(#cm-grain)"/>
+      <polygon points="${etoile(560, 470, 140, 2)}" fill="none" stroke="#00703a" stroke-width="11" stroke-linejoin="miter" opacity=".9" filter="url(#cm-lueur)"/>
     </g>
-    <g class="cp-etiquettes">
-      <text x="95" y="420" transform="rotate(-62 95 420)" class="cp-mer">Océan Atlantique</text>
-      <text x="985" y="100" text-anchor="end" class="cp-mer">Méditerranée</text>
-      <text x="640" y="30" class="cp-voisin">ESPAGNE</text>
-      <text x="985" y="600" text-anchor="end" class="cp-voisin">ALGÉRIE</text>
-      <text x="495" y="34" text-anchor="end" class="cp-detroit">Détroit de Gibraltar</text>
-      <text x="665" y="200" class="cp-relief">Rif</text><text x="690" y="350" class="cp-relief">Moyen Atlas</text>
-      <text x="470" y="640" class="cp-relief" transform="rotate(-22 470 640)">Haut Atlas</text><text x="330" y="790" class="cp-relief" transform="rotate(-18 330 790)">Anti-Atlas</text>
-      ${ville("Tanger", [-5.81, 35.77], 14, 10)}${ville("Casablanca", [-7.59, 33.57], -150, 8)}${ville("Agadir", [-9.6, 30.42], 14, 8)}
+    <path d="${g.maroc}" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="2.2" stroke-linejoin="round"/>
+    ${route.length > 1 ? `<path d="${ligne(route.map(([x, y]) => [x.toFixed(1), y.toFixed(1)]))}" class="cm-route"/>` : ""}
+    <g class="cm-etiquettes">
+      <text x="95" y="430" transform="rotate(-62 95 430)" class="cm-mer">Océan Atlantique</text>
+      <text x="985" y="100" text-anchor="end" class="cm-mer">Méditerranée</text>
+      <text x="640" y="30" class="cm-voisin">ESPAGNE</text>
+      <text x="985" y="600" text-anchor="end" class="cm-voisin">ALGÉRIE</text>
+      <text x="495" y="34" text-anchor="end" class="cm-detroit">Détroit de Gibraltar</text>
+      <text x="665" y="205" class="cm-relief">RIF</text><text x="685" y="352" class="cm-relief">MOYEN ATLAS</text>
+      <text x="468" y="642" class="cm-relief" transform="rotate(-22 468 642)">HAUT ATLAS</text><text x="330" y="792" class="cm-relief" transform="rotate(-18 330 792)">ANTI-ATLAS</text>
+      ${ville("Tanger", [-5.81, 35.77], -14, 9, "end")}${ville("Casablanca", [-7.59, 33.57], -14, 9, "end")}${ville("Agadir", [-9.6, 30.42], 14, 9)}
     </g>
-    <rect y="${g.H - 90}" width="${g.W}" height="90" fill="url(#cp-fondu)"/>
-    <text x="${g.W / 2}" y="${g.H - 18}" text-anchor="middle" class="cp-suite">Le pays continue vers le sud ↓</text>
-    <g transform="translate(70 ${g.H - 150})" class="cp-rose"><circle r="34" fill="rgba(246,236,217,.85)" stroke="#a88b62"/><path d="M0-30L6 0L0 30L-6 0Z" fill="#6e1418"/><path d="M-30 0L0-6L30 0L0 6Z" fill="#a88b62"/><text y="-38" text-anchor="middle">N</text></g>
+    <rect y="${g.H - 110}" width="${g.W}" height="110" fill="url(#cm-bas)"/>
+    <text x="${g.W / 2}" y="${g.H - 22}" text-anchor="middle" class="cm-suite">Le pays continue vers le sud ↓</text>
+    <g transform="translate(64 ${g.H - 250})" class="cm-rose"><circle r="34"/><path d="M0-27L7 0L0 27L-7 0Z" class="cm-rose-n"/><path d="M0-27L7 0H-7Z" class="cm-rose-pointe"/><text y="-42" text-anchor="middle">N</text></g>
+    <g transform="translate(40 ${g.H - 64})" class="cm-echelle"><path d="M0 0H${km100.toFixed(1)}M0-7V7M${km100.toFixed(1)}-7V7M${(km100 / 2).toFixed(1)}-4V4"/><text x="${(km100 / 2).toFixed(1)}" y="-14" text-anchor="middle">100 km</text></g>
   </svg>`;
 }
 function cartePaysHTML(e) {
   const C = CARTES_PAYS[e.id]; if (!C) return "";
-  const g = C.geo(), vus = new Set(etat.escales[e.id].lieux || []), n = vus.size;
+  const g = C.geo(), ordre = etat.escales[e.id].lieux || [], vus = new Set(ordre), n = vus.size;
   const sel = C.lieux.find((l) => l.id === ui.lieuSel);
   const err = ui.lieuErreur;
+  // Les punaises tombent sur la carte la première fois seulement (pas à chaque clic)
+  const tombe = !(ui.cartesVues ||= new Set()).has(e.id); ui.cartesVues.add(e.id);
+  const ambiance = sel && MUSIQUES_LIEUX[sel.id] ? `<p class="fl-ambiance${etat.musique ? " joue" : ""}"><span class="egaliseur" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      ${etat.musique ? "En fond : " : "Ambiance (activez ♪ Musique) : "}${esc(MUSIQUES_LIEUX[sel.id])}</p>` : "";
   const fiche = sel ? `<article class="fiche-lieu${vus.has(sel.id) ? " explore" : ""}" style="--c:${e.couleur}">
         <div class="fl-photo">${drapeauMini(e)}<img src="images/lieux/${e.id}-${sel.id}.jpg" alt="${esc(sel.nom)}" onerror="this.remove()"></div>
         <div class="fl-corps">
           <span class="etiquette">${esc(sel.sous)}</span><h3>${esc(sel.nom)}</h3>
-          <p>${esc(sel.texte)}</p>
+          ${ambiance}
+          ${sel.voix ? `<blockquote class="fl-voix"><p>${esc(sel.texte)}</p><footer>— ${esc(sel.voix)}</footer></blockquote>` : `<p>${esc(sel.texte)}</p>`}
           <p class="fl-mot"><span>Le mot du lieu</span><strong>${esc(sel.mot[0])}</strong> : ${esc(sel.mot[1])}</p>
           <div class="fl-enigme"><strong>Énigme :</strong> ${esc(sel.q)}
             <div class="options">${sel.options.map((o, j) => {
@@ -3268,17 +3363,21 @@ function cartePaysHTML(e) {
           </div>
         </div>
       </article>`
-    : `<article class="fiche-lieu vide"><p>${esc(C.consigne)}</p><p class="doux petit">Astuce : le lecteur lit la fiche à voix haute, le navigateur montre la punaise.</p></article>`;
+    : `<article class="fiche-lieu vide"><p>${esc(C.consigne)}</p><p class="doux petit">Chaque lieu a sa musique : activez « ♪ Musique » dans la barre pour l'entendre.</p></article>`;
   return `<section class="page carte-pays-zone" id="carte-pays">
       <span class="etiquette">Exploration · ${esc(C.titre)}</span>
       <div class="cp-tete"><h2>${drapeauMini(e)} Explorez le Maroc</h2>
         <div class="cp-progression" aria-label="Lieux explorés"><b>${n}/${C.lieux.length}</b> lieux explorés
           <span class="cp-barre"><i style="width:${n / C.lieux.length * 100}%"></i><em style="left:${C.seuil / C.lieux.length * 100}%" title="Seuil pour débloquer le quiz"></em></span></div></div>
       <div class="cp-grille">
-        <div class="cp-plan" style="aspect-ratio:${g.W} / ${g.H}">
-          ${fondCartePays(e.id)}
-          ${C.lieux.map((l, i) => { const [x, y] = projLieu(g, l.lonlat); return `<button class="poi${vus.has(l.id) ? " vu" : ""}${ui.lieuSel === l.id ? " sel" : ""}" style="left:${(x / g.W * 100).toFixed(2)}%;top:${(y / g.H * 100).toFixed(2)}%;--i:${i}" data-action="lieu" data-id="${l.id}" aria-pressed="${ui.lieuSel === l.id}" aria-label="${esc(l.nom)}${vus.has(l.id) ? ", exploré" : ""}">
-              <span class="poi-pastille">${vus.has(l.id) ? "✓" : i + 1}</span><span class="poi-bulle">${esc(l.nom)}<small>${esc(l.sous)}</small></span></button>`; }).join("")}
+        <div>
+          <div class="cp-plan moderne${tombe ? " tombe" : ""}" style="aspect-ratio:${g.W} / ${g.H}">
+            ${fondCartePays(e.id, ordre)}
+            ${C.lieux.map((l, i) => { const [x, y] = projLieu(g, l.lonlat); const vu = vus.has(l.id); const bord = x / g.W < .18 ? " bord-g" : x / g.W > .82 ? " bord-d" : ""; return `<button class="poi${vu ? " vu" : ""}${ui.lieuSel === l.id ? " sel" : ""}${bord}" style="left:${(x / g.W * 100).toFixed(2)}%;top:${(y / g.H * 100).toFixed(2)}%;--i:${i}" data-action="lieu" data-id="${l.id}" aria-pressed="${ui.lieuSel === l.id}" aria-label="${esc(l.nom)}${vu ? ", exploré" : ""}">
+                <span class="poi-goutte"><svg viewBox="0 0 24 24" aria-hidden="true">${vu ? `<path d="m5 12.5 4.5 4.5L19 7.5"/>` : ICONES_LIEUX[l.id] || ""}</svg></span><span class="poi-ombre"></span>
+                <span class="poi-bulle">${esc(l.nom)}<small>${esc(l.sous)}</small></span></button>`; }).join("")}
+          </div>
+          <div class="cm-legende"><span><i class="l-a"></i>À explorer</span><span><i class="l-v"></i>Exploré</span><span><i class="l-r"></i>Votre itinéraire</span></div>
         </div>
         ${fiche}
       </div>
@@ -3318,7 +3417,7 @@ function pisteJouer(id) {
 const pourSynthese = musique.pour.bind(musique), niveauSynthese = musique.niveau.bind(musique);
 musique.pour = function (id) {
   if (!etat.musique) id = null;
-  const fichier = id && PISTES.includes(id) && !ui.mediaAbsent.has("musique-" + id);
+  const fichier = id && (PISTES.includes(id) || id.startsWith("lieux/")) && !ui.mediaAbsent.has("musique-" + id);
   pisteJouer(fichier ? id : null);
   pourSynthese(fichier ? null : id);
 };
