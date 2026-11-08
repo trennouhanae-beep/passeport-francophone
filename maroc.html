@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Explorer le Maroc</title>
-<meta name="description" content="Carte interactive du Maroc pour apprenants de FLE : six lieux, fiches culturelles, micro-quiz, XP, badges et visite guidée.">
+<meta name="description" content="Carte interactive du Maroc pour apprenants de FLE : sept lieux, fiches culturelles, micro-quiz, XP, badges et visite guidée.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
@@ -250,7 +250,7 @@ const XP_PAR_QUIZ = 50;
 const BADGES = [
   { id: "novice",   nom: "Explorateur Novice",   seuil: 50,  icone: '<path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5Z" fill="#0a2463"/>', texte: "Premier quiz réussi" },
   { id: "historien", nom: "Historien Émérite",   seuil: 150, icone: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3Z M8 4v13" fill="none" stroke="#0a2463" stroke-width="2"/>', texte: "150 XP : trois lieux maîtrisés" },
-  { id: "maitre",   nom: "Maître du Patrimoine", seuil: 300, icone: '<path d="M3 18h18l-2-9-4 4-3-7-3 7-4-4Z" fill="#0a2463"/>', texte: "300 XP : les six lieux réussis" },
+  { id: "maitre",   nom: "Maître du Patrimoine", seuil: 350, icone: '<path d="M3 18h18l-2-9-4 4-3-7-3 7-4-4Z" fill="#0a2463"/>', texte: "350 XP : les sept lieux réussis" },
 ];
 const LIEUX = [
   {
@@ -297,6 +297,15 @@ const LIEUX = [
     forts: ["Le Toubkal, 4 167 m", "Les villages en terre et les cultures en terrasses", "Le mot du lieu : « azul », bonjour en amazighe"],
     quiz: { question: "Comment s'appelle l'alphabet de la langue amazighe ?", choix: ["Le tifinagh", "La darija", "La halqa"], bonne: 0 },
     prompt: "Cinematic drone shot over an Amazigh village of earthen houses in the High Atlas mountains near Imlil, green terraced fields and walnut trees, snowy peaks of Toubkal in the background. Smooth cinematic camera movement, golden hour light, realistic, high detail, no text, no logos.",
+  },
+  {
+    id: "moyen-atlas", nom: "Le Moyen Atlas", region: "Fès-Meknès", themes: ["montagne"], coords: [33.4667, -5.1333], zoom: 11,
+    image: "images/lieux/maroc-moyen-atlas.jpg", video: "videos/maroc/moyen-atlas.mp4",
+    icone: '<path d="M12 3l5 6h-3l4 5h-4l3 4H7l3-4H6l4-5H7ZM12 18v3"/>',
+    resume: "Au sud de Fès, le Moyen Atlas est couvert de grandes forêts de cèdres de l'Atlas, où vivent les singes magots, une espèce aujourd'hui menacée. La petite ville d'Ifrane, avec ses toits pointus et sa neige en hiver, est surnommée « la Suisse du Maroc ». Le fleuve Oum Er-Rbia prend sa source dans ces montagnes.",
+    forts: ["Les forêts de cèdres près d'Azrou", "Les singes magots (macaques de Berbérie)", "Le mot du lieu : « azrou », le rocher (en amazighe)"],
+    quiz: { question: "Quel animal vit dans les forêts de cèdres du Moyen Atlas ?", choix: ["Le dromadaire", "Le singe magot", "Le flamant rose"], bonne: 1 },
+    prompt: "Drone shot gliding over a vast Atlas cedar forest in the Middle Atlas near Azrou, Barbary macaques sitting on the branches, then revealing the town of Ifrane with alpine-style pointed roofs under a light dusting of snow. Smooth cinematic camera movement, golden hour light, realistic, high detail, no text, no logos.",
   },
   {
     id: "essaouira", nom: "Essaouira", region: "Marrakech-Safi", themes: ["cote"], coords: [31.5085, -9.7595], zoom: 14,
@@ -398,7 +407,7 @@ resultats.addEventListener("click", (ev) => {
 });
 document.addEventListener("click", (ev) => { if (!ev.target.closest(".recherche")) resultats.hidden = true; });
 
-function niveau(x) { return x >= 300 ? "Maître du Patrimoine" : x >= 150 ? "Historien Émérite" : x >= 50 ? "Explorateur Novice" : "Voyageur débutant"; }
+function niveau(x) { return x >= 350 ? "Maître du Patrimoine" : x >= 150 ? "Historien Émérite" : x >= 50 ? "Explorateur Novice" : "Voyageur débutant"; }
 function majProgression(nouveauBadge = null) {
   const x = xp(), max = LIEUX.length * XP_PAR_QUIZ;
   document.getElementById("xp-val").textContent = `${x} XP`;
@@ -417,7 +426,7 @@ function majPanneau() {
   const v = LIEUX.filter(visible);
   panneau.innerHTML = `<div class="fiche">
       <span class="surtitre">Carnet d'exploration</span>
-      <h2>Six lieux, six histoires</h2>
+      <h2>Sept lieux, sept histoires</h2>
       <p>Cliquez sur un marqueur bleu, lisez la fiche à voix haute, puis répondez au quiz : chaque bonne réponse rapporte <b>${XP_PAR_QUIZ} XP</b>. Débloquez les trois badges, jusqu'au titre de <b>Maître du Patrimoine</b> !</p>
       <ul class="liste-lieux">${v.map((l) => `<li><button data-ouvre="${l.id}"><img src="${l.image}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
           <span><strong>${esc(l.nom)}</strong><small>${esc(l.region)}</small></span>
