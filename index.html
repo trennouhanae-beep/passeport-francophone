@@ -1015,6 +1015,64 @@ canvas.confettis { position: fixed; inset: 0; width: 100%; height: 100%; pointer
 @keyframes mini-tampon { from { opacity: 0; transform: scale(2) rotate(-20deg); } }
 @media (max-width: 560px) { .brevet-texte { inset: 11% 11% 11% 11%; } .brevet-motif { display: none; } }
 
+/* ===== Carte d'exploration d'un pays (Maroc) ===== */
+.rideau-drapeau img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.carte-pays-zone { gap: 14px; }
+.cp-tete { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; }
+.cp-tete h2 { margin: 0; }
+.cp-progression { display: grid; gap: 4px; font-size: .9rem; min-width: 180px; }
+.cp-progression b { font-family: var(--f-code); }
+.cp-barre { position: relative; height: 8px; border-radius: 999px; background: color-mix(in srgb, var(--or) 18%, transparent); overflow: visible; }
+.cp-barre i { position: absolute; inset: 0 auto 0 0; border-radius: inherit; background: linear-gradient(90deg, #006233, #2f8a4f); transition: width .6s cubic-bezier(.3, 1.4, .5, 1); }
+.cp-barre em { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--cuir); }
+.cp-grille { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 760px) { .cp-grille { grid-template-columns: minmax(0, 1fr); } }
+.cp-plan { position: relative; width: 100%; max-width: 100%; border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 1px var(--lisere), 0 18px 34px -20px rgba(40, 12, 4, .7); }
+.carte-pays-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.carte-pays-svg text { font-family: var(--f-texte); }
+.cp-mer { font-family: var(--f-titre) !important; font-style: italic; font-size: 40px; fill: #4d7489; letter-spacing: .08em; }
+.cp-voisin { font-size: 30px; fill: #8a6f4e; letter-spacing: .25em; font-weight: 700; }
+.cp-detroit { font-size: 22px; fill: #4d7489; font-style: italic; }
+.cp-relief { font-size: 27px; font-style: italic; fill: #fff3e6; font-weight: 700; paint-order: stroke; stroke: rgba(90, 15, 18, .6); stroke-width: 4px; }
+.cp-ville { fill: #fff6e2; stroke: #4a1012; stroke-width: 2.5; }
+.cp-nom-ville { font-size: 27px; fill: #fff6e2; font-weight: 700; paint-order: stroke; stroke: rgba(70, 12, 14, .75); stroke-width: 5px; }
+.cp-suite { font-size: 25px; fill: #8a5a1f; font-style: italic; }
+.cp-rose text { font-size: 22px; font-weight: 700; fill: #6e1418; }
+/* Punaises des lieux : pastille dorée qui pulse, verte une fois explorée */
+.poi { position: absolute; transform: translate(-50%, -50%); background: none; border: 0; padding: 0; cursor: pointer; z-index: 2; display: grid; place-items: center; }
+.poi-pastille { display: grid; place-items: center; width: clamp(26px, 4.2vw, 36px); height: clamp(26px, 4.2vw, 36px); border-radius: 50%; font-family: var(--f-code); font-weight: 700; font-size: clamp(.8rem, 1.6vw, 1rem);
+  background: radial-gradient(circle at 35% 30%, #fbe3a8, var(--or) 60%, #8a5a1f); color: #2a160c; box-shadow: 0 0 0 2px #fff6e2, 0 4px 10px rgba(30, 6, 4, .55); transition: transform .2s; }
+.poi::before { content: ""; position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid #fbe3a8; animation: poi-pouls 2s ease-out infinite; animation-delay: calc(var(--i) * .3s); }
+.poi.vu .poi-pastille { background: radial-gradient(circle at 35% 30%, #7fd09a, #006233 65%, #003d20); color: #fff; }
+.poi.vu::before { display: none; }
+.poi.sel .poi-pastille, .poi:hover .poi-pastille, .poi:focus-visible .poi-pastille { transform: scale(1.22); }
+.poi:focus-visible { outline: none; } .poi:focus-visible .poi-pastille { box-shadow: 0 0 0 3px #fff6e2, 0 0 0 6px var(--cuir); }
+.poi.vient .poi-pastille { animation: poi-tampon .6s cubic-bezier(.2, 1.6, .4, 1); }
+.poi-bulle { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translate(-50%, 6px); white-space: nowrap; padding: 5px 10px; border-radius: 8px; background: rgba(42, 22, 12, .92); color: #fff6e2;
+  font-family: var(--f-titre); font-weight: 700; font-size: .95rem; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; display: grid; text-align: center; }
+.poi-bulle small { font-family: var(--f-texte); font-weight: 400; font-size: .72rem; opacity: .85; }
+.poi:hover .poi-bulle, .poi:focus-visible .poi-bulle, .poi.sel .poi-bulle { opacity: 1; transform: translate(-50%, 0); }
+@keyframes poi-pouls { from { transform: scale(1); opacity: .9; } to { transform: scale(2.1); opacity: 0; } }
+@keyframes poi-tampon { from { transform: scale(2); } }
+/* Fiche du lieu */
+.fiche-lieu { display: grid; gap: 10px; border-radius: 12px; overflow: hidden; background: var(--carte); box-shadow: 0 0 0 1px var(--trait), 0 0 0 4px color-mix(in srgb, #c1272d 14%, transparent); animation: popup-entre .45s cubic-bezier(.2, 1.4, .4, 1) both; }
+.fiche-lieu.vide { padding: 18px; align-content: center; min-height: 160px; border-left: 5px solid #006233; }
+.fiche-lieu.vide p { margin: 0; }
+.fl-photo { position: relative; aspect-ratio: 4 / 3; max-width: 100%; background: linear-gradient(135deg, #c1272d, #8e1c21); }
+.fl-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fl-photo .drapeau-mini { position: absolute; top: 10px; left: 10px; z-index: 1; width: 42px; height: 28px; box-shadow: 0 0 0 2px #fff6e2, 0 3px 8px rgba(0,0,0,.35); }
+.fl-corps { display: grid; gap: 8px; padding: 4px 16px 16px; }
+.fl-corps h3 { margin: 0; font-family: var(--f-titre); font-size: 1.45rem; }
+.fl-corps p { margin: 0; }
+.fl-mot { padding: 8px 12px; border-radius: 8px; background: color-mix(in srgb, #006233 10%, var(--carte)); border-left: 4px solid #006233; }
+.fl-mot span { display: block; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: #006233; font-weight: 700; }
+.fl-mot strong { font-family: var(--f-titre); font-size: 1.15rem; }
+.fl-enigme { display: grid; gap: 8px; }
+.fiche-lieu.explore { box-shadow: 0 0 0 1px var(--trait), 0 0 0 4px color-mix(in srgb, #006233 25%, transparent); }
+.quiz-verrou { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px; border-radius: 12px; border: 2px dashed color-mix(in srgb, #c1272d 45%, transparent); background: color-mix(in srgb, #c1272d 6%, transparent); }
+.quiz-verrou span { font-size: 1.6rem; } .quiz-verrou p { margin: 0; flex: 1; min-width: 200px; }
+@media (prefers-reduced-motion: reduce) { .poi::before, .fiche-lieu { animation: none !important; } }
+
 /* ===== Tableau des équipes ===== */
 .table-classe td { vertical-align: middle; }
 .table-classe tr.ici { background: color-mix(in srgb, var(--or) 12%, transparent); }
@@ -1350,7 +1408,7 @@ function etatInitial() {
     guide: null,
     chezNous: { fete: "", plat: "", accueil: "", famille: "", tamponne: false },
     debutJeu: null,
-    escales: Object.fromEntries(ESCALES.map((e) => [e.id, { reponses: [null, null, null], essais: [0, 0, 0], indiceVu: false, lexique: [], lexiqueEssais: 0, ecoute: 0, tamponne: false, debut: null, fin: null }])),
+    escales: Object.fromEntries(ESCALES.map((e) => [e.id, { reponses: [null, null, null], essais: [0, 0, 0], indiceVu: false, lexique: [], lexiqueEssais: 0, ecoute: 0, tamponne: false, debut: null, fin: null, lieux: [], lieuxEssais: 0 }])),
     carnet: Object.fromEntries(ESCALES.map((e) => [e.id, { fete: "", plat: "", pratique: "", mots: "", chezMoi: "" }])),
     coffreOuvert: false, coffreEssais: 0,
     sujetTire: null,
@@ -2551,7 +2609,8 @@ function ecranEscale() {
   const index = ESCALES.indexOf(e);
   const pret = toutJuste(e) && lexiqueFini(e) && chezToiRempli(e);
 
-  const etapes = [["Document", true], ["Quiz", toutJuste(e)], ["Lexique", lexiqueFini(e)], ["Et chez toi ?", chezToiRempli(e)], ["Tampon", s.tamponne]];
+  const carte = CARTES_PAYS[e.id];
+  const etapes = [["Document", true], ...(carte ? [[`Carte ${lieuxExplores(e)}/${carte.lieux.length}`, carteDebloquee(e)]] : []), ["Quiz", toutJuste(e)], ["Lexique", lexiqueFini(e)], ["Et chez toi ?", chezToiRempli(e)], ["Tampon", s.tamponne]];
 
   const questions = e.questions.map((q, i) => {
     const juste = questionJuste(e, i);
@@ -2609,9 +2668,11 @@ function ecranEscale() {
         ${e.document.map((p, k) => `<div class="para${parasSurlignes.has(k + 1) ? " surligne" : ""}" data-n="${k + 1}" id="para-${k + 1}"><span class="n">§${k + 1}</span><p>${esc(p)}</p></div>`).join("")}
       </div>
     </section>
+    ${cartePaysHTML(e)}
     <section class="page">
       <span class="etiquette">Épreuve 1 · le quiz · discutez, puis répondez ensemble</span>
-      ${questions}
+      ${carteDebloquee(e) ? questions : `<div class="quiz-verrou"><span aria-hidden="true">🔒</span><p><strong>Quiz verrouillé.</strong> Explorez encore ${carte.seuil - lieuxExplores(e)} lieu${carte.seuil - lieuxExplores(e) > 1 ? "x" : ""} sur la carte de Yasmine pour l'ouvrir.</p>
+        <button class="btn second" data-action="voir-carte-pays">Aller à la carte</button></div>`}
       <div>${s.indiceVu ? `<p class="doux petit">Indice pour les questions du quiz : il vous dit où chercher dans le document. Le chiffre du code se gagne en réussissant l'escale.</p>${bulleGuide(e.indice)}` : `<button class="btn second" data-action="indice">Demander à ${esc(guideActuel()?.nom || "votre guide")} un indice pour les questions (un seul par escale)</button>`}</div>
     </section>
     <section class="page">
@@ -2950,6 +3011,7 @@ function ecranEnseignante() {
         }).join("")}</tbody>
       </table></div>
       <p class="doux petit">Q1 à Q3 : nombre d'essais (1 = juste du premier coup). Lexique : paires trouvées et associations erronées.</p>
+      ${Object.keys(CARTES_PAYS).map((id) => { const e = escaleParId(id), s = etat.escales[id]; return `<p class="petit">Carte ${esc(PREP[id] ? PREP[id][0] : e.nom)} : ${(s.lieux || []).length}/${CARTES_PAYS[id].lieux.length} lieux explorés (${(s.lieux || []).map((l) => CARTES_PAYS[id].lieux.find((x) => x.id === l)?.nom).join(", ") || "aucun"}) · ${s.lieuxEssais || 0} réponse${(s.lieuxEssais || 0) > 1 ? "s" : ""} fausse${(s.lieuxEssais || 0) > 1 ? "s" : ""} aux énigmes</p>`; }).join("")}
       <div class="rangee">
         <button class="btn second" data-action="copier-carnet">Copier le carnet</button>
         <button class="btn second" data-action="copier-donnees">Copier les données (JSON)</button>
@@ -3108,6 +3170,122 @@ function animerAvion() {
 }
 
 /* =====================================================================
+   CARTE D'EXPLORATION D'UN PAYS · « La carte de Yasmine » (Maroc)
+   Les élèves explorent des lieux sur la carte ; chaque lieu = une fiche,
+   un mot à apprendre et une mini-énigme. Il faut en réussir assez pour
+   débloquer le quiz de l'escale. Pour ajouter un autre pays : une entrée
+   dans CARTES_PAYS (et ses contours, comme GEO_MAROC).
+   ===================================================================== */
+// Contours : Natural Earth 1:50 000 000 (domaine public), via le paquet world-atlas ; projection du nord du Maroc
+const GEO_MAROC = {"W":1000,"H":863,"LON0":-11.2,"LAT1":36.3,"C":0.8433914458128857,"K":115.1154414984622,"maroc":"M871.9 137.6L874.7 146.2L880.3 153.0L913.1 178.2L913.5 181.6L909.3 189.4L907.9 194.8L911.0 200.6L918.4 207.6L919.1 211.0L913.5 222.4L921.5 244.6L922.9 265.9L920.8 289.9L921.9 297.3L928.9 314.7L924.3 343.3L929.6 358.9L936.9 371.5L940.8 394.0L946.7 404.6L956.1 414.0L979.6 431.4L984.1 441.0L967.0 456.2L964.9 463.8L968.4 476.0L968.4 482.6L963.5 484.8L849.5 480.0L809.3 486.4L802.7 490.2L797.1 509.5L794.3 514.1L753.4 528.9L737.3 531.1L728.2 529.5L721.6 530.7L716.0 533.9L713.9 538.7L713.6 544.9L718.8 559.7L719.5 568.5L717.1 574.5L715.3 587.3L717.4 590.9L721.3 591.5L730.7 597.3L735.6 602.5L735.2 610.1L731.4 614.3L727.9 616.5L700.3 620.1L667.8 644.8L623.4 661.6L604.9 671.6L584.6 706.2L573.4 718.6L558.4 730.2L526.6 740.4L504.6 744.6L483.9 747.0L470.3 747.4L458.4 746.0L456.3 747.2L455.6 750.1L454.2 764.3L446.9 773.7L443.0 774.9L398.7 768.3L392.4 769.7L385.0 774.1L373.8 783.3L366.1 791.5L360.6 795.1L347.3 797.1L341.3 800.1L310.9 825.1L285.1 842.7L256.4 867.1L246.6 872.7L244.9 876.0L244.2 884.0L244.2 995.0L231.2 995.0L235.4 1017.5L232.6 1028.9L233.3 1035.1L237.5 1048.5L237.5 1053.1L233.7 1056.7L213.4 1060.1L193.5 1059.1L173.6 1060.3L166.2 1064.7L142.1 1086.7L134.1 1087.9L126.0 1087.9L113.4 1080.9L110.0 1081.1L98.1 1086.7L92.1 1086.7L63.1 1071.7L42.8 1068.3L26.8 1069.3L-6.1 1080.9L-18.7 1084.1L-15.5 1094.3L-11.3 1099.9L-11.3 1106.9L-13.4 1112.9L-26.4 1125.9L-42.4 1151.6L-47.0 1161.0L-50.5 1173.6L-54.0 1175.8L-66.2 1177.6L-80.5 1182.2L-83.7 1186.8L-85.4 1194.8L-85.4 1200.6L-94.2 1227.2L-107.8 1288.1L-112.7 1304.3L-119.7 1320.3L-138.9 1337.7L-173.9 1361.9L-180.8 1369.9L-197.3 1405.4L-205.0 1418.0L-249.7 1440.0L-256.3 1444.6L-261.2 1451.4L-270.0 1471.2L-275.9 1491.8L-288.5 1558.7L-290.2 1594.3L-293.4 1610.5L-302.1 1624.3L-308.8 1632.2L-314.7 1636.8L-316.5 1641.4L-322.4 1647.2L-333.2 1662.2L-331.1 1674.8L-337.1 1692.2L-344.8 1703.6L-353.5 1709.4L-366.1 1710.6L-413.6 1709.4L-441.9 1704.8L-469.9 1703.6L-484.6 1706.0L-522.3 1706.0L-537.0 1707.2L-563.6 1712.8L-556.2 1657.6L-542.9 1627.9L-532.5 1614.7L-516.0 1607.7L-501.0 1577.7L-495.4 1550.1L-485.6 1537.3L-482.5 1527.3L-486.3 1519.7L-476.9 1504.7L-465.7 1482.0L-460.5 1467.4L-447.2 1444.8L-445.4 1439.8L-446.8 1434.0L-464.3 1453.8L-456.3 1433.8L-444.4 1421.4L-425.9 1407.6L-387.4 1360.9L-372.7 1352.7L-359.8 1333.1L-354.9 1315.5L-353.5 1275.5L-349.0 1254.3L-340.6 1237.8L-330.4 1207.8L-322.8 1194.2L-317.5 1167.0L-311.9 1156.4L-302.1 1151.6L-288.1 1137.8L-267.2 1129.4L-242.4 1111.7L-230.8 1101.1L-222.8 1085.3L-214.4 1053.7L-199.7 1020.5L-192.0 995.6L-178.8 982.0L-169.7 965.4L-154.6 958.0L-123.2 954.4L-76.3 940.6L-34.4 919.8L-22.5 911.4L-9.6 894.8L11.4 873.3L51.2 847.3L69.4 832.9L97.0 796.5L115.5 766.5L130.9 747.2L141.4 730.0L148.7 712.6L152.9 684.6L150.1 673.6L138.6 655.8L130.6 651.0L128.5 642.6L132.7 627.6L132.7 602.1L135.1 561.3L148.0 528.3L179.9 485.0L185.8 467.4L189.6 429.0L229.5 389.0L252.9 358.3L260.9 350.9L281.6 336.9L353.2 306.1L393.8 284.3L417.5 268.3L431.5 249.5L470.7 175.4L509.1 71.3L512.2 59.1L541.6 54.3L551.4 50.5L563.3 42.5L574.8 45.7L569.2 51.1L569.2 63.9L577.3 78.9L591.6 95.9L617.8 117.3L638.1 125.8L667.1 131.0L700.6 121.7L719.5 121.5L728.9 117.5L738.7 123.4L758.0 125.2L776.1 122.0L790.1 113.1L798.9 102.9L800.6 113.5L803.4 116.7L811.8 134.8L822.3 134.0L831.4 136.6L852.0 135.4L871.9 137.6Z","espagne":"M1242.0 -273.0L1239.9 -271.6L1233.7 -273.0L1223.9 -273.0L1223.5 -277.6L1224.9 -280.8L1226.7 -284.2L1232.6 -277.6L1242.0 -276.4L1242.0 -273.0ZM1227.7 -301.4L1224.2 -294.4L1209.5 -296.8L1206.0 -299.8L1209.2 -307.8L1213.7 -308.8L1213.7 -314.4L1218.3 -320.2L1239.2 -324.8L1244.1 -320.8L1245.2 -315.2L1232.6 -303.0L1227.7 -301.4ZM913.1 -818.2L913.5 -814.2L917.0 -808.6L929.6 -803.8L944.6 -802.0L950.5 -798.8L950.9 -794.0L949.1 -788.4L943.6 -779.4L948.8 -775.4L954.4 -775.6L959.3 -782.4L961.0 -782.8L962.4 -778.2L973.3 -773.6L996.7 -765.4L1013.5 -764.2L1015.6 -760.8L1030.6 -748.1L1040.7 -748.3L1048.8 -749.3L1054.3 -751.7L1058.2 -751.3L1067.3 -746.7L1083.4 -735.5L1106.8 -739.1L1112.0 -735.9L1123.9 -736.7L1137.5 -735.1L1148.7 -735.5L1149.8 -736.9L1150.8 -748.3L1152.6 -752.5L1155.0 -753.5L1161.7 -752.7L1185.4 -745.9L1204.6 -738.3L1213.0 -737.9L1218.3 -735.7L1226.0 -724.7L1224.9 -719.3L1226.0 -709.3L1228.1 -706.5L1236.4 -707.1L1252.9 -714.1L1274.5 -705.3L1280.1 -697.5L1284.7 -696.9L1301.1 -704.7L1336.8 -695.9L1344.8 -695.3L1346.5 -701.5L1368.2 -708.7L1375.6 -709.9L1393.4 -705.7L1399.3 -705.7L1401.8 -698.5L1406.7 -695.7L1408.4 -689.5L1400.0 -686.1L1394.8 -685.7L1393.4 -674.9L1395.5 -671.7L1400.4 -668.9L1401.8 -665.7L1402.8 -649.7L1393.0 -640.1L1379.1 -629.4L1311.6 -594.8L1295.5 -578.0L1289.6 -574.2L1239.6 -563.6L1204.3 -552.2L1187.5 -548.2L1156.8 -520.6L1164.8 -518.4L1173.9 -509.0L1170.7 -504.9L1157.5 -498.5L1151.5 -496.5L1148.4 -497.5L1145.2 -496.7L1122.9 -462.7L1102.6 -438.1L1091.4 -427.5L1080.2 -411.7L1055.7 -370.6L1055.4 -358.8L1067.6 -318.0L1074.3 -307.2L1084.1 -298.2L1102.6 -290.6L1106.8 -283.0L1100.5 -275.8L1082.3 -263.0L1050.5 -245.9L1036.9 -232.3L1034.1 -219.1L1024.6 -213.1L1021.1 -194.7L1014.2 -178.5L1008.2 -169.1L1007.5 -162.5L1017.3 -153.1L1012.4 -149.1L1007.5 -147.3L958.6 -145.1L928.2 -125.2L912.8 -107.4L899.2 -74.4L882.4 -54.8L875.0 -51.2L863.5 -59.8L849.2 -61.2L835.2 -58.2L828.2 -51.6L816.7 -47.8L805.5 -51.0L781.7 -52.8L770.9 -52.4L754.1 -47.0L739.8 -50.6L715.7 -52.4L663.2 -48.2L656.9 -46.0L650.3 -37.8L633.5 -23.8L608.4 -23.2L585.3 -14.2L579.7 -8.4L569.9 7.3L566.8 18.9L565.0 19.1L562.6 16.3L558.7 17.1L557.0 26.1L548.2 30.1L541.3 31.5L523.4 24.3L508.8 13.5L501.1 12.9L488.5 -3.8L482.9 -14.6L479.0 -26.0L479.7 -30.4L478.7 -34.2L467.5 -38.8L464.7 -49.4L473.1 -63.0L479.7 -69.0L483.9 -70.6L473.8 -70.0L466.5 -61.2L457.0 -75.4L418.9 -103.0L421.4 -109.2L421.0 -112.8L414.7 -105.4L410.2 -103.4L390.6 -104.6L368.2 -101.2L358.8 -147.9L364.8 -164.3L371.0 -171.1L379.4 -184.9L389.9 -196.5L405.6 -200.9L411.9 -217.3L410.2 -218.1L397.6 -216.5L374.5 -248.3L380.1 -270.4L380.5 -278.0L386.4 -284.4L395.5 -290.8L403.2 -300.0L407.0 -309.2L408.1 -317.4L403.5 -323.2L391.0 -326.4L378.0 -349.8L375.2 -364.4L364.4 -372.6L355.7 -386.9L363.7 -389.1L396.2 -389.3L404.2 -392.9L410.2 -402.7L416.5 -418.7L417.9 -428.5L415.8 -432.5L404.9 -442.3L404.6 -445.3L406.3 -449.9L421.4 -460.5L426.3 -465.5L422.4 -473.3L422.1 -476.9L423.8 -481.5L424.2 -497.3L425.6 -501.3L423.8 -515.4L421.7 -527.0L414.7 -542.0L416.1 -545.4L419.3 -548.2L429.4 -553.4L437.8 -565.8L450.0 -576.0L465.8 -584.2L476.6 -593.4L481.1 -600.4L484.3 -602.4L483.2 -605.6L481.1 -610.4L474.8 -615.0L466.8 -617.6L452.1 -618.4L450.7 -622.2L450.7 -641.7L449.0 -646.1L444.8 -649.5L436.4 -648.5L429.4 -651.3L423.8 -651.9L420.7 -649.9L404.9 -650.5L393.4 -653.9L388.9 -650.9L387.5 -644.1L381.5 -640.5L368.6 -636.9L358.1 -637.3L348.3 -639.7L340.6 -643.3L320.7 -641.3L318.3 -642.7L301.5 -634.7L295.9 -634.5L293.8 -635.3L288.9 -644.1L290.0 -647.7L298.0 -658.3L297.3 -660.7L293.8 -664.1L290.0 -671.5L284.7 -671.9L279.5 -669.3L253.6 -662.3L244.5 -657.1L235.1 -649.3L228.1 -647.7L225.3 -650.1L224.6 -668.3L243.5 -687.7L240.0 -689.1L231.6 -688.9L231.9 -694.7L236.1 -697.3L240.0 -703.5L231.9 -710.3L233.0 -725.3L231.9 -729.9L214.8 -723.5L210.3 -724.5L210.3 -732.5L219.7 -744.5L220.7 -748.1L209.6 -749.9L201.2 -755.9L190.7 -768.6L190.7 -775.4L196.3 -791.2L211.3 -798.8L226.0 -809.8L245.9 -807.8L258.5 -810.0L269.7 -815.6L276.3 -817.0L286.5 -821.8L286.1 -828.4L282.6 -833.4L285.8 -838.0L310.2 -851.2L324.9 -852.6L339.9 -859.4L350.1 -855.0L358.8 -856.4L368.9 -851.4L382.2 -839.8L401.8 -835.0L417.5 -838.8L444.8 -839.4L458.8 -838.0L483.2 -840.8L497.2 -839.8L519.6 -845.6L537.4 -838.4L571.3 -835.0L591.6 -829.0L648.2 -819.2L668.8 -819.0L697.5 -824.6L709.7 -828.8L720.9 -826.2L737.3 -831.0L745.4 -830.2L755.5 -823.2L791.9 -814.0L801.3 -821.8L808.3 -823.6L834.2 -818.8L860.4 -809.0L874.0 -808.4L893.9 -811.0L913.1 -818.2ZM-244.1 850.5L-250.8 858.1L-258.1 855.5L-254.6 838.9L-251.5 833.9L-237.8 826.7L-226.6 823.7L-223.5 816.1L-219.6 813.1L-215.8 817.7L-218.9 822.9L-221.0 839.7L-228.7 844.9L-244.1 850.5ZM-290.9 936.0L-304.2 949.0L-317.5 946.0L-319.6 943.8L-306.3 940.6L-294.4 930.6L-286.8 908.6L-274.5 884.4L-272.1 874.1L-267.5 870.1L-260.9 869.7L-258.1 870.5L-254.9 875.8L-254.9 888.0L-258.4 908.4L-264.7 926.2L-290.9 936.0Z","portugal":"M235.1 -649.3L244.5 -657.1L253.6 -662.3L279.5 -669.3L284.7 -671.9L290.0 -671.5L293.8 -664.1L297.3 -660.7L298.0 -658.3L290.0 -647.7L288.9 -644.1L293.8 -635.3L295.9 -634.5L301.5 -634.7L318.3 -642.7L320.7 -641.3L340.6 -643.3L348.3 -639.7L358.1 -637.3L368.6 -636.9L381.5 -640.5L387.5 -644.1L388.9 -650.9L393.4 -653.9L404.9 -650.5L420.7 -649.9L423.8 -651.9L429.4 -651.3L436.4 -648.5L444.8 -649.5L449.0 -646.1L450.7 -641.7L450.7 -622.2L452.1 -618.4L466.8 -617.6L474.8 -615.0L481.1 -610.4L483.2 -605.6L484.3 -602.4L481.1 -600.4L476.6 -593.4L465.8 -584.2L450.0 -576.0L437.8 -565.8L429.4 -553.4L419.3 -548.2L416.1 -545.4L414.7 -542.0L421.7 -527.0L423.8 -515.4L425.6 -501.3L424.2 -497.3L423.8 -481.5L422.1 -476.9L422.4 -473.3L426.3 -465.5L421.4 -460.5L406.3 -449.9L404.6 -445.3L404.9 -442.3L415.8 -432.5L417.9 -428.5L416.5 -418.7L410.2 -402.7L404.2 -392.9L396.2 -389.3L363.7 -389.1L355.7 -386.9L364.4 -372.6L375.2 -364.4L378.0 -349.8L391.0 -326.4L403.5 -323.2L408.1 -317.4L407.0 -309.2L403.2 -300.0L395.5 -290.8L386.4 -284.4L380.5 -278.0L380.1 -270.4L374.5 -248.3L397.6 -216.5L410.2 -218.1L411.9 -217.3L405.6 -200.9L389.9 -196.5L379.4 -184.9L371.0 -171.1L364.8 -164.3L358.8 -147.9L368.2 -101.2L359.9 -100.0L326.7 -81.2L316.5 -81.2L297.3 -89.4L263.7 -92.2L252.6 -94.6L238.9 -89.2L228.4 -89.4L219.7 -82.4L213.8 -84.4L220.7 -99.8L231.6 -130.1L231.2 -148.7L233.7 -164.9L230.9 -180.9L225.3 -190.9L232.6 -216.9L231.9 -230.3L225.3 -247.1L245.9 -244.5L239.3 -251.3L233.0 -255.2L221.8 -254.7L204.3 -248.1L195.6 -246.1L192.8 -247.3L193.8 -257.6L189.3 -271.2L196.3 -274.8L204.7 -275.8L211.7 -281.6L215.9 -288.2L213.4 -299.6L219.7 -310.6L233.7 -319.8L226.3 -318.4L218.0 -312.6L204.7 -291.8L200.5 -281.2L178.8 -276.0L167.6 -279.8L166.9 -287.6L167.6 -293.8L171.8 -306.2L173.2 -323.8L179.5 -339.4L177.1 -349.8L182.7 -355.8L189.3 -359.8L199.1 -373.4L229.5 -439.3L228.1 -443.5L224.6 -446.5L226.0 -455.7L235.8 -495.7L239.6 -500.9L244.2 -512.6L246.6 -551.0L245.2 -558.8L238.9 -573.8L232.6 -605.6L231.9 -616.2L237.2 -621.4L228.4 -622.2L224.6 -629.2L225.3 -636.7L235.1 -649.3Z","algerie":"M1920.1 -73.4L1922.2 -67.2L1922.6 -61.4L1907.2 -53.0L1899.8 -38.2L1884.1 -25.2L1884.5 -22.4L1893.5 -17.8L1896.3 -13.6L1898.1 -7.8L1887.9 49.5L1887.9 57.3L1894.9 74.3L1896.0 82.7L1894.9 103.3L1902.3 126.2L1894.2 139.8L1891.1 152.0L1887.9 180.2L1882.7 190.4L1876.1 199.8L1868.4 205.8L1848.5 217.6L1839.7 235.6L1820.8 250.3L1817.0 255.5L1815.2 267.5L1815.6 284.1L1818.7 297.3L1827.8 316.7L1835.9 338.1L1838.0 349.1L1841.1 353.1L1871.5 369.7L1875.0 373.4L1884.5 388.2L1893.5 414.8L1896.3 432.4L1930.2 459.2L1963.1 483.0L1965.5 486.8L2011.7 698.8L1991.4 712.0L1999.1 726.0L2014.1 748.8L2023.2 767.1L2033.7 797.9L2039.3 819.9L2043.1 844.1L2040.3 891.0L2044.5 950.4L2050.1 980.2L2033.7 1032.5L2034.4 1045.3L2038.2 1065.5L2042.4 1080.3L2048.0 1088.1L2047.0 1113.1L2044.5 1122.1L2027.8 1135.2L2008.9 1147.2L2003.6 1157.4L2002.2 1168.8L2004.7 1178.0L2058.2 1262.5L2060.3 1271.1L2061.0 1294.9L2069.7 1324.9L2079.5 1338.1L2083.0 1347.9L2096.6 1360.1L2100.8 1360.7L2124.9 1352.5L2204.6 1379.6L2207.4 1382.4L2229.8 1428.2L2249.4 1471.4L1813.9 1775.9L1766.0 1822.3L1654.1 1936.4L1645.4 1941.6L1421.3 1992.0L1410.2 1992.8L1403.5 1990.0L1390.2 1979.6L1388.8 1974.2L1397.2 1955.6L1403.2 1948.6L1403.5 1944.2L1398.3 1927.0L1398.3 1900.6L1391.3 1893.6L1378.0 1886.0L1365.8 1881.4L1327.7 1872.3L1321.0 1869.1L1308.8 1852.3L1302.9 1847.9L1274.5 1845.1L1265.5 1842.3L1257.8 1838.3L1251.1 1832.9L1247.3 1823.5L1246.2 1816.1L1243.8 1812.5L1212.7 1794.3L1204.6 1788.1L1200.4 1782.3L1201.1 1763.3L1198.7 1749.6L648.9 1323.3L597.2 1285.1L551.7 1251.9L244.2 1037.7L244.9 876.0L246.6 872.7L256.4 867.1L285.1 842.7L310.9 825.1L341.3 800.1L347.3 797.1L360.6 795.1L366.1 791.5L373.8 783.3L385.0 774.1L392.4 769.7L398.7 768.3L443.0 774.9L446.9 773.7L454.2 764.3L455.6 750.1L456.3 747.2L458.4 746.0L470.3 747.4L483.9 747.0L504.6 744.6L526.6 740.4L558.4 730.2L573.4 718.6L584.6 706.2L604.9 671.6L623.4 661.6L667.8 644.8L700.3 620.1L727.9 616.5L731.4 614.3L735.2 610.1L735.6 602.5L730.7 597.3L721.3 591.5L717.4 590.9L715.3 587.3L717.1 574.5L719.5 568.5L718.8 559.7L713.6 544.9L713.9 538.7L716.0 533.9L721.6 530.7L728.2 529.5L737.3 531.1L753.4 528.9L794.3 514.1L797.1 509.5L802.7 490.2L809.3 486.4L849.5 480.0L963.5 484.8L968.4 482.6L968.4 476.0L964.9 463.8L967.0 456.2L984.1 441.0L979.6 431.4L956.1 414.0L946.7 404.6L940.8 394.0L936.9 371.5L929.6 358.9L924.3 343.3L928.9 314.7L921.9 297.3L920.8 289.9L922.9 265.9L921.5 244.6L913.5 222.4L919.1 211.0L918.4 207.6L911.0 200.6L907.9 194.8L909.3 189.4L913.5 181.6L913.1 178.2L880.3 153.0L874.7 146.2L871.9 137.6L891.5 139.8L901.6 138.8L925.0 128.6L943.2 114.9L957.5 107.7L970.5 92.7L981.6 83.1L998.4 72.7L1046.0 50.5L1053.3 50.3L1069.0 55.3L1082.7 53.7L1092.1 45.9L1102.2 27.3L1117.6 15.9L1137.5 4.3L1164.1 -6.4L1181.6 -16.6L1209.5 -25.2L1279.1 -30.8L1314.7 -35.6L1339.2 -34.6L1363.7 -50.6L1375.9 -55.8L1429.0 -57.0L1454.2 -68.6L1549.3 -68.6L1560.8 -64.8L1572.3 -58.4L1591.9 -43.4L1601.3 -40.0L1613.9 -43.2L1643.3 -57.6L1676.1 -65.0L1694.0 -73.4L1701.7 -85.8L1717.0 -90.4L1725.8 -81.0L1760.0 -71.4L1781.0 -74.0L1790.1 -77.0L1786.9 -91.2L1809.0 -87.4L1826.1 -80.6L1843.9 -66.8L1855.4 -64.0L1876.4 -70.2L1920.1 -73.4Z","lieux":{"fes":[602.9,261.3],"rabat":[423.3,262.5],"marrakech":[311.7,537.6],"chefchaouen":[575.7,130.1],"atlas":[373.8,587.1],"essaouira":[138.8,551.4],"casablanca":[350.5,314.3],"tanger":[523.3,61]},"reliefs":{"rif":[[543.7,143.9],[601.9,149.7],[660.2,155.4],[718.4,155.4]],"moyen":[[563.1,322.3],[611.7,368.4],[660.2,408.7],[708.7,443.2]],"haut":[[194.2,638.9],[271.8,610.1],[349.5,592.8],[427.2,558.3],[504.9,523.8],[582.5,489.2],[660.2,460.5]],"anti":[[213.6,759.8],[291.3,731],[368.9,702.2],[446.6,679.2]]}};
+const DRAPEAU_PHOTO = { maroc: "images/drapeaux/maroc.jpg" }; // drapeau en soie fourni par l'enseignante (rideau d'arrivée)
+const CARTES_PAYS = {
+  maroc: {
+    titre: "La carte de Yasmine", geo: () => GEO_MAROC, seuil: 4, miles: 40,
+    consigne: "Yasmine a marqué six lieux sur sa carte. Cliquez sur une punaise, lisez la fiche à voix haute, puis résolvez l'énigme. Explorez au moins quatre lieux pour débloquer le quiz.",
+    lieux: [
+      { id: "chefchaouen", nom: "Chefchaouen", sous: "La ville bleue", lonlat: [-5.27, 35.17],
+        texte: "Dans les montagnes du Rif, Chefchaouen est célèbre pour ses rues et ses maisons peintes en bleu. Pourquoi ce bleu ? On raconte qu'il rappelle le ciel, qu'il rafraîchit les maisons ou qu'il éloigne les moustiques : chacun a son explication !",
+        mot: ["zwin", "beau, joli (en darija)"], q: "Dans quelles montagnes se trouve Chefchaouen ?", options: ["Le Rif", "L'Atlas", "Les Alpes"], correcte: 0 },
+      { id: "fes", nom: "Fès", sous: "La médina de Yasmine", lonlat: [-4.99, 34.03],
+        texte: "Fès est la plus ancienne des villes impériales du Maroc. Sa médina, Fès el-Bali, est un labyrinthe de milliers de ruelles où les voitures ne passent pas : on y transporte les marchandises à dos d'âne ! Dans le quartier des tanneurs, les artisans teignent les peaux dans de grandes cuves de couleurs.",
+        mot: ["un derb", "une ruelle de la médina (en darija)"], q: "Comment transporte-t-on les marchandises dans la médina de Fès ?", options: ["En tramway", "À dos d'âne", "En voiture"], correcte: 1 },
+      { id: "rabat", nom: "Rabat", sous: "La capitale", lonlat: [-6.84, 34.02],
+        texte: "Rabat est la capitale du Maroc : le roi, le gouvernement et le Parlement y siègent. Ce n'est pourtant pas la plus grande ville du pays : c'est Casablanca, la capitale économique. À Rabat, la tour Hassan, un minaret inachevé du XIIe siècle, domine une grande esplanade.",
+        mot: ["salam", "bonjour, la paix (en arabe et en darija)"], q: "Quelle est la plus grande ville du Maroc ?", options: ["Rabat", "Fès", "Casablanca"], correcte: 2 },
+      { id: "marrakech", nom: "Marrakech", sous: "La place Jemaa el-Fna", lonlat: [-7.99, 31.63],
+        texte: "À Marrakech, la place Jemaa el-Fna s'anime chaque soir : conteurs, musiciens et marchands s'y installent. Autour d'un conteur, le public forme un cercle qu'on appelle la halqa. Cette place est inscrite au patrimoine culturel immatériel de l'UNESCO.",
+        mot: ["yallah !", "allons-y ! (en darija)"], q: "Comment appelle-t-on le cercle du public autour d'un conteur ?", options: ["Le derb", "La halqa", "Le souk"], correcte: 1 },
+      { id: "atlas", nom: "Le Haut Atlas", sous: "Les villages amazighs", lonlat: [-6.95, 31.15],
+        texte: "Dans les villages du Haut Atlas vivent beaucoup d'Amazighs, qu'on appelle aussi Berbères. Leur langue, l'amazighe, est officielle au Maroc depuis 2011. Elle s'écrit avec un alphabet très ancien : le tifinagh. Pour dire bonjour, on dit « Azul ! ».",
+        mot: ["azul", "bonjour (en amazighe)"], q: "Comment s'appelle l'alphabet de la langue amazighe ?", options: ["Le tifinagh", "La darija", "La halqa"], correcte: 0 },
+      { id: "essaouira", nom: "Essaouira", sous: "Le port et la musique gnaoua", lonlat: [-9.77, 31.51],
+        texte: "Sur la côte atlantique, Essaouira est une ville de vent et de remparts, où les barques bleues des pêcheurs remplissent le port. Chaque année, elle accueille le festival Gnaoua et musiques du monde. La musique gnaoua se joue avec le guembri, un luth à trois cordes, et les qraqeb, de grandes castagnettes en métal.",
+        mot: ["les qraqeb", "de grandes castagnettes en métal"], q: "Avec quel instrument à cordes joue-t-on la musique gnaoua ?", options: ["La kora", "Le violon", "Le guembri"], correcte: 2 },
+    ],
+  },
+};
+const lieuxExplores = (e) => (etat.escales[e.id].lieux || []).length;
+const carteDebloquee = (e) => !CARTES_PAYS[e.id] || lieuxExplores(e) >= CARTES_PAYS[e.id].seuil;
+function projLieu(g, [lon, lat]) { return [(lon - g.LON0) * g.C * g.K, (g.LAT1 - lat) * g.K]; }
+// Le fond de carte : mer, pays voisins, le Maroc aux couleurs du drapeau (texture, reliefs, étoile verte)
+function fondCartePays(id) {
+  const g = CARTES_PAYS[id].geo();
+  const relief = (pts) => pts.slice(0, -1).map(([x, y], i) => {
+    const [x2, y2] = pts[i + 1], n = Math.max(2, Math.round(Math.hypot(x2 - x, y2 - y) / 22));
+    return Array.from({ length: n }, (_, k) => { const px = x + (x2 - x) * (k + .5) / n, py = y + (y2 - y) * (k + .5) / n, h = 10 + ((i + k) % 3) * 3; return `M${(px - 8).toFixed(1)} ${(py + 5).toFixed(1)}L${px.toFixed(1)} ${(py - h).toFixed(1)}L${(px + 8).toFixed(1)} ${(py + 5).toFixed(1)}`; }).join("");
+  }).join("");
+  const R = g.reliefs, ville = (nom, lonlat, dx = 10, dy = 5) => { const [x, y] = projLieu(g, lonlat); return `<circle cx="${x}" cy="${y}" r="6" class="cp-ville"/><text x="${x + dx}" y="${y + dy}" class="cp-nom-ville">${nom}</text>`; };
+  return `<svg class="carte-pays-svg" viewBox="0 0 ${g.W} ${g.H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Carte du nord du Maroc avec six lieux à explorer">
+    <defs>
+      <pattern id="cp-vagues" width="46" height="20" patternUnits="userSpaceOnUse"><path d="M0 12q11.5-8 23 0t23 0" fill="none" stroke="#9fbccb" stroke-width="1.2" opacity=".55"/></pattern>
+      <linearGradient id="cp-rouge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d33a3f"/><stop offset=".55" stop-color="#c1272d"/><stop offset="1" stop-color="#9e1c22"/></linearGradient>
+      <filter id="cp-grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" seed="7"/><feColorMatrix values="0 0 0 0 .25  0 0 0 0 .05  0 0 0 0 .05  0 0 0 .22 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+      <filter id="cp-ombre" x="-5%" y="-5%" width="110%" height="110%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#3a0d0c" flood-opacity=".45"/></filter>
+      <clipPath id="cp-clip-maroc"><path d="${g.maroc}"/></clipPath>
+      <linearGradient id="cp-fondu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6ecd9" stop-opacity="0"/><stop offset="1" stop-color="#f6ecd9" stop-opacity=".95"/></linearGradient>
+    </defs>
+    <rect width="${g.W}" height="${g.H}" fill="#cfe1ea"/><rect width="${g.W}" height="${g.H}" fill="url(#cp-vagues)"/>
+    <g fill="#efe3c8" stroke="#a88b62" stroke-width="1.5"><path d="${g.espagne}"/><path d="${g.portugal}"/><path d="${g.algerie}"/></g>
+    <path d="${g.maroc}" fill="url(#cp-rouge)" stroke="#6e1418" stroke-width="2.5" stroke-linejoin="round" filter="url(#cp-ombre)"/>
+    <g clip-path="url(#cp-clip-maroc)">
+      <rect width="${g.W}" height="${g.H}" filter="url(#cp-grain)" fill="#000"/>
+      <polygon points="${etoile(560, 470, 150, 2)}" fill="none" stroke="#006233" stroke-width="16" stroke-linejoin="miter" opacity=".92"/>
+      <path d="${relief(R.rif)}${relief(R.moyen)}${relief(R.haut)}${relief(R.anti)}" fill="rgba(110,20,24,.35)" stroke="rgba(255,225,200,.45)" stroke-width="1.4" stroke-linejoin="round"/>
+    </g>
+    <g class="cp-etiquettes">
+      <text x="95" y="420" transform="rotate(-62 95 420)" class="cp-mer">Océan Atlantique</text>
+      <text x="985" y="100" text-anchor="end" class="cp-mer">Méditerranée</text>
+      <text x="640" y="30" class="cp-voisin">ESPAGNE</text>
+      <text x="985" y="600" text-anchor="end" class="cp-voisin">ALGÉRIE</text>
+      <text x="495" y="34" text-anchor="end" class="cp-detroit">Détroit de Gibraltar</text>
+      <text x="665" y="200" class="cp-relief">Rif</text><text x="690" y="350" class="cp-relief">Moyen Atlas</text>
+      <text x="470" y="640" class="cp-relief" transform="rotate(-22 470 640)">Haut Atlas</text><text x="330" y="790" class="cp-relief" transform="rotate(-18 330 790)">Anti-Atlas</text>
+      ${ville("Tanger", [-5.81, 35.77], 14, 10)}${ville("Casablanca", [-7.59, 33.57], -150, 8)}${ville("Agadir", [-9.6, 30.42], 14, 8)}
+    </g>
+    <rect y="${g.H - 90}" width="${g.W}" height="90" fill="url(#cp-fondu)"/>
+    <text x="${g.W / 2}" y="${g.H - 18}" text-anchor="middle" class="cp-suite">Le pays continue vers le sud ↓</text>
+    <g transform="translate(70 ${g.H - 150})" class="cp-rose"><circle r="34" fill="rgba(246,236,217,.85)" stroke="#a88b62"/><path d="M0-30L6 0L0 30L-6 0Z" fill="#6e1418"/><path d="M-30 0L0-6L30 0L0 6Z" fill="#a88b62"/><text y="-38" text-anchor="middle">N</text></g>
+  </svg>`;
+}
+function cartePaysHTML(e) {
+  const C = CARTES_PAYS[e.id]; if (!C) return "";
+  const g = C.geo(), vus = new Set(etat.escales[e.id].lieux || []), n = vus.size;
+  const sel = C.lieux.find((l) => l.id === ui.lieuSel);
+  const err = ui.lieuErreur;
+  const fiche = sel ? `<article class="fiche-lieu${vus.has(sel.id) ? " explore" : ""}" style="--c:${e.couleur}">
+        <div class="fl-photo">${drapeauMini(e)}<img src="images/lieux/${e.id}-${sel.id}.jpg" alt="${esc(sel.nom)}" onerror="this.remove()"></div>
+        <div class="fl-corps">
+          <span class="etiquette">${esc(sel.sous)}</span><h3>${esc(sel.nom)}</h3>
+          <p>${esc(sel.texte)}</p>
+          <p class="fl-mot"><span>Le mot du lieu</span><strong>${esc(sel.mot[0])}</strong> : ${esc(sel.mot[1])}</p>
+          <div class="fl-enigme"><strong>Énigme :</strong> ${esc(sel.q)}
+            <div class="options">${sel.options.map((o, j) => {
+              const ok = vus.has(sel.id) && j === sel.correcte, ko = err && err.lieu === sel.id && err.o === j;
+              return `<button class="option${ok ? " juste" : ko ? " faux" : ""}" data-action="lieu-rep" data-o="${j}" ${vus.has(sel.id) ? "disabled" : ""}><span class="l">${lettre(j)}.</span><span>${esc(o)}</span></button>`;
+            }).join("")}</div>
+            ${vus.has(sel.id) ? `<p class="retour juste">Lieu exploré ! Bravo.</p>` : err && err.lieu === sel.id ? `<p class="retour faux">Pas encore : relisez la fiche, la réponse s'y trouve.</p>` : ""}
+          </div>
+        </div>
+      </article>`
+    : `<article class="fiche-lieu vide"><p>${esc(C.consigne)}</p><p class="doux petit">Astuce : le lecteur lit la fiche à voix haute, le navigateur montre la punaise.</p></article>`;
+  return `<section class="page carte-pays-zone" id="carte-pays">
+      <span class="etiquette">Exploration · ${esc(C.titre)}</span>
+      <div class="cp-tete"><h2>${drapeauMini(e)} Explorez le Maroc</h2>
+        <div class="cp-progression" aria-label="Lieux explorés"><b>${n}/${C.lieux.length}</b> lieux explorés
+          <span class="cp-barre"><i style="width:${n / C.lieux.length * 100}%"></i><em style="left:${C.seuil / C.lieux.length * 100}%" title="Seuil pour débloquer le quiz"></em></span></div></div>
+      <div class="cp-grille">
+        <div class="cp-plan" style="aspect-ratio:${g.W} / ${g.H}">
+          ${fondCartePays(e.id)}
+          ${C.lieux.map((l, i) => { const [x, y] = projLieu(g, l.lonlat); return `<button class="poi${vus.has(l.id) ? " vu" : ""}${ui.lieuSel === l.id ? " sel" : ""}" style="left:${(x / g.W * 100).toFixed(2)}%;top:${(y / g.H * 100).toFixed(2)}%;--i:${i}" data-action="lieu" data-id="${l.id}" aria-pressed="${ui.lieuSel === l.id}" aria-label="${esc(l.nom)}${vus.has(l.id) ? ", exploré" : ""}">
+              <span class="poi-pastille">${vus.has(l.id) ? "✓" : i + 1}</span><span class="poi-bulle">${esc(l.nom)}<small>${esc(l.sous)}</small></span></button>`; }).join("")}
+        </div>
+        ${fiche}
+      </div>
+    </section>`;
+}
+
+/* =====================================================================
    MUSIQUE D'AMBIANCE ENREGISTRÉE · un morceau par pays (ElevenLabs Music via Higgsfield)
    Si le fichier manque, la musique générée (THEMES) prend le relais.
    ===================================================================== */
@@ -3241,7 +3419,7 @@ function rideauArrivee(e, suite) {
   const [de, a] = PREP[e.id] || ["de " + e.nom, "à " + e.nom];
   const r = document.createElement("div");
   r.className = "rideau";
-  r.innerHTML = `<i class="rideau-drapeau" style="--i:0">${drapeauSVG(e)}</i>
+  r.innerHTML = `<i class="rideau-drapeau" style="--i:0">${drapeauSVG(e)}${DRAPEAU_PHOTO[e.id] ? `<img src="${DRAPEAU_PHOTO[e.id]}" alt="" onerror="this.remove()">` : ""}</i>
     <div class="rideau-titre"><span>Bienvenue ${esc(a)}</span><small>Escale ${ESCALES.indexOf(e) + 1} sur ${NB} · ${esc(e.region)}</small></div>`;
   document.body.appendChild(r);
   son.arrivee();
@@ -3566,6 +3744,34 @@ const actions = {
     animerVueCarte(de, vers);
   },
   lire() { lireDocument(escaleParId(etat.escaleActive)); },
+  // Carte d'exploration : ouvrir la fiche d'un lieu (sans faire sauter la page)
+  lieu(b) {
+    const id = b.dataset.id; ui.lieuSel = ui.lieuSel === id ? null : id; ui.lieuErreur = null;
+    const y = window.scrollY; son.clic(); afficher(); window.scrollTo({ top: y });
+    if (ui.lieuSel && innerWidth < 760) document.querySelector(".fiche-lieu")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  },
+  "lieu-rep"(b) {
+    const e = escaleParId(etat.escaleActive), C = CARTES_PAYS[e.id], l = C && C.lieux.find((x) => x.id === ui.lieuSel);
+    if (!l) return;
+    const s = etat.escales[e.id], vus = s.lieux || [];
+    if (vus.includes(l.id)) return;
+    const o = +b.dataset.o, origine = centreEl(b), y = window.scrollY;
+    if (o === l.correcte) {
+      son.juste(); ui.lieuErreur = null;
+      const premier = !(ui.lieuxRates || new Set()).has(l.id);
+      majEscale(e.id, { lieux: [...vus, l.id] }); window.scrollTo({ top: y });
+      gagnerMiles(premier ? C.miles : C.miles / 2, origine, ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)]);
+      confettis({ couleurs: ["#c1272d", "#006233", "#d99a2b"], nombre: 26, origine });
+      document.querySelector(`.poi[data-id="${l.id}"]`)?.classList.add("vient");
+      if (vus.length + 1 === C.seuil) setTimeout(() => popup({ titre: "Quiz débloqué !", texte: "Vous connaissez assez le Maroc : place aux questions de Yasmine.", icone: drapeauMini(e), duree: 5000 }), 700);
+      annoncer(`Lieu exploré : ${l.nom}`);
+    } else {
+      son.faux(); ui.lieuErreur = { lieu: l.id, o }; (ui.lieuxRates ||= new Set()).add(l.id);
+      majEscale(e.id, { lieuxEssais: (s.lieuxEssais || 0) + 1 }); window.scrollTo({ top: y });
+      annoncer("Pas encore. Relisez la fiche.");
+    }
+  },
+  "voir-carte-pays"() { document.getElementById("carte-pays")?.scrollIntoView({ behavior: "smooth", block: "start" }); },
   repondre(b) {
     const e = escaleParId(etat.escaleActive);
     const i = +b.dataset.q, o = +b.dataset.o;
