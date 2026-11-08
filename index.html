@@ -1109,6 +1109,15 @@ canvas.confettis { position: fixed; inset: 0; width: 100%; height: 100%; pointer
 .cm-legende i { width: 12px; height: 12px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); }
 .cm-legende .l-a { background: var(--or); } .cm-legende .l-v { background: #00703a; }
 .cm-legende .l-r { width: 22px; height: 0; border-radius: 0; transform: none; border-top: 3px dotted #c98a2b; }
+/* Bouton vers la grande carte réelle du pays (page séparée) */
+.btn-grand-carte { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding: 10px 14px; border-radius: 14px; text-decoration: none; color: #fff;
+  background: linear-gradient(135deg, #0a2463, #0038A8 60%, #1f56c9); box-shadow: 0 0 0 2px #f0c27a inset, 0 12px 24px -14px rgba(10, 36, 99, .9); transition: transform .2s; }
+.btn-grand-carte:hover { transform: translateY(-2px); }
+.btn-grand-carte svg { width: 26px; height: 26px; flex: none; fill: none; stroke: #f0c27a; stroke-width: 2; stroke-linejoin: round; }
+.btn-grand-carte span:nth-of-type(1) { display: grid; flex: 1; min-width: 0; }
+.btn-grand-carte b { font-family: var(--f-titre); font-size: 1.05rem; }
+.btn-grand-carte small { font-size: .8rem; opacity: .85; }
+.btn-grand-carte > span:last-child { font-size: 1.3rem; color: #f0c27a; }
 /* Fiche : la voix de l'habitante et l'ambiance musicale */
 .fl-voix { margin: 0; padding: 12px 14px; border-left: 4px solid #c1272d; border-radius: 0 10px 10px 0; background: color-mix(in srgb, #c1272d 7%, var(--carte)); }
 .fl-voix p { margin: 0; font-family: var(--f-titre); font-style: italic; line-height: 1.5; }
@@ -3238,7 +3247,7 @@ const GEO_MAROC = {"W":1000,"H":863,"LON0":-11.2,"LAT1":36.3,"C":0.8433914458128
 const DRAPEAU_PHOTO = { maroc: "images/drapeaux/maroc.jpg" }; // drapeau en soie fourni par l'enseignante (rideau d'arrivée)
 const CARTES_PAYS = {
   maroc: {
-    titre: "La carte de Yasmine", geo: () => GEO_MAROC, seuil: 4, miles: 40,
+    titre: "La carte de Yasmine", geo: () => GEO_MAROC, seuil: 4, miles: 40, pageGrand: "maroc.html", // carte réelle Leaflet (8 lieux, vidéos), ouverte dans un nouvel onglet
     consigne: "Yasmine a marqué six lieux sur sa carte. Cliquez sur une punaise, lisez la fiche à voix haute, puis résolvez l'énigme. Explorez au moins quatre lieux pour débloquer le quiz.",
     lieux: [
       { id: "chefchaouen", nom: "Chefchaouen", sous: "La ville bleue", lonlat: [-5.27, 35.17],
@@ -3378,6 +3387,7 @@ function cartePaysHTML(e) {
                 <span class="poi-bulle">${esc(l.nom)}<small>${esc(l.sous)}</small></span></button>`; }).join("")}
           </div>
           <div class="cm-legende"><span><i class="l-a"></i>À explorer</span><span><i class="l-v"></i>Exploré</span><span><i class="l-r"></i>Votre itinéraire</span></div>
+          ${C.pageGrand ? `<a class="btn-grand-carte" href="${C.pageGrand}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2ZM9 4v14M15 6v14"/></svg><span><b>Explorer le Maroc en grand</b><small>Vraie carte, 8 lieux, vidéos, badges · nouvel onglet</small></span><span aria-hidden="true">↗</span></a>` : ""}
         </div>
         ${fiche}
       </div>
