@@ -294,6 +294,7 @@ main.entree .punaise-liege:not(.visite):not(.sel) .tete { animation: planter .55
 .bande-drapeau span { flex: 1; }
 .drapeau-mini { display: inline-flex; width: 30px; height: 18px; border-radius: 3px; overflow: hidden; box-shadow: 0 0 0 1px rgba(0,0,0,.18); vertical-align: middle; }
 .drapeau-mini span { flex: 1; }
+.drapeau-mini svg { width: 100%; height: 100%; display: block; }
 .entete-escale h2 { font-size: clamp(1.7rem, 5vw, 2.3rem); color: color-mix(in srgb, var(--c) var(--mix-titre), var(--encre)); }
 .embleme { width: 92px; height: 92px; color: var(--c); }
 .accroche { font-family: var(--f-titre); font-style: italic; font-size: 1.1rem; }
@@ -946,7 +947,11 @@ canvas.confettis { position: fixed; inset: 0; width: 100%; height: 100%; pointer
 /* ===== Rideau d'arrivée aux couleurs du drapeau ===== */
 .rideau { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; pointer-events: none; overflow: hidden; }
 .rideau i { position: absolute; inset: 0; transform: translateX(-102%); animation: rideau-entre .5s cubic-bezier(.7, 0, .3, 1) calc(var(--i) * .08s) forwards; }
-.rideau i:nth-of-type(2) { inset: 0 0 0 33%; } .rideau i:nth-of-type(3) { inset: 0 0 0 66%; }
+.rideau-drapeau svg { width: 100%; height: 100%; display: block; }
+/* Reflets d'un drapeau en tissu qui ondule */
+.rideau-drapeau::after { content: ""; position: absolute; inset: -20%; background: repeating-linear-gradient(115deg, rgba(0,0,0,.22) 0, rgba(255,255,255,.14) 9%, rgba(0,0,0,.05) 15%, rgba(0,0,0,.24) 22%);
+  animation: tissu 2.4s ease-in-out infinite alternate; }
+@keyframes tissu { to { transform: translateX(8%); } }
 .rideau-titre { position: relative; z-index: 1; display: grid; justify-items: center; gap: 6px; padding: 22px 36px; border-radius: 18px; background: rgba(42, 22, 12, .78);
   box-shadow: 0 0 0 2px var(--lisere) inset; color: #fff6e2; text-align: center; opacity: 0; animation: rideau-titre .6s cubic-bezier(.2, 1.4, .4, 1) .35s forwards; }
 .rideau-titre span { font-family: var(--f-titre); font-weight: 700; font-size: clamp(1.8rem, 6vw, 3.4rem); color: var(--or-clair); }
@@ -1847,9 +1852,14 @@ function blocCopie() {
 const GLOBE = `<svg class="globe" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="color: var(--or-clair)">
   <circle cx="60" cy="60" r="44"/><ellipse cx="60" cy="60" rx="20" ry="44"/><ellipse cx="60" cy="60" rx="36" ry="44" opacity=".55"/>
   <path d="M16 60h88M22 38h76M22 82h76"/><circle cx="60" cy="60" r="54" stroke-width="1" stroke-dasharray="2 5"/></svg>`;
-const bandes = (e) => (e.drapeau || [e.couleur]).map((c) => `<span style="background:${c}"></span>`).join("");
+// Liseré de couleur en haut des pages (le Maroc garde son rouge : son drapeau n'a pas de bandes)
+const COULEURS_BANDE = { maroc: ["#c1272d"] };
+const bandes = (e) => (COULEURS_BANDE[e.id] || e.drapeau || [e.couleur]).map((c) => `<span style="background:${c}"></span>`).join("");
 const bandeDrapeau = (e) => `<div class="bande-drapeau" aria-hidden="true">${bandes(e)}</div>`;
-const drapeauMini = (e) => `<span class="drapeau-mini" aria-hidden="true">${bandes(e)}</span>`;
+// Le vrai drapeau dessiné (DRAPEAUX), recadré au centre ; à défaut, des bandes de couleur
+const drapeauSVG = (e, cadrage = "xMidYMid slice") => (typeof DRAPEAUX !== "undefined" && DRAPEAUX[e.id]
+  ? `<svg viewBox="0 0 60 40" preserveAspectRatio="${cadrage}" aria-hidden="true">${DRAPEAUX[e.id]}</svg>` : bandes(e));
+const drapeauMini = (e) => `<span class="drapeau-mini" aria-hidden="true">${drapeauSVG(e)}</span>`;
 const embleme = (id, couleur) => `<svg class="embleme" viewBox="0 0 100 100" style="--c:${couleur}; color:${couleur}" aria-hidden="true">${EMBLEMES[id]}</svg>`;
 // Médias générés avec Higgsfield (facultatifs). Si le fichier est là, il s'affiche ; sinon le jeu garde ses dessins.
 // Vidéo d'abord, puis image de secours, puis rien. Voir MEDIAS-HIGGSFIELD.md pour les noms de fichiers.
@@ -2070,7 +2080,7 @@ const DRAPEAUX = {
   senegal: `<rect width="20" height="40" fill="#00853f"/><rect x="20" width="20" height="40" fill="#fdef42"/><rect x="40" width="20" height="40" fill="#e31b23"/>
     <polygon points="${etoile(30, 21, 6.5, 2)}" fill="#00853f" fill-rule="nonzero"/>`,
   // Maroc : fond rouge, pentagramme vert en contour
-  maroc: `<rect width="60" height="40" fill="#c1272d"/><polygon points="${etoile(30, 21, 10, 2)}" fill="none" stroke="#006233" stroke-width="1.8" stroke-linejoin="round"/>`,
+  maroc: `<rect width="60" height="40" fill="#c1272d"/><polygon points="${etoile(30, 21.2, 12.5, 2)}" fill="none" stroke="#006233" stroke-width="2.3" stroke-linejoin="miter"/>`,
   // Martinique : drapeau d'identité rouge-vert-noir
   martinique: `<rect width="60" height="20" fill="#00a651"/><rect y="20" width="60" height="20" fill="#1e1e1e"/><polygon points="0,0 30,20 0,40" fill="#e4002b"/>`,
   // Madagascar : blanc côté mât, rouge en haut, vert en bas
@@ -3231,7 +3241,7 @@ function rideauArrivee(e, suite) {
   const [de, a] = PREP[e.id] || ["de " + e.nom, "à " + e.nom];
   const r = document.createElement("div");
   r.className = "rideau";
-  r.innerHTML = `${e.drapeau.map((c, i) => `<i style="background:${c};--i:${i}"></i>`).join("")}
+  r.innerHTML = `<i class="rideau-drapeau" style="--i:0">${drapeauSVG(e)}</i>
     <div class="rideau-titre"><span>Bienvenue ${esc(a)}</span><small>Escale ${ESCALES.indexOf(e) + 1} sur ${NB} · ${esc(e.region)}</small></div>`;
   document.body.appendChild(r);
   son.arrivee();
@@ -3348,12 +3358,14 @@ async function dessinerBrevet() {
   ligne(membresInscrits().join(" · ") + (g ? " · guidés par " + g.nom : ""), 498, "500 33px Fraunces, Georgia, serif");
   const motif = `pour avoir traversé ${NB_LETTRES} communautés francophones, du Québec à La Réunion, comparé leurs cultures avec la sienne, retrouvé Raoul et ouvert le coffre du Passeport francophone.`;
   coupe(motif, "400 28px 'Atkinson Hyperlegible', sans-serif", 1000).forEach((l, i) => ligne(l, 562 + i * 38, "400 28px 'Atkinson Hyperlegible', sans-serif"));
-  // Six petits tampons ronds, aux couleurs de chaque drapeau
+  // Six petits tampons ronds, avec le vrai drapeau de chaque escale
+  const images = await Promise.all(ESCALES.map((e) => charge("data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 40" width="180" height="120">${DRAPEAUX[e.id] || ""}</svg>`))));
   ESCALES.forEach((e, i) => {
     const px = cx + (i - 2.5) * 124, py = 722, r = 42;
     x.save(); x.translate(px, py); x.rotate((i % 2 ? 1 : -1) * 0.12);
     x.beginPath(); x.arc(0, 0, r, 0, Math.PI * 2); x.clip();
-    const bandes = e.drapeau; bandes.forEach((col, k) => { x.fillStyle = col; x.fillRect(-r + (2 * r / bandes.length) * k, -r, 2 * r / bandes.length + 1, 2 * r); });
+    if (images[i]) x.drawImage(images[i], -r * 1.5, -r, r * 3, r * 2);
+    else e.drapeau.forEach((col, k, t) => { x.fillStyle = col; x.fillRect(-r + (2 * r / t.length) * k, -r, 2 * r / t.length + 1, 2 * r); });
     x.restore();
     x.save(); x.translate(px, py); x.rotate((i % 2 ? 1 : -1) * 0.12);
     x.beginPath(); x.arc(0, 0, r, 0, Math.PI * 2); x.lineWidth = 5; x.strokeStyle = e.teinte || e.couleur; x.stroke();
