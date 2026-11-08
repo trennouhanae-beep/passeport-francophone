@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Explorer le Maroc</title>
-<meta name="description" content="Carte interactive du Maroc pour apprenants de FLE : sept lieux, fiches culturelles, micro-quiz, XP, badges et visite guidée.">
+<meta name="description" content="Carte interactive du Maroc pour apprenants de FLE : huit lieux, fiches culturelles, micro-quiz, XP, badges et visite guidée.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
@@ -250,7 +250,7 @@ const XP_PAR_QUIZ = 50;
 const BADGES = [
   { id: "novice",   nom: "Explorateur Novice",   seuil: 50,  icone: '<path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5Z" fill="#0a2463"/>', texte: "Premier quiz réussi" },
   { id: "historien", nom: "Historien Émérite",   seuil: 150, icone: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3Z M8 4v13" fill="none" stroke="#0a2463" stroke-width="2"/>', texte: "150 XP : trois lieux maîtrisés" },
-  { id: "maitre",   nom: "Maître du Patrimoine", seuil: 350, icone: '<path d="M3 18h18l-2-9-4 4-3-7-3 7-4-4Z" fill="#0a2463"/>', texte: "350 XP : les sept lieux réussis" },
+  { id: "maitre",   nom: "Maître du Patrimoine", seuil: 400, icone: '<path d="M3 18h18l-2-9-4 4-3-7-3 7-4-4Z" fill="#0a2463"/>', texte: "400 XP : les huit lieux réussis" },
 ];
 const LIEUX = [
   {
@@ -279,6 +279,15 @@ const LIEUX = [
     forts: ["La tour Hassan et ses colonnes", "La kasbah des Oudayas au-dessus de l'océan", "Le mot du lieu : « salam », bonjour, la paix"],
     quiz: { question: "Quelle est la plus grande ville du Maroc ?", choix: ["Rabat", "Fès", "Casablanca"], bonne: 2 },
     prompt: "Aerial drone shot circling the Hassan Tower in Rabat, an unfinished red sandstone minaret standing among rows of ancient columns on a vast esplanade, the Bou Regreg river and the Atlantic in the background. Smooth cinematic camera movement, golden hour light, realistic, high detail, no text, no logos.",
+  },
+  {
+    id: "casablanca", nom: "Casablanca", region: "Casablanca-Settat", themes: ["cote"], coords: [33.6084, -7.6326], zoom: 15,
+    image: "images/lieux/maroc-casablanca.jpg", video: "videos/maroc/casablanca.mp4",
+    icone: '<path d="M7 21V6l2-3 2 3v15M3 21h12M13 21v-5a3 3 0 0 1 6 0v5M2 18c2-1.5 3 1.5 5 0M16 21h5"/>',
+    resume: "Casablanca est la plus grande ville du Maroc et sa capitale économique, avec un grand port sur l'Atlantique. Son nom arabe, Dar el-Beïda, veut dire « la maison blanche ». La mosquée Hassan II, inaugurée en 1993, est construite en partie sur la mer : son minaret, haut de plus de 200 mètres, est l'un des plus hauts du monde.",
+    forts: ["La mosquée Hassan II, posée sur l'océan", "Un minaret de plus de 200 mètres, décoré de zellige", "Le mot du lieu : « Dar el-Beïda », la maison blanche"],
+    quiz: { question: "Où la mosquée Hassan II est-elle construite en partie ?", choix: ["Sur la mer", "Dans le désert", "Au sommet d'une montagne"], bonne: 0 },
+    prompt: "Epic cinematic drone shot flying low over the Atlantic waves toward the Hassan II Mosque in Casablanca, built on a platform over the ocean, its very tall square minaret decorated with green and white zellige glowing at sunset, waves crashing on the rocks below the esplanade, seagulls, then rising to reveal the mosque and the modern city behind. Smooth cinematic camera movement, golden hour light, realistic, high detail, no text, no logos.",
   },
   {
     id: "marrakech", nom: "Marrakech", region: "Marrakech-Safi", themes: ["imperiale"], coords: [31.6258, -7.9891], zoom: 13,
@@ -407,7 +416,7 @@ resultats.addEventListener("click", (ev) => {
 });
 document.addEventListener("click", (ev) => { if (!ev.target.closest(".recherche")) resultats.hidden = true; });
 
-function niveau(x) { return x >= 350 ? "Maître du Patrimoine" : x >= 150 ? "Historien Émérite" : x >= 50 ? "Explorateur Novice" : "Voyageur débutant"; }
+function niveau(x) { return x >= 400 ? "Maître du Patrimoine" : x >= 150 ? "Historien Émérite" : x >= 50 ? "Explorateur Novice" : "Voyageur débutant"; }
 function majProgression(nouveauBadge = null) {
   const x = xp(), max = LIEUX.length * XP_PAR_QUIZ;
   document.getElementById("xp-val").textContent = `${x} XP`;
@@ -426,7 +435,7 @@ function majPanneau() {
   const v = LIEUX.filter(visible);
   panneau.innerHTML = `<div class="fiche">
       <span class="surtitre">Carnet d'exploration</span>
-      <h2>Sept lieux, sept histoires</h2>
+      <h2>Huit lieux, huit histoires</h2>
       <p>Cliquez sur un marqueur bleu, lisez la fiche à voix haute, puis répondez au quiz : chaque bonne réponse rapporte <b>${XP_PAR_QUIZ} XP</b>. Débloquez les trois badges, jusqu'au titre de <b>Maître du Patrimoine</b> !</p>
       <ul class="liste-lieux">${v.map((l) => `<li><button data-ouvre="${l.id}"><img src="${l.image}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
           <span><strong>${esc(l.nom)}</strong><small>${esc(l.region)}</small></span>
