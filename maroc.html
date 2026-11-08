@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Explorer le Maroc</title>
+<meta name="description" content="Carte interactive du Maroc pour apprenants de FLE : six lieux, fiches culturelles, micro-quiz, XP, badges et visite guidée.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+/* =====================================================================
+   EXPLORER LE MAROC · carte interactive pour apprenants (FLE, B1-B2)
+   Palette marocaine : bleu Majorelle, or, terre cuite, vert cèdre, sable.
+   ===================================================================== */
+:root {
+  --majorelle: #0038A8; --majorelle-2: #1f56c9; --majorelle-sombre: #0a2463;
+  --or: #FFD700; --or-doux: #f2c94c; --ocre: #c2693e; --ocre-sombre: #8f4321;
+  --cedre: #2f5d50; --cedre-clair: #4f8a74; --sable: #f1e3c3; --sable-2: #e6cf9f;
+  --encre: #1d1a2e; --encre-douce: #4d4a62; --blanc: #fffdf7;
+  --verre: rgba(255, 253, 247, .62); --verre-fort: rgba(255, 253, 247, .82); --verre-bord: rgba(255, 255, 255, .7);
+  --ombre: 0 18px 40px -18px rgba(10, 36, 99, .45);
+  --f-titre: "Fraunces", Georgia, "Times New Roman", serif;
+  --f-texte: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  min-height: 100vh; font-family: var(--f-texte); font-size: 16px; line-height: 1.5; color: var(--encre);
+  background-color: var(--sable);
+  /* Motif de zellige discret : étoiles à huit branches en dégradés */
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(0, 56, 168, .16), transparent 45%),
+    radial-gradient(circle at 85% 90%, rgba(194, 105, 62, .2), transparent 45%),
+    conic-gradient(from 22.5deg at 50% 50%, rgba(47, 93, 80, .07) 0 12.5%, transparent 0 25%, rgba(47, 93, 80, .07) 0 37.5%, transparent 0 50%, rgba(47, 93, 80, .07) 0 62.5%, transparent 0 75%, rgba(47, 93, 80, .07) 0 87.5%, transparent 0);
+  background-size: auto, auto, 56px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 12px 24px;
+}
+.verre { background: var(--verre); backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2); border: 1px solid var(--verre-bord); box-shadow: var(--ombre); border-radius: 20px; }
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--majorelle); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ----- En-tête : titre, recherche, progression ----- */
+.entete { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 14px 20px; padding: 14px 18px; max-width: 1500px; margin: 0 auto 14px; }
+.marque { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.marque-etoile { width: 44px; height: 44px; flex: none; }
+.marque h1 { margin: 0; font-family: var(--f-titre); font-size: clamp(1.25rem, 2.4vw, 1.7rem); line-height: 1.1; color: var(--majorelle-sombre); text-wrap: balance; }
+.marque small { display: block; font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ocre-sombre); font-weight: 700; }
+.retour-jeu { font-size: .82rem; color: var(--majorelle); }
+.recherche { position: relative; min-width: 0; }
+.recherche input { width: 100%; padding: 11px 14px 11px 42px; border-radius: 999px; border: 1px solid rgba(0, 56, 168, .25); background: var(--verre-fort); font: inherit; color: var(--encre); }
+.recherche svg { position: absolute; left: 14px; top: 50%; width: 18px; height: 18px; transform: translateY(-50%); stroke: var(--majorelle); fill: none; stroke-width: 2.2; }
+.resultats { position: absolute; z-index: 1200; top: calc(100% + 6px); left: 0; right: 0; margin: 0; padding: 6px; list-style: none; border-radius: 14px; background: var(--blanc); box-shadow: var(--ombre); }
+.resultats button { width: 100%; text-align: left; border: 0; background: none; padding: 8px 10px; border-radius: 10px; display: flex; justify-content: space-between; gap: 10px; }
+.resultats button:hover, .resultats button:focus-visible { background: rgba(0, 56, 168, .08); }
+.resultats small { color: var(--encre-douce); }
+.progression { display: flex; align-items: center; gap: 14px; }
+.xp { display: grid; gap: 4px; min-width: 170px; }
+.xp-ligne { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: .85rem; }
+.xp-ligne strong { font-family: var(--f-titre); font-size: 1.25rem; color: var(--majorelle); }
+.xp-barre { height: 10px; border-radius: 999px; background: rgba(0, 56, 168, .12); overflow: hidden; }
+.xp-barre i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--majorelle), var(--majorelle-2) 60%, var(--or)); transition: width .8s cubic-bezier(.3, 1.3, .5, 1); }
+.xp.gagne strong { animation: bond .6s cubic-bezier(.3, 1.8, .5, 1); }
+@keyframes bond { 40% { transform: scale(1.35); color: var(--ocre); } }
+.badges { display: flex; gap: 6px; }
+.badge { position: relative; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; border: 2px solid rgba(29, 26, 46, .15); background: rgba(255, 255, 255, .5); filter: grayscale(1); opacity: .5; transition: .4s; }
+.badge svg { width: 22px; height: 22px; }
+.badge.obtenu { filter: none; opacity: 1; border-color: var(--or); background: radial-gradient(circle at 35% 30%, #fff6c9, var(--or-doux) 60%, #b8860b); box-shadow: 0 0 0 3px rgba(255, 215, 0, .25); }
+.badge.nouveau { animation: badge-nouveau 1s cubic-bezier(.2, 1.6, .4, 1); }
+@keyframes badge-nouveau { 0% { transform: scale(.2) rotate(-90deg); } 60% { transform: scale(1.3) rotate(10deg); } 100% { transform: none; } }
+.badge .bulle { position: absolute; top: calc(100% + 8px); right: 0; z-index: 1300; width: max-content; max-width: 220px; padding: 6px 10px; border-radius: 10px; background: var(--encre); color: var(--blanc); font-size: .78rem; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.badge:hover .bulle, .badge:focus-visible .bulle { opacity: 1; }
+
+/* ----- Corps : carte à gauche, panneau à droite ----- */
+.corps { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(320px, 1fr); gap: 14px; max-width: 1500px; margin: 0 auto; }
+.zone-carte { display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 10px; padding: 12px; min-height: 0; }
+.outils { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.filtres { display: flex; flex-wrap: wrap; gap: 6px; }
+.filtre { border: 1px solid rgba(0, 56, 168, .25); background: var(--verre-fort); color: var(--majorelle-sombre); padding: 6px 12px; border-radius: 999px; font-size: .88rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; transition: .2s; }
+.filtre i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+.filtre[aria-pressed="false"] { opacity: .5; background: transparent; }
+.btn { border: 0; border-radius: 999px; padding: 9px 16px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; transition: transform .15s, box-shadow .15s; }
+.btn:hover { transform: translateY(-1px); }
+.btn-bleu { background: var(--majorelle); color: #fff; box-shadow: 0 8px 18px -10px var(--majorelle); }
+.btn-or { background: linear-gradient(135deg, #ffe55c, var(--or) 50%, #e0b400); color: var(--majorelle-sombre); box-shadow: 0 8px 18px -10px #b8860b; }
+.btn-clair { background: var(--verre-fort); color: var(--majorelle-sombre); border: 1px solid rgba(0, 56, 168, .2); }
+.btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+#carte { width: 100%; height: min(74vh, 760px); min-height: 420px; border-radius: 16px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(0, 56, 168, .15); background: #dfe9f2; }
+.visite-etat { display: none; align-items: center; gap: 10px; font-size: .88rem; font-weight: 700; color: var(--majorelle-sombre); }
+.visite-etat.actif { display: inline-flex; }
+.anneau { width: 22px; height: 22px; transform: rotate(-90deg); }
+.anneau circle { fill: none; stroke-width: 3; }
+.anneau circle:first-child { stroke: rgba(0, 56, 168, .15); }
+.anneau circle + circle { stroke: var(--majorelle); stroke-linecap: round; stroke-dasharray: 56.5; }
+
+/* Marqueurs : bleu Majorelle cerclé d'or, onde pulsante ; or une fois le quiz réussi */
+.pin-wrap { background: none; border: 0; }
+.pin { position: relative; display: grid; place-items: center; width: 40px; height: 40px; }
+.pin .onde { position: absolute; inset: 0; border-radius: 50%; border: 3px solid var(--or); animation: onde 2.2s ease-out infinite; animation-delay: var(--d, 0s); }
+.pin .onde + .onde { animation-delay: calc(var(--d, 0s) + 1.1s); }
+.pin .coeur { position: relative; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, #4f7fe6, var(--majorelle) 60%, var(--majorelle-sombre)); box-shadow: 0 0 0 3px var(--or), 0 8px 16px -4px rgba(10, 36, 99, .7); transition: transform .25s cubic-bezier(.3, 1.6, .5, 1); }
+.pin .coeur svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.pin.fait .coeur { background: radial-gradient(circle at 35% 30%, #fff3a6, var(--or) 55%, #b8860b); box-shadow: 0 0 0 3px var(--majorelle), 0 8px 16px -4px rgba(10, 36, 99, .7); }
+.pin.fait .coeur svg { stroke: var(--majorelle-sombre); stroke-width: 2.6; }
+.pin.fait .onde { display: none; }
+.pin.actif .coeur, .leaflet-marker-icon:hover .pin .coeur, .leaflet-marker-icon:focus-visible .pin .coeur { transform: scale(1.25); }
+@keyframes onde { from { transform: scale(.9); opacity: .9; } to { transform: scale(2.3); opacity: 0; } }
+.leaflet-tooltip.etiquette-lieu { font-family: var(--f-titre); font-weight: 700; font-size: .95rem; border: 0; border-radius: 10px; padding: 4px 10px; background: var(--majorelle-sombre); color: #fff; box-shadow: var(--ombre); }
+.leaflet-tooltip.etiquette-lieu::before { display: none; }
+.leaflet-container { font-family: var(--f-texte); }
+.leaflet-control-layers, .leaflet-bar { border-radius: 12px !important; border: 0 !important; box-shadow: var(--ombre) !important; }
+
+/* ----- Panneau pédagogique ----- */
+.panneau { padding: 18px; display: grid; align-content: start; gap: 14px; max-height: calc(min(74vh, 760px) + 72px); overflow: auto; }
+.panneau h2 { margin: 0; font-family: var(--f-titre); font-size: 1.6rem; line-height: 1.15; color: var(--majorelle-sombre); text-wrap: balance; }
+.panneau p { margin: 0; }
+.surtitre { font-size: .75rem; letter-spacing: .16em; text-transform: uppercase; font-weight: 700; color: var(--ocre-sombre); }
+.liste-lieux { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.liste-lieux button { width: 100%; display: grid; grid-template-columns: 54px minmax(0, 1fr) auto; gap: 12px; align-items: center; text-align: left; padding: 8px; border-radius: 14px; border: 1px solid rgba(0, 56, 168, .12); background: var(--verre-fort); transition: .2s; }
+.liste-lieux button:hover { border-color: var(--majorelle); transform: translateX(3px); }
+.liste-lieux img { width: 54px; height: 54px; border-radius: 10px; object-fit: cover; background: var(--sable-2); }
+.liste-lieux strong { font-family: var(--f-titre); font-size: 1.05rem; display: block; }
+.liste-lieux small { color: var(--encre-douce); }
+.etat-lieu { font-size: .75rem; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: rgba(0, 56, 168, .1); color: var(--majorelle); white-space: nowrap; }
+.etat-lieu.ok { background: rgba(255, 215, 0, .35); color: #6b5300; }
+.fiche { display: grid; gap: 14px; animation: entre .45s cubic-bezier(.2, 1.3, .4, 1); }
+@keyframes entre { from { opacity: 0; transform: translateY(14px); } }
+.fiche-photo { position: relative; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 16px; overflow: hidden; background: linear-gradient(135deg, var(--majorelle), var(--cedre)); }
+.fiche-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fiche-photo .puce-cat { position: absolute; left: 10px; top: 10px; }
+.puces { display: flex; flex-wrap: wrap; gap: 6px; }
+.puce-cat { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: .78rem; font-weight: 700; color: #fff; background: var(--c); box-shadow: 0 4px 10px -4px rgba(0, 0, 0, .4); }
+.region { display: flex; align-items: center; gap: 6px; font-size: .9rem; color: var(--encre-douce); }
+.region svg { width: 16px; height: 16px; fill: none; stroke: var(--ocre); stroke-width: 2; }
+.forts { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.forts li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; }
+.forts li::before { content: ""; width: 14px; height: 14px; margin-top: 4px; background: var(--ocre); clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+.bloc { padding: 14px; border-radius: 16px; background: var(--verre-fort); border: 1px solid rgba(0, 56, 168, .12); display: grid; gap: 10px; }
+.bloc h3 { margin: 0; font-family: var(--f-titre); font-size: 1.1rem; color: var(--majorelle-sombre); display: flex; align-items: center; gap: 8px; }
+.quiz-choix { display: grid; gap: 8px; }
+.choix { text-align: left; padding: 10px 14px; border-radius: 12px; border: 2px solid rgba(0, 56, 168, .18); background: #fff; display: flex; gap: 10px; align-items: center; transition: .2s; }
+.choix:hover:not(:disabled) { border-color: var(--majorelle); }
+.choix b { color: var(--majorelle); }
+.choix.juste { border-color: var(--cedre); background: rgba(47, 93, 80, .12); }
+.choix.faux { border-color: var(--ocre); background: rgba(194, 105, 62, .1); animation: secoue .4s; }
+.choix:disabled { cursor: default; }
+@keyframes secoue { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.retour { font-size: .92rem; font-weight: 700; }
+.retour.ok { color: var(--cedre); } .retour.ko { color: var(--ocre-sombre); }
+.plus-xp { display: inline-block; padding: 2px 10px; border-radius: 999px; background: var(--or); color: var(--majorelle-sombre); font-weight: 700; animation: bond .7s; }
+/* Bloc Higgsfield */
+.bloc-ai { background: linear-gradient(135deg, rgba(10, 36, 99, .92), rgba(31, 86, 201, .88)); color: #eef3ff; border-color: rgba(255, 215, 0, .4); }
+.bloc-ai h3 { color: var(--or); }
+.bloc-ai textarea { width: 100%; min-height: 108px; resize: vertical; padding: 10px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, .25); background: rgba(255, 255, 255, .08); color: #fff; font: .86rem/1.45 ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.bloc-ai .rangee { display: flex; flex-wrap: wrap; gap: 8px; }
+.bloc-ai small { opacity: .8; }
+.nav-fiche { display: flex; justify-content: space-between; gap: 8px; }
+
+/* Fenêtre vidéo */
+.modale { position: fixed; inset: 0; z-index: 2000; display: none; place-items: center; padding: 16px; background: rgba(10, 18, 40, .6); backdrop-filter: blur(6px); }
+.modale.ouverte { display: grid; animation: fondu .3s; }
+@keyframes fondu { from { opacity: 0; } }
+.modale-carte { width: min(860px, 100%); max-height: calc(100vh - 32px); overflow: auto; padding: 16px; border-radius: 22px; background: rgba(255, 253, 247, .92); box-shadow: 0 30px 70px -20px rgba(0, 0, 0, .6); display: grid; gap: 12px; animation: monte .45s cubic-bezier(.2, 1.3, .4, 1); }
+@keyframes monte { from { transform: translateY(30px) scale(.96); opacity: 0; } }
+.modale-tete { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.modale-tete h2 { margin: 0; font-family: var(--f-titre); font-size: 1.3rem; color: var(--majorelle-sombre); }
+.modale video { width: 100%; max-width: 100%; aspect-ratio: 16 / 9; border-radius: 14px; background: #000; display: block; }
+.pas-de-video { aspect-ratio: 16 / 9; border-radius: 14px; display: grid; place-items: center; text-align: center; padding: 20px; background: linear-gradient(135deg, var(--majorelle-sombre), var(--majorelle)); color: #fff; }
+.mention-ai { font-size: .82rem; color: var(--encre-douce); }
+.fermer { width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(0, 56, 168, .1); color: var(--majorelle-sombre); font-size: 1.4rem; line-height: 1; }
+
+/* Toast badge */
+.toast { position: fixed; z-index: 2100; left: 50%; top: 18px; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-radius: 16px; background: var(--majorelle-sombre); color: #fff; box-shadow: var(--ombre); border: 2px solid var(--or); animation: toast 4.2s ease forwards; }
+.toast strong { color: var(--or); font-family: var(--f-titre); }
+@keyframes toast { 0% { opacity: 0; transform: translate(-50%, -30px); } 10%, 85% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -20px); } }
+
+@media (max-width: 960px) {
+  .entete { grid-template-columns: minmax(0, 1fr); }
+  .progression { justify-content: space-between; flex-wrap: wrap; }
+  .corps { grid-template-columns: minmax(0, 1fr); }
+  #carte { height: 56vh; min-height: 340px; }
+  .panneau { max-height: none; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<header class="entete verre">
+  <div class="marque">
+    <svg class="marque-etoile" viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="29" fill="#c1272d"/><polygon points="30,13 39.4,42 14.7,24.1 45.3,24.1 20.6,42" fill="none" stroke="#006233" stroke-width="3"/></svg>
+    <div><small>Passeport francophone · escale au Maroc</small><h1>Explorer le Maroc</h1><a class="retour-jeu" href="index.html">← Retour au jeu</a></div>
+  </div>
+  <div class="recherche" role="search">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <label for="cherche" class="sr">Rechercher un lieu</label>
+    <input id="cherche" type="search" placeholder="Rechercher un lieu, une région, un mot (riad, gnaoua…)" autocomplete="off" aria-controls="resultats">
+    <ul class="resultats" id="resultats" hidden></ul>
+  </div>
+  <div class="progression">
+    <div class="xp" id="xp" aria-live="polite">
+      <div class="xp-ligne"><span id="niveau">Voyageur débutant</span><strong id="xp-val">0 XP</strong></div>
+      <div class="xp-barre"><i id="xp-barre"></i></div>
+    </div>
+    <div class="badges" id="badges" aria-label="Badges"></div>
+  </div>
+</header>
+
+<main class="corps">
+  <section class="zone-carte verre" aria-label="Carte du Maroc">
+    <div class="outils">
+      <div class="filtres" id="filtres" role="group" aria-label="Filtrer les lieux par thème"></div>
+      <div class="filtres">
+        <span class="visite-etat" id="visite-etat"><svg class="anneau" viewBox="0 0 22 22"><circle cx="11" cy="11" r="9"/><circle id="visite-anneau" cx="11" cy="11" r="9"/></svg><span id="visite-texte"></span></span>
+        <button class="btn btn-or" id="btn-visite"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8Z"/></svg><span>Lancer la visite</span></button>
+      </div>
+    </div>
+    <div id="carte"></div>
+  </section>
+  <aside class="panneau verre" id="panneau" aria-live="polite"></aside>
+</main>
+
+<div class="modale" id="modale" role="dialog" aria-modal="true" aria-labelledby="modale-titre">
+  <div class="modale-carte">
+    <div class="modale-tete"><h2 id="modale-titre">Aperçu vidéo AI</h2><button class="fermer" id="modale-fermer" aria-label="Fermer">×</button></div>
+    <div id="modale-corps"></div>
+    <p class="mention-ai">Vidéo générée par intelligence artificielle (Higgsfield · Seedance 2.0) à partir du prompt de la fiche : c'est une interprétation artistique, pas une prise de vue réelle. Comparez-la avec la photo et le texte !</p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script>
+/* =====================================================================
+   DONNÉES · à modifier par l'enseignante
+   Pour ajouter un lieu : copier un bloc, changer l'id, les coordonnées GPS
+   (latitude, longitude), le texte, le quiz (bonne = numéro du bon choix, à partir de 0),
+   le prompt Higgsfield et le fichier vidéo (videos/maroc/<id>.mp4).
+   ===================================================================== */
+const THEMES = {
+  imperiale: { nom: "Villes impériales", couleur: "#0038A8" },
+  cote:      { nom: "Côte",              couleur: "#1f8a9c" },
+  nord:      { nom: "Nord",              couleur: "#2f5d50" },
+  montagne:  { nom: "Montagne",          couleur: "#c2693e" },
+};
+const XP_PAR_QUIZ = 50;
+const BADGES = [
+  { id: "novice",   nom: "Explorateur Novice",   seuil: 50,  icone: '<path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5Z" fill="#0a2463"/>', texte: "Premier quiz réussi" },
+  { id: "historien", nom: "Historien Émérite",   seuil: 150, icone: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3Z M8 4v13" fill="none" stroke="#0a2463" stroke-width="2"/>', texte: "150 XP : trois lieux maîtrisés" },
+  { id: "maitre",   nom: "Maître du Patrimoine", seuil: 300, icone: '<path d="M3 18h18l-2-9-4 4-3-7-3 7-4-4Z" fill="#0a2463"/>', texte: "300 XP : les six lieux réussis" },
+];
+const LIEUX = [
+  {
+    id: "chefchaouen", nom: "Chefchaouen", region: "Tanger-Tétouan-Al Hoceïma", themes: ["nord"], coords: [35.1688, -5.2636], zoom: 13,
+    image: "images/lieux/maroc-chefchaouen.jpg", video: "videos/maroc/chefchaouen.mp4",
+    icone: '<path d="M4 21V10l8-6 8 6v11h-5v-5a3 3 0 0 0-6 0v5Z"/>',
+    resume: "Fondée en 1471 dans les montagnes du Rif, Chefchaouen est célèbre pour ses ruelles et ses maisons peintes en bleu. Pourquoi ce bleu ? On raconte qu'il rappelle le ciel, qu'il rafraîchit les maisons ou qu'il éloigne les moustiques : chacun a son explication !",
+    forts: ["La médina bleue et ses escaliers fleuris", "Les montagnes du Rif tout autour", "Le mot du lieu : « zwin », beau, joli (en darija)"],
+    quiz: { question: "Dans quelles montagnes se trouve Chefchaouen ?", choix: ["Le Rif", "L'Atlas", "Les Alpes"], bonne: 0 },
+    prompt: "FPV drone cinematic flight through the blue-washed alleys and stairs of Chefchaouen, flower pots on blue walls, then rising above the blue town nestled in the green Rif mountains. Smooth cinematic camera movement, golden hour light, realistic, high detail, no text, no logos.",
+  },
+  {
+    id: "fes", nom: "Fès", region: "Fès-Meknès", themes: ["imperiale"], coords: [34.0647, -4.9736], zoom: 14,
+    image: "images/lieux/maroc-fes.jpg", video: "videos/maroc/fes.mp4",
+    icone: '<path d="M5 21V11a7 7 0 0 1 14 0v10M5 21h14M9 21v-5a3 3 0 0 1 6 0v5"/>',
+    resume: "Fès est la plus ancienne des villes impériales du Maroc. Sa médina, Fès el-Bali, est un labyrinthe de milliers de ruelles où les voitures ne passent pas : les marchandises voyagent à dos d'âne. Derrière des portes en bois clouté se cachent les riads, des maisons construites autour d'un patio ouvert sur le ciel.",
+    forts: ["La médina, inscrite au patrimoine mondial de l'UNESCO depuis 1981", "Les riads : patio, fontaine en zellige, oranger", "Les tanneries et leurs grandes cuves de couleurs"],
+    quiz: { question: "Que trouve-t-on au centre d'un riad ?", choix: ["Une boutique", "Un patio ouvert sur le ciel", "Un garage"], bonne: 1 },
+    prompt: "FPV drone cinematic shot gliding low over the rooftops of the Fez medina at sunrise, a maze of ochre houses, green-tiled roofs and minarets, then revealing the round colorful dye vats of the Chouara tannery. Smooth cinematic camera movement, golden hour light, realistic, high detail, no text, no logos.",
+  },
+  {
+    id: "rabat", nom: "Rabat", region: "Rabat-Salé-Kénitra", themes: ["imperiale", "cote"], coords: [34.0240, -6.8226], zoom: 13,
+    image: "images/lieux/maroc-rabat.jpg", video: "videos/maroc/rabat.mp4",
+    icone: '<path d="M9 21V7l3-4 3 4v14M6 21h12M11 10h2M11 14h2"/>',
+    resume: "Rabat, au bord de l'Atlantique, est la capitale du Maroc : le roi, le gouvernement et le Parlement y siègent. Ce n'est pourtant pas la plus grande ville du pays : c'est Casablanca, la capitale économique. La tour Hassan, un minaret inachevé du XIIe siècle, domine une grande esplanade.",
+    forts: ["La tour Hassan et ses colonnes", "La kasbah des Oudayas au-dessus de l'océan", "Le mot du lieu : « salam », bonjour, la paix"],
+    quiz: { question: "Quelle est la plus grande ville du Maroc ?", choix: ["Rabat", "Fès", "Casablanca"], bonne: 2 },
+    prompt: "Aerial drone shot circling the Hassan Tower in Rabat, an unfinished red sandstone minaret standing among rows of ancient columns on a vast esplanade, the Bou Regreg river and the Atlantic in the background. Smooth cinematic camera movement, golden hour light, realistic, high detail, no text, no logos.",
+  },
+  {
+    id: "marrakech", nom: "Marrakech", region: "Marrakech-Safi", themes: ["imperiale"], coords: [31.6258, -7.9891], zoom: 13,
+    image: "images/lieux/maroc-marrakech.jpg", video: "videos/maroc/marrakech.mp4",
+    icone: '<path d="M12 2v3M9 5h6l-1 3h-4ZM7.5 8h9l-1.5 9h-6ZM9.5 20h5M12 17v3"/>',
+    resume: "À Marrakech, la place Jemaa el-Fna s'anime chaque soir : conteurs, musiciens et marchands s'y installent. Autour d'un conteur, le public forme un cercle qu'on appelle la halqa. La place est inscrite au patrimoine culturel immatériel de l'UNESCO.",
+    forts: ["La place Jemaa el-Fna et ses conteurs", "Le minaret de la Koutoubia", "Le mot du lieu : « yallah ! », allons-y !"],
+    quiz: { question: "Comment appelle-t-on le cercle du public autour d'un conteur ?", choix: ["Le derb", "La halqa", "Le souk"], bonne: 1 },
+    prompt: "Aerial drone shot over Jemaa el-Fna square in Marrakech at dusk, smoke rising from food stalls, crowds and lanterns, the Koutoubia minaret glowing in the background. Smooth cinematic camera movement, golden hour light, realistic, high detail, no text, no logos.",
+  },
+  {
+    id: "atlas", nom: "Le Haut Atlas", region: "Marrakech-Safi", themes: ["montagne"], coords: [31.1370, -7.9197], zoom: 11,
+    image: "images/lieux/maroc-atlas.jpg", video: "videos/maroc/atlas.mp4",
+    icone: '<path d="m2 20 7-12 4 6 3-4 6 10Z"/>',
+    resume: "Dans les villages du Haut Atlas, comme Imlil au pied du Toubkal (le plus haut sommet d'Afrique du Nord), vivent beaucoup d'Amazighs, qu'on appelle aussi Berbères. Leur langue, l'amazighe, est officielle au Maroc depuis 2011. Elle s'écrit avec un alphabet très ancien : le tifinagh.",
+    forts: ["Le Toubkal, 4 167 m", "Les villages en terre et les cultures en terrasses", "Le mot du lieu : « azul », bonjour en amazighe"],
+    quiz: { question: "Comment s'appelle l'alphabet de la langue amazighe ?", choix: ["Le tifinagh", "La darija", "La halqa"], bonne: 0 },
+    prompt: "Cinematic drone shot over an Amazigh village of earthen houses in the High Atlas mountains near Imlil, green terraced fields and walnut trees, snowy peaks of Toubkal in the background. Smooth cinematic camera movement, golden hour light, realistic, high detail, no text, no logos.",
+  },
+  {
+    id: "essaouira", nom: "Essaouira", region: "Marrakech-Safi", themes: ["cote"], coords: [31.5085, -9.7595], zoom: 14,
+    image: "images/lieux/maroc-essaouira.jpg", video: "videos/maroc/essaouira.mp4",
+    icone: '<path d="M3 15h18l-3 4H6ZM12 3v11M12 4l6 9h-6"/>',
+    resume: "Sur la côte atlantique, Essaouira est une ville de vent et de remparts, où les barques bleues des pêcheurs remplissent le port. Chaque année, elle accueille le festival Gnaoua et musiques du monde. La musique gnaoua se joue avec le guembri, un luth à trois cordes, et les qraqeb, de grandes castagnettes en métal.",
+    forts: ["Les remparts face à l'océan", "Le port et ses barques bleues", "Le festival Gnaoua et musiques du monde"],
+    quiz: { question: "Avec quel instrument à cordes joue-t-on la musique gnaoua ?", choix: ["La kora", "Le violon", "Le guembri"], bonne: 2 },
+    prompt: "Drone shot along the ocean ramparts of Essaouira, bronze cannons on the Skala, hundreds of blue fishing boats in the harbor, seagulls flying, white and blue medina, windy Atlantic sea. Smooth cinematic camera movement, golden hour light, realistic, high detail, no text, no logos.",
+  },
+];
+
+/* =====================================================================
+   ÉTAT (gardé dans ce navigateur)
+   ===================================================================== */
+const CLE = "explorer-maroc-v1";
+const lire = () => { try { return JSON.parse(localStorage.getItem(CLE)) || {}; } catch (e) { return {}; } };
+let etat = { reussis: [], ...lire() };
+const sauver = () => { try { localStorage.setItem(CLE, JSON.stringify(etat)); } catch (e) {} };
+const ui = { filtres: new Set(Object.keys(THEMES)), actif: null, erreur: null, visite: null };
+const xp = () => etat.reussis.length * XP_PAR_QUIZ;
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const lieu = (id) => LIEUX.find((l) => l.id === id);
+const visible = (l) => l.themes.some((t) => ui.filtres.has(t));
+const reduit = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* =====================================================================
+   CARTE LEAFLET
+   ===================================================================== */
+const carte = L.map("carte", { zoomControl: true, scrollWheelZoom: true, minZoom: 4 }).setView([32.6, -6.6], 6);
+const fonds = {
+  "Relief (Esri)": L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}", { maxZoom: 18, attribution: "Tuiles © Esri — Esri, HERE, Garmin, USGS, NGA" }),
+  "Clair (CARTO)": L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", { maxZoom: 19, subdomains: "abcd", attribution: "© OpenStreetMap, © CARTO" }),
+  "Sombre (CARTO)": L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", { maxZoom: 19, subdomains: "abcd", attribution: "© OpenStreetMap, © CARTO" }),
+};
+fonds["Relief (Esri)"].addTo(carte);
+L.control.layers(fonds, null, { position: "topright" }).addTo(carte);
+L.control.scale({ imperial: false, position: "bottomleft" }).addTo(carte);
+
+const marqueurs = {};
+function iconeLieu(l, i) {
+  const fait = etat.reussis.includes(l.id), actif = ui.actif === l.id;
+  return L.divIcon({
+    className: "pin-wrap", iconSize: [40, 40], iconAnchor: [20, 20], tooltipAnchor: [0, -22],
+    html: `<span class="pin${fait ? " fait" : ""}${actif ? " actif" : ""}" style="--d:${i * .25}s"><span class="onde"></span><span class="onde"></span><span class="coeur"><svg viewBox="0 0 24 24">${fait ? '<path d="m5 12.5 4.5 4.5L19 7.5"/>' : l.icone}</svg></span></span>`,
+  });
+}
+LIEUX.forEach((l, i) => {
+  const m = L.marker(l.coords, { icon: iconeLieu(l, i), title: l.nom, alt: l.nom, riseOnHover: true, keyboard: true });
+  m.bindTooltip(l.nom, { className: "etiquette-lieu", direction: "top" });
+  m.on("click", () => { arreterVisite(); ouvrir(l.id); });
+  marqueurs[l.id] = m;
+});
+function majMarqueurs() {
+  LIEUX.forEach((l, i) => {
+    const m = marqueurs[l.id];
+    if (visible(l)) { m.setIcon(iconeLieu(l, i)); if (!carte.hasLayer(m)) m.addTo(carte); }
+    else if (carte.hasLayer(m)) carte.removeLayer(m);
+  });
+}
+function cadrerVisibles() {
+  const v = LIEUX.filter(visible);
+  if (v.length) carte.flyToBounds(L.latLngBounds(v.map((l) => l.coords)).pad(.35), { duration: reduit ? 0 : 1.2, maxZoom: 9 });
+}
+
+/* =====================================================================
+   FILTRES, RECHERCHE, PROGRESSION
+   ===================================================================== */
+function majFiltres() {
+  document.getElementById("filtres").innerHTML = Object.entries(THEMES).map(([id, t]) =>
+    `<button class="filtre" data-filtre="${id}" aria-pressed="${ui.filtres.has(id)}" style="--c:${t.couleur}"><i></i>${esc(t.nom)} <small>(${LIEUX.filter((l) => l.themes.includes(id)).length})</small></button>`).join("");
+}
+document.getElementById("filtres").addEventListener("click", (ev) => {
+  const b = ev.target.closest("[data-filtre]"); if (!b) return;
+  const id = b.dataset.filtre;
+  if (ui.filtres.has(id) && ui.filtres.size > 1) ui.filtres.delete(id); else ui.filtres.add(id);
+  majFiltres(); majMarqueurs(); cadrerVisibles(); if (!ui.actif) majPanneau();
+});
+const champ = document.getElementById("cherche"), resultats = document.getElementById("resultats");
+const norm = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+function chercher() {
+  const q = norm(champ.value.trim());
+  if (!q) { resultats.hidden = true; return; }
+  const t = LIEUX.filter((l) => norm([l.nom, l.region, l.resume, ...l.forts, ...l.themes.map((x) => THEMES[x].nom)].join(" ")).includes(q));
+  resultats.innerHTML = t.length ? t.map((l) => `<li><button data-va="${l.id}"><span>${esc(l.nom)}</span><small>${esc(l.region)}</small></button></li>`).join("")
+    : `<li><button disabled><span>Aucun lieu trouvé</span></button></li>`;
+  resultats.hidden = false;
+}
+champ.addEventListener("input", chercher);
+champ.addEventListener("keydown", (ev) => {
+  if (ev.key === "Enter") { const b = resultats.querySelector("[data-va]"); if (b) b.click(); }
+  if (ev.key === "Escape") { champ.value = ""; resultats.hidden = true; }
+  if (ev.key === "ArrowDown") { ev.preventDefault(); resultats.querySelector("[data-va]")?.focus(); }
+});
+resultats.addEventListener("click", (ev) => {
+  const b = ev.target.closest("[data-va]"); if (!b) return;
+  const l = lieu(b.dataset.va); l.themes.forEach((t) => ui.filtres.add(t)); majFiltres(); majMarqueurs();
+  resultats.hidden = true; champ.value = ""; arreterVisite(); ouvrir(l.id);
+});
+document.addEventListener("click", (ev) => { if (!ev.target.closest(".recherche")) resultats.hidden = true; });
+
+function niveau(x) { return x >= 300 ? "Maître du Patrimoine" : x >= 150 ? "Historien Émérite" : x >= 50 ? "Explorateur Novice" : "Voyageur débutant"; }
+function majProgression(nouveauBadge = null) {
+  const x = xp(), max = LIEUX.length * XP_PAR_QUIZ;
+  document.getElementById("xp-val").textContent = `${x} XP`;
+  document.getElementById("niveau").textContent = niveau(x);
+  document.getElementById("xp-barre").style.width = `${Math.min(100, x / max * 100)}%`;
+  document.getElementById("badges").innerHTML = BADGES.map((b) => `<span class="badge${x >= b.seuil ? " obtenu" : ""}${nouveauBadge === b.id ? " nouveau" : ""}" tabindex="0" aria-label="${esc(b.nom)} : ${x >= b.seuil ? "obtenu" : "à débloquer, " + b.seuil + " XP"}">
+      <svg viewBox="0 0 24 24" aria-hidden="true">${b.icone}</svg><span class="bulle"><b>${esc(b.nom)}</b><br>${esc(b.texte)}${x >= b.seuil ? "" : ` · ${b.seuil} XP`}</span></span>`).join("");
+}
+
+/* =====================================================================
+   PANNEAU : accueil et fiche d'un lieu
+   ===================================================================== */
+const panneau = document.getElementById("panneau");
+function majPanneau() {
+  if (ui.actif) return afficherFiche(lieu(ui.actif));
+  const v = LIEUX.filter(visible);
+  panneau.innerHTML = `<div class="fiche">
+      <span class="surtitre">Carnet d'exploration</span>
+      <h2>Six lieux, six histoires</h2>
+      <p>Cliquez sur un marqueur bleu, lisez la fiche à voix haute, puis répondez au quiz : chaque bonne réponse rapporte <b>${XP_PAR_QUIZ} XP</b>. Débloquez les trois badges, jusqu'au titre de <b>Maître du Patrimoine</b> !</p>
+      <ul class="liste-lieux">${v.map((l) => `<li><button data-ouvre="${l.id}"><img src="${l.image}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
+          <span><strong>${esc(l.nom)}</strong><small>${esc(l.region)}</small></span>
+          <span class="etat-lieu${etat.reussis.includes(l.id) ? " ok" : ""}">${etat.reussis.includes(l.id) ? "✓ réussi" : "à explorer"}</span></button></li>`).join("")}</ul>
+      <p class="surtitre" style="letter-spacing:.08em">${etat.reussis.length}/${LIEUX.length} lieux réussis</p>
+    </div>`;
+}
+function afficherFiche(l) {
+  const fait = etat.reussis.includes(l.id), i = LIEUX.indexOf(l);
+  const err = ui.erreur && ui.erreur.id === l.id ? ui.erreur.choix : null;
+  const prec = LIEUX[(i - 1 + LIEUX.length) % LIEUX.length], suiv = LIEUX[(i + 1) % LIEUX.length];
+  panneau.innerHTML = `<article class="fiche">
+      <div class="fiche-photo"><img src="${l.image}" alt="${esc(l.nom)}" onerror="this.remove()">
+        <span class="puces" style="position:absolute;left:10px;top:10px">${l.themes.map((t) => `<span class="puce-cat" style="--c:${THEMES[t].couleur}">${esc(THEMES[t].nom)}</span>`).join("")}</span></div>
+      <div><span class="surtitre">Fiche culturelle · ${i + 1}/${LIEUX.length}</span><h2>${esc(l.nom)}</h2>
+        <p class="region"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>Région ${esc(l.region)} · ${l.coords[0].toFixed(3)}° N, ${Math.abs(l.coords[1]).toFixed(3)}° O</p></div>
+      <p>${esc(l.resume)}</p>
+      <div class="bloc"><h3>Points forts</h3><ul class="forts">${l.forts.map((f) => `<li>${esc(f)}</li>`).join("")}</ul></div>
+      <div class="bloc" id="quiz"><h3>Micro-quiz <small style="font-family:var(--f-texte);font-size:.8rem;color:var(--encre-douce)">+${XP_PAR_QUIZ} XP</small></h3>
+        <p><b>${esc(l.quiz.question)}</b></p>
+        <div class="quiz-choix">${l.quiz.choix.map((c, j) => `<button class="choix${fait && j === l.quiz.bonne ? " juste" : err === j ? " faux" : ""}" data-choix="${j}" ${fait ? "disabled" : ""}><b>${"ABC"[j]}.</b>${esc(c)}</button>`).join("")}</div>
+        ${fait ? `<p class="retour ok">Bravo, c'est juste ! <span class="plus-xp">+${XP_PAR_QUIZ} XP</span></p>` : err !== null ? `<p class="retour ko">Pas encore : relisez la fiche, la réponse s'y trouve.</p>` : ""}
+      </div>
+      <div class="bloc bloc-ai"><h3><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h11v10H4zM15 10l5-3v10l-5-3"/></svg>Higgsfield AI · Prompt Generator</h3>
+        <label class="sr" for="prompt">Prompt vidéo pour Higgsfield</label>
+        <textarea id="prompt" readonly>${esc(l.prompt)}</textarea>
+        <div class="rangee"><button class="btn btn-or" data-video="${l.id}"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8Z"/></svg>Aperçu Vidéo AI</button>
+          <button class="btn btn-clair" data-copier>Copier le prompt</button></div>
+        <small id="copie-msg">Prompt optimisé pour une vidéo cinématique de 5 secondes (Seedance 2.0, 16:9).</small>
+      </div>
+      <div class="nav-fiche"><button class="btn btn-clair" data-ouvre="${prec.id}">← ${esc(prec.nom)}</button><button class="btn btn-clair" data-retour>Tous les lieux</button><button class="btn btn-clair" data-ouvre="${suiv.id}">${esc(suiv.nom)} →</button></div>
+    </article>`;
+}
+function ouvrir(id, { voler = true } = {}) {
+  const l = lieu(id); if (!l) return;
+  ui.actif = id; ui.erreur = null;
+  majMarqueurs(); afficherFiche(l); panneau.scrollTop = 0;
+  if (voler) carte.flyTo(l.coords, l.zoom, { duration: reduit ? 0 : 2 });
+  if (innerWidth <= 960 && !ui.visite) panneau.scrollIntoView({ behavior: reduit ? "auto" : "smooth", block: "start" });
+}
+panneau.addEventListener("click", async (ev) => {
+  const t = ev.target;
+  const o = t.closest("[data-ouvre]"); if (o) { arreterVisite(); return ouvrir(o.dataset.ouvre); }
+  if (t.closest("[data-retour]")) { arreterVisite(); ui.actif = null; majMarqueurs(); majPanneau(); return cadrerVisibles(); }
+  const c = t.closest("[data-choix]"); if (c) return repondre(+c.dataset.choix, c);
+  const v = t.closest("[data-video]"); if (v) return ouvrirVideo(lieu(v.dataset.video));
+  if (t.closest("[data-copier]")) {
+    const l = lieu(ui.actif), msg = document.getElementById("copie-msg");
+    try { await navigator.clipboard.writeText(l.prompt); msg.textContent = "Prompt copié : collez-le dans Higgsfield (Seedance 2.0)."; }
+    catch (e) { const ta = document.getElementById("prompt"); ta.focus(); ta.select(); msg.textContent = "Le texte est sélectionné : faites Ctrl+C pour le copier."; }
+  }
+});
+
+/* =====================================================================
+   QUIZ, XP, BADGES, CONFETTIS
+   ===================================================================== */
+function repondre(j, bouton) {
+  const l = lieu(ui.actif); if (!l || etat.reussis.includes(l.id)) return;
+  if (j !== l.quiz.bonne) { ui.erreur = { id: l.id, choix: j }; afficherFiche(l); document.querySelector(`[data-choix="${j}"]`)?.focus(); return; }
+  const avant = BADGES.filter((b) => xp() >= b.seuil).map((b) => b.id);
+  etat.reussis = [...etat.reussis, l.id]; sauver();
+  const nouveau = BADGES.find((b) => xp() >= b.seuil && !avant.includes(b.id));
+  const r = bouton.getBoundingClientRect();
+  if (window.confetti && !reduit) confetti({ particleCount: 110, spread: 75, origin: { x: (r.left + r.width / 2) / innerWidth, y: (r.top + r.height / 2) / innerHeight }, colors: ["#0038A8", "#FFD700", "#c2693e", "#2f5d50", "#c1272d"] });
+  afficherFiche(l); majMarqueurs(); majProgression(nouveau && nouveau.id);
+  const x = document.getElementById("xp"); x.classList.remove("gagne"); void x.offsetWidth; x.classList.add("gagne");
+  if (nouveau) {
+    const t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status");
+    t.innerHTML = `<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">${nouveau.icone.replaceAll("#0a2463", "#FFD700")}</svg><span>Nouveau badge : <strong>${esc(nouveau.nom)}</strong></span>`;
+    document.body.appendChild(t); setTimeout(() => t.remove(), 4300);
+    if (window.confetti && !reduit) setTimeout(() => confetti({ particleCount: 180, spread: 120, origin: { y: .25 }, colors: ["#FFD700", "#0038A8", "#ffffff"] }), 300);
+  }
+}
+
+/* =====================================================================
+   VIDÉO AI (Higgsfield) · fenêtre modale
+   Les vidéos sont générées à l'avance avec Higgsfield à partir du prompt
+   de chaque fiche, puis déposées dans videos/maroc/<id>.mp4 :
+   la clé de l'API n'est jamais placée dans la page.
+   ===================================================================== */
+const modale = document.getElementById("modale"), corpsModale = document.getElementById("modale-corps");
+let dernierFocus = null;
+function ouvrirVideo(l) {
+  dernierFocus = document.activeElement;
+  document.getElementById("modale-titre").textContent = `Aperçu vidéo AI · ${l.nom}`;
+  corpsModale.innerHTML = `<video src="${l.video}" controls autoplay muted loop playsinline poster="${l.image}"></video>`;
+  corpsModale.querySelector("video").addEventListener("error", () => {
+    corpsModale.innerHTML = `<div class="pas-de-video"><div><p style="font-family:var(--f-titre);font-size:1.3rem;margin:0 0 8px">La vidéo de ${esc(l.nom)} n'est pas encore générée.</p>
+      <p style="margin:0">Copiez le prompt de la fiche dans Higgsfield (Seedance 2.0, 5 s, 16:9), puis enregistrez la vidéo sous <code>${esc(l.video)}</code>.</p></div></div>`;
+  }, { once: true });
+  modale.classList.add("ouverte"); document.getElementById("modale-fermer").focus();
+}
+function fermerVideo() { modale.classList.remove("ouverte"); corpsModale.innerHTML = ""; dernierFocus?.focus(); }
+document.getElementById("modale-fermer").addEventListener("click", fermerVideo);
+modale.addEventListener("click", (ev) => { if (ev.target === modale) fermerVideo(); });
+document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && modale.classList.contains("ouverte")) fermerVideo(); });
+
+/* =====================================================================
+   VISITE GUIDÉE · parcourt les lieux visibles, un par un
+   ===================================================================== */
+const DUREE_ETAPE = 9000;
+const btnVisite = document.getElementById("btn-visite"), etatVisite = document.getElementById("visite-etat");
+function lancerVisite() {
+  const etapes = LIEUX.filter(visible).map((l) => l.id); if (!etapes.length) return;
+  ui.visite = { etapes, n: 0, minuteur: null, anim: null };
+  btnVisite.querySelector("span").textContent = "Arrêter la visite"; etatVisite.classList.add("actif");
+  etapeVisite();
+}
+function etapeVisite() {
+  const v = ui.visite; if (!v) return;
+  if (v.n >= v.etapes.length) { arreterVisite(); ui.actif = null; majMarqueurs(); majPanneau(); return cadrerVisibles(); }
+  ouvrir(v.etapes[v.n]);
+  document.getElementById("visite-texte").textContent = `Étape ${v.n + 1}/${v.etapes.length}`;
+  const anneau = document.getElementById("visite-anneau"), debut = performance.now();
+  cancelAnimationFrame(v.anim);
+  const tic = () => { if (ui.visite !== v) return; const k = Math.min(1, (performance.now() - debut) / DUREE_ETAPE); anneau.style.strokeDashoffset = 56.5 * (1 - k); if (k < 1) v.anim = requestAnimationFrame(tic); };
+  tic();
+  clearTimeout(v.minuteur); v.minuteur = setTimeout(() => { v.n++; etapeVisite(); }, DUREE_ETAPE);
+}
+function arreterVisite() {
+  const v = ui.visite; if (!v) return;
+  clearTimeout(v.minuteur); cancelAnimationFrame(v.anim); ui.visite = null;
+  btnVisite.querySelector("span").textContent = "Lancer la visite"; etatVisite.classList.remove("actif");
+}
+btnVisite.addEventListener("click", () => (ui.visite ? arreterVisite() : lancerVisite()));
+
+/* Démarrage */
+majFiltres(); majMarqueurs(); majProgression(); majPanneau();
+carte.fitBounds(L.latLngBounds(LIEUX.map((l) => l.coords)).pad(.3), { maxZoom: 8 });
+</script>
+</body>
+</html>
