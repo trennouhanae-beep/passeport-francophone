@@ -66,6 +66,17 @@ Ce style reprend la palette du jeu (parchemin, sépia, or). Il évite le texte, 
 - **Image** : `[style commun] The Piton de la Fournaise volcano on Réunion Island with a gentle glowing lava flow at dusk, lush green cirques and waterfalls in the foreground, a steaming pot of rougail saucisse.`
 - **Vidéo** : `Slow camera rise revealing the volcano, lava glowing softly, mist drifting over the green cirques, seamless loop.`
 
+### Portraits des contacts (images/contacts/)
+Un médaillon par escale, dans le même style que les compagnons (`images/guides/`) : en-tête de l'escale, tampon, carte d'embarquement.
+Modèle *Nano Banana 2*, format 1:1, avec `images/guides/awa.jpg` en image de référence pour le style. Exportez en JPG 400 × 400.
+Fichiers : `elodie.jpg` (Québec), `moussa.jpg` (Sénégal), `yasmine.jpg` (Maroc), `botaniste.jpg` (Martinique), `hery.jpg` (Madagascar), `gardien.jpg` (La Réunion).
+
+### Sons et musiques (audio/)
+- **Musique de chaque pays et de la carte** (`audio/musique/<pays>.mp3`, `carte.mp3`) : *ElevenLabs Music v2.5*, instrumental, 150 s, avec des parties qui changent toutes les 25 à 30 secondes pour ne pas lasser.
+- **Musique du vol** (`audio/musique/voyage.mp3`) : *ElevenLabs Music v2.5*, 60 s, thème de décollage et de vol au-dessus des nuages.
+- **Bruitages** (`audio/sons/decollage.mp3`, `atterrissage.mp3`) : *Seed Audio 1.0*, réacteurs d'un avion de ligne, roulage, « ding-dong » de cabine.
+- **Annonces de l'hôtesse** (`audio/hotesse/<pays>.wav`, `coffre.wav`, `fin.wav`) : *Inworld Text to Speech*, voix « Hélène (fr) », la même que l'introduction.
+
 ### Coffre (ouverture)
 - **Image** : `[style commun] An antique wooden treasure chest with brass fittings and a padlock on top of old maps and stamped passport pages, warm light.`
 - **Vidéo** : `The padlock clicks open, the lid slowly lifts and golden light spills out, revealing a small USB key and travel stamps, 5 seconds, no loop.`
