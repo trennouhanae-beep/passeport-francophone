@@ -370,6 +370,26 @@ details[open] summary { margin-bottom: 12px; }
 
 /* Mission */
 .sujets { display: grid; gap: 8px; }
+/* Dernière mission : la boîte à outils, une grille de tuiles numérotées (une tuile = un outil) */
+.boite-outils { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 2.4vw, 22px); margin-top: 6px; }
+.tuile-outil { display: grid; gap: 8px; align-content: start; text-align: left; padding: 0; border: 0; background: none; cursor: pointer; color: inherit; font: inherit; }
+.tu-photo { position: relative; display: grid; place-items: center; aspect-ratio: 1; border-radius: 6px; overflow: hidden; background: linear-gradient(150deg, #c98a3a, #7a3b1c);
+  box-shadow: 0 2px 0 rgba(255, 255, 255, .7) inset, 0 6px 14px rgba(74, 44, 20, .22); outline: 3px solid transparent; outline-offset: 3px; transition: transform .18s, outline-color .18s, box-shadow .18s; }
+.tu-photo b { font-family: var(--f-titre); font-size: clamp(2rem, 7vw, 3.4rem); color: rgba(255, 255, 255, .85); }
+.tu-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.tu-coche { position: absolute; right: 7px; top: 7px; width: 26px; height: 26px; border-radius: 50%; background: #2e7a3a; color: #fff; font-weight: 700; display: none; place-items: center; box-shadow: 0 0 0 2px #fff; }
+.tuile-outil.fait .tu-coche { display: grid; }
+.tu-titre { font-family: var(--f-titre); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: clamp(.74rem, 1.6vw, .95rem); line-height: 1.25; }
+.tu-sous { font-size: .8rem; color: var(--encre-douce); line-height: 1.3; }
+.tuile-outil:hover .tu-photo, .tuile-outil:focus-visible .tu-photo { transform: translateY(-3px); box-shadow: 0 12px 22px rgba(74, 44, 20, .3); }
+.tuile-outil.sel .tu-photo { outline-color: var(--or); }
+.tuile-outil.sel .tu-titre { color: #7a3b1c; }
+.outil-panneau { scroll-margin-top: 96px; }
+.outil-panneau.ferme { display: none; }
+.outil-suite { justify-content: flex-end; margin-top: 4px; }
+@media (max-width: 560px) { .boite-outils { grid-template-columns: repeat(2, minmax(0, 1fr)); } .tu-sous { display: none; } }
+@media (prefers-reduced-motion: reduce) { .tu-photo { transition: none; } }
+@media print { .outil-panneau.ferme { display: block; } .boite-outils, .outil-suite { display: none; } }
 .sujet { text-align: left; background: var(--papier); color: var(--encre); border: 1.5px solid var(--trait); border-radius: 8px; padding: 12px 14px; display: grid; grid-template-columns: 2em minmax(0, 1fr); gap: 8px; }
 .sujet[aria-pressed="true"] { border-color: var(--or); background: color-mix(in srgb, var(--or) 14%, var(--carte)); }
 .sujet .l { font-family: var(--f-code); font-weight: 600; color: var(--or); }
@@ -3122,6 +3142,15 @@ function ecranCoffre() {
     </section></div>`;
 }
 
+// Les six outils de la dernière mission : [image (images/mission/), titre, sous-titre]
+const OUTILS_MISSION = [
+  ["sujet", "Le sujet", "Choisir ou tirer au sort"],
+  ["fiche", "La fiche de préparation", "Vos notes côte à côte, et les connecteurs"],
+  ["canevas", "Le canevas", "Cinq parties en 2 minutes"],
+  ["micro", "S'enregistrer", "Présenter l'exposé au micro"],
+  ["autoeval", "S'auto-évaluer", "Réécouter et cocher les critères"],
+  ["bilan", "Le bilan et le brevet", "Terminer le voyage"],
+];
 function ecranMission() {
   const t = etat.sujetTire;
   const p = etat.preparation;
@@ -3134,19 +3163,34 @@ function ecranMission() {
         ${cleCN ? `<p><strong>${esc(CHEZ_NOUS.find((c) => c.id === cleCN).q)} :</strong> ${esc(etat.chezNous[cleCN]) || "<span class='doux'>…</span>"}</p>` : ""}
         <p><strong>Votre réponse à « Et chez toi ? » :</strong> ${esc(etat.carnet[ec.id].chezMoi) || "<span class='doux'>…</span>"}</p></div>
     </div>` : `<p class="doux">Choisissez la communauté francophone à comparer : vos notes s'afficheront côte à côte.</p>`;
+  // La boîte à outils : six tuiles numérotées ; un clic ouvre l'outil, les autres restent rangés
+  const sel = ui.missionOutil || 0;
+  const tuiles = OUTILS_MISSION.map(([f, titre, sous], k) => {
+    const fait = [t !== null, Boolean(p.escale && p.ressemblance.trim() && p.difference.trim()), false, Boolean(etat.expose && etat.expose.enregistre), etat.autoEval.length > 0, false][k];
+    return `<button class="tuile-outil${k === sel ? " sel" : ""}${fait ? " fait" : ""}" data-action="outil-mission" data-k="${k}" aria-pressed="${k === sel}">
+        <span class="tu-photo"><b aria-hidden="true">${k + 1}</b><img src="images/mission/${f}.jpg" alt="" onerror="this.remove()"><span class="tu-coche" aria-label="fait">✓</span></span>
+        <span class="tu-titre">${k + 1}. ${esc(titre)}</span><span class="tu-sous">${esc(sous)}</span></button>`;
+  }).join("");
+  const panneau = (k) => `class="page outil-panneau${k === sel ? "" : " ferme"}" data-outil="${k}"`;
+  const suite = (k) => `<div class="rangee outil-suite"><button class="btn second" data-action="outil-mission" data-k="${k + 1}">Outil suivant : ${k + 2}. ${esc(OUTILS_MISSION[k + 1][1])} ▸</button></div>`;
   return `<div class="colonne">
     <section class="page">
       <span class="etiquette">Dernière mission · l'exposé</span>
       <h2>Comparez deux communautés</h2>
       <p>Vous allez faire un exposé oral. Vous aurez ${REGLAGES.PREPARATION_MIN} minutes pour le préparer et ${REGLAGES.PRESENTATION_MIN} minutes pour le présenter. Comparez votre propre communauté avec une communauté francophone découverte pendant le voyage, ou avec celle de votre partenaire. Montrez votre compréhension de ses réalités culturelles et organisez clairement votre exposé.</p>
+      <h3>Votre boîte à outils</h3>
+      <p class="doux">Six outils, dans l'ordre. Cliquez sur une tuile pour ouvrir l'outil ; une coche verte marque ce qui est fait.</p>
+      <div class="boite-outils" role="group" aria-label="La boîte à outils de la mission">${tuiles}</div>
     </section>
-    <section class="page">
+    <section class="minuteurs">${minuteurHTML("prep", "Préparation")}${minuteurHTML("pres", "Présentation")}</section>
+    <section ${panneau(0)}>
       <h2>1. Le sujet</h2>
       <p class="doux">Choisissez un sujet ou tirez-le au sort.</p>
       <div class="sujets">${SUJETS.map((s, i) => `<button class="sujet" data-action="choisir-sujet" data-i="${i}" aria-pressed="${t === i}"><span class="l">${i + 1}</span><span>${esc(s)}</span></button>`).join("")}</div>
       <div><button class="btn second" data-action="tirer-sujet">Tirer un sujet au sort</button></div>
+      ${suite(0)}
     </section>
-    <section class="page">
+    <section ${panneau(1)}>
       <h2>2. La fiche de préparation</h2>
       <div class="choix-escale" role="group" aria-label="Communauté francophone comparée">
         ${ESCALES.map((e) => `<button style="--c:${e.couleur}" data-action="choisir-comparaison" data-id="${e.id}" aria-pressed="${p.escale === e.id}">${esc(e.nom)}</button>`).join("")}
@@ -3160,24 +3204,30 @@ function ecranMission() {
         <textarea id="prep-e" data-prep="explication">${esc(p.explication)}</textarea></div>
       <div><p class="petit" style="margin-bottom:6px"><strong>Boîte à outils</strong> · cliquez pour insérer dans le dernier champ utilisé</p>
         <div class="outils">${OUTILS.map((o) => `<button data-action="outil" data-t="${esc(o)}">${esc(o)}</button>`).join("")}</div></div>
+      ${suite(1)}
     </section>
-    <section class="minuteurs">${minuteurHTML("prep", "Préparation")}${minuteurHTML("pres", "Présentation")}</section>
-    <section class="page">
+    <section ${panneau(2)}>
       <h2>3. Canevas (2 minutes)</h2>
       <div class="tableau"><table>
         <thead><tr><th>Partie</th><th>Durée</th><th>Contenu</th></tr></thead>
         <tbody>${CANEVAS.map(([pa, d, c], k) => `<tr id="canevas-${k}"><td><strong>${esc(pa)}</strong></td><td class="num">${d}</td><td>${esc(c)}</td></tr>`).join("")}</tbody>
       </table></div>
       <p class="avis">Pendant les ${REGLAGES.PRESENTATION_MIN} minutes de présentation, le minuteur « Présentation » surligne la partie du canevas en cours.</p>
+      ${suite(2)}
     </section>
-    <section class="page" id="enregistrement">${enregistrementHTML()}</section>
-    <section class="page">
+    <section ${panneau(3)}><div id="enregistrement" style="display:grid;gap:inherit">${enregistrementHTML()}</div>${suite(3)}</section>
+    <section ${panneau(4)}>
       <h2>5. Auto-évaluation</h2>
       <p class="doux">Après l'exposé, écoutez l'enregistrement et cochez ce qui est réussi.</p>
       <div class="coches">${AUTO_EVAL.map((a, i) => `<label><input type="checkbox" data-autoeval="${i}" ${etat.autoEval.includes(i) ? "checked" : ""}><span>${esc(a)}</span></label>`).join("")}</div>
       <p class="doux petit" id="score-ae">${etat.autoEval.length} critère${etat.autoEval.length > 1 ? "s" : ""} réussi${etat.autoEval.length > 1 ? "s" : ""} sur ${AUTO_EVAL.length}.</p>
+      ${suite(4)}
     </section>
-    <div class="rangee"><button class="btn or" data-action="terminer">Terminer le voyage : voir le bilan</button></div>
+    <section ${panneau(5)}>
+      <h2>6. Le bilan et le brevet</h2>
+      <p>Votre exposé est présenté et évalué ? Terminez le voyage : vous verrez votre bilan, puis le brevet de l'équipe et celui de chaque élève.</p>
+      <div class="rangee"><button class="btn or" data-action="terminer">Terminer le voyage : voir le bilan</button></div>
+    </section>
   </div>`;
 }
 
@@ -4416,6 +4466,13 @@ const actions = {
       ...lignesClasse().map((l, i) => [i + 1, l.equipe || "", (l.membres || []).join(", "), l.classe || "", `${l.tampons}/${NB}`, (l.escales || []).map((id) => escaleParId(id)?.nom).join(", "), l.miles || 0, l.coffre ? "ouvert" : "fermé",
         l.debut ? new Date(l.debut).toLocaleString("fr-FR") : "", l.debut ? mmss(((l.fin || l.maj || Date.now()) - l.debut) / 1000) : "", l.fin ? "terminé" : "en vol"].join("\t"))].join("\n");
     copier(t, "Tableau copié : collez-le dans un tableur (Excel, LibreOffice, Google Sheets).");
+  },
+  "outil-mission"(b) {
+    const k = +b.dataset.k; ui.missionOutil = k;
+    document.querySelectorAll(".outil-panneau").forEach((x) => x.classList.toggle("ferme", +x.dataset.outil !== k));
+    document.querySelectorAll(".tuile-outil").forEach((x) => { const on = +x.dataset.k === k; x.classList.toggle("sel", on); x.setAttribute("aria-pressed", on); });
+    const pan = document.querySelector(`.outil-panneau[data-outil="${k}"]`);
+    if (pan) pan.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
   },
   "choisir-sujet"(b) { const y = window.scrollY; maj({ sujetTire: +b.dataset.i }); window.scrollTo({ top: y }); },
   "tirer-sujet"() {
