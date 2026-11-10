@@ -70,6 +70,7 @@ Ce style reprend la palette du jeu (parchemin, sépia, or). Il évite le texte, 
 Un médaillon par escale, dans le même style que les compagnons (`images/guides/`) : en-tête de l'escale, tampon, carte d'embarquement.
 Modèle *Nano Banana 2*, format 1:1, avec `images/guides/awa.jpg` en image de référence pour le style. Exportez en JPG 400 × 400.
 Fichiers : `elodie.jpg` (Québec), `moussa.jpg` (Sénégal), `yasmine.jpg` (Maroc), `botaniste.jpg` (Martinique), `hery.jpg` (Madagascar), `gardien.jpg` (La Réunion).
+Depuis le 10 novembre 2026 : `afi.jpg` (Togo), `jocelyne.jpg` (Sainte-Lucie), `fatima.jpg` (Comores). Ces trois escales ont aussi leur image (`images/escales/`), leur album (`images/album/`), leur musique et leur annonce de l'hôtesse ; leurs vidéos (`videos/escales/togo.mp4`, `saintelucie.mp4`, `comores.mp4`) restent à générer.
 
 ### Sons et musiques (audio/)
 - **Musique de chaque pays et de la carte** (`audio/musique/<pays>.mp3`, `carte.mp3`) : *ElevenLabs Music v2.5*, instrumental, 150 s, avec des parties qui changent toutes les 25 à 30 secondes pour ne pas lasser.

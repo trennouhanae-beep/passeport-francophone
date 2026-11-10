@@ -153,6 +153,8 @@ input:focus, textarea:focus, select:focus { border-color: var(--or); outline: no
 .carte-vol .cadre-carte { fill: none; stroke: #6b4a2a; stroke-width: 1.4; opacity: .55; }
 .carte-vol .graduations { stroke: #6b4a2a; stroke-width: 1.2; opacity: .55; }
 /* Routes : prévues en pointillés, effectuées en rouge plein, celle de l'escale choisie qui s'anime */
+.carte-vol .fil-decal { stroke: #6b4a2a; stroke-width: 1; fill: none; opacity: .7; }
+.carte-vol .pt-lieu { fill: #6b4a2a; }
 .carte-vol .route.prevue { stroke: #6b4a2a; stroke-width: 1.2; stroke-dasharray: 3 6; opacity: .45; }
 .carte-vol .route.faite { stroke: var(--or); stroke-width: 1.8; stroke-dasharray: none; opacity: .75; }
 .carte-vol .route.sel { stroke: var(--or); stroke-width: 2.2; opacity: .9; stroke-dasharray: 6 6; animation: route-fil 1.2s linear infinite; }
@@ -183,7 +185,7 @@ main.entree .punaise-liege:not(.visite):not(.sel) .tete { animation: planter .55
 .punaise-liege:hover .tete, .punaise-liege.survol .tete, .punaise-liege:focus-visible .tete { transform: translate(-50%, -104%) rotate(-3deg) scale(1.15); filter: drop-shadow(0 8px 6px rgba(60, 25, 5, .35)); animation: none; }
 .punaise-liege.sel .tete { transform: translate(-50%, -104%) rotate(0) scale(1.3); filter: drop-shadow(0 0 6px #f3d79a) drop-shadow(0 8px 6px rgba(60, 25, 5, .4)); animation: none; }
 .punaise-liege:focus-visible { outline: none; }
-.nom-punaise { position: absolute; left: 0; top: clamp(14px, 2vw, 24px); transform: translateX(-50%); white-space: nowrap; font-family: var(--f-titre); font-weight: 700; font-size: clamp(.7rem, 1.3vw, .95rem);
+.nom-punaise { position: absolute; left: 0; top: clamp(14px, 2vw, 24px); transform: translate(calc(-50% + var(--nx, 0em)), var(--ny, 0em)); white-space: nowrap; font-family: var(--f-titre); font-weight: 700; font-size: clamp(.7rem, 1.3vw, .95rem);
   color: #3b2416; background: rgba(255, 250, 240, .85); padding: 1px 8px; border-radius: 999px; box-shadow: 0 1px 3px rgba(0,0,0,.2); pointer-events: none; }
 .fiche-pays { --c: #333; position: absolute; z-index: 5; width: min(320px, 70%); background: #fffdf8; border-radius: 6px; padding: 10px 10px 12px; display: grid; gap: 10px;
   box-shadow: 0 18px 34px -12px rgba(30, 15, 5, .6); animation: poser-fiche .35s cubic-bezier(.2, 1.3, .4, 1) both; color: #2b1a12; }
@@ -1257,7 +1259,7 @@ const REGLAGES = {
   SUPABASE_URL: "https://prffovnmuzybksnaqvdt.supabase.co", // projet Supabase « passeport-francophone »
   SUPABASE_CLE: "sb_publishable_NQopBI2H0Yp0twirEaJ6oQ_bZsqxjJp", // clé publique « publishable », JAMAIS la clé secrète
   CODE_ENSEIGNANTE: "classedefle2026", // code de l'espace enseignante
-  DUREE_JEU_MIN: 45,
+  DUREE_JEU_MIN: 65, // 9 escales de 6 minutes + la préparation et le coffre
   PREPARATION_MIN: 4,
   PRESENTATION_MIN: 2,
   // Dernière mission : adresse où les élèves déposent leur enregistrement (dossier Google Drive, Padlet, Moodle, formulaire…).
@@ -1284,7 +1286,7 @@ const ROLES = [
 // Tant qu'une photo manque, la carte affiche l'initiale du guide.
 const DOSSIER_PORTRAITS = "images/guides/";
 // Le contact de chaque escale (celui qui garde le chiffre) : portrait dans images/contacts/
-const PHOTOS_CONTACTS = { quebec: "elodie", senegal: "moussa", maroc: "yasmine", martinique: "botaniste", madagascar: "hery", reunion: "gardien" };
+const PHOTOS_CONTACTS = { quebec: "elodie", senegal: "moussa", maroc: "yasmine", martinique: "botaniste", madagascar: "hery", reunion: "gardien", togo: "afi", saintelucie: "jocelyne", comores: "fatima" };
 function photoContact(e, cls = "") {
   const f = PHOTOS_CONTACTS[e.id]; if (!f) return "";
   return `<img class="photo-contact ${cls}" src="images/contacts/${f}.jpg" alt="" onerror="this.remove()">`;
@@ -1317,7 +1319,7 @@ const GUIDES = [
     photo: "teva.jpg", icone: "sac",
     devise: "Prenez votre temps, observez, et la piste apparaîtra.",
     intro: "Teva pointe sa boussole vers le texte :" },
-  // Les contacts des six escales peuvent aussi être tirés comme compagnon de voyage (portraits dans images/contacts/)
+  // Les contacts des escales peuvent aussi être tirés comme compagnon de voyage (portraits dans images/contacts/)
   { id: "elodie", nom: "Élodie", metier: "la guide de Montréal", couleur: "#b3202a", initiale: "É",
     photo: "../contacts/elodie.jpg", icone: "plan",
     devise: "Prends ton temps : relis le paragraphe avant de répondre.",
@@ -1342,6 +1344,18 @@ const GUIDES = [
     photo: "../contacts/gardien.jpg", icone: "volcan",
     devise: "La réponse dort sous la surface : creusez le texte.",
     intro: "Le Gardien du Volcan plante son bâton près du texte :" },
+  { id: "afi", nom: "Afi", metier: "la commerçante de Lomé", couleur: "#00695c", initiale: "A",
+    photo: "../contacts/afi.jpg", icone: "sac",
+    devise: "Au marché comme dans un texte, chaque détail a un message : regardez bien.",
+    intro: "Afi déplie un pagne et vous montre un détail :" },
+  { id: "jocelyne", nom: "Jocelyne", metier: "la conteuse de Soufrière", couleur: "#0f75ad", initiale: "J",
+    photo: "../contacts/jocelyne.jpg", icone: "livre",
+    devise: "Écoutez l'histoire jusqu'au bout : la réponse arrive toujours avant la fin.",
+    intro: "Jocelyne s'assoit et commence à raconter :" },
+  { id: "fatima", nom: "Fatima", metier: "la cueilleuse d'ylang-ylang", couleur: "#557a12", initiale: "F",
+    photo: "../contacts/fatima.jpg", icone: "fleur",
+    devise: "On cueille les réponses comme les fleurs : une par une, avec soin.",
+    intro: "Fatima pose son panier de fleurs près du texte :" },
 ];
 
 const REGLES = [
@@ -1385,6 +1399,9 @@ const EMBLEMES = {
   maroc: `<ellipse cx="50" cy="80" rx="40" ry="8" fill="currentColor"/><path d="M18 76Q22 50 46 22h8Q78 50 82 76Z" fill="currentColor" opacity=".75"/><circle cx="50" cy="18" r="6" fill="currentColor"/><path d="M30 60h40" stroke="var(--carte)" stroke-width="3" opacity=".6"/>`,
   madagascar: `<path d="M44 92V48h12v44Z" fill="currentColor"/><path d="M44 50 30 30M56 50 70 30M50 48V26" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><ellipse cx="50" cy="22" rx="30" ry="11" fill="currentColor" opacity=".6"/>`,
   reunion: `<path d="M6 90 38 34h24l32 56Z" fill="currentColor" opacity=".85"/><path d="M40 34q4-14 10-6 4-16 12-2" stroke="currentColor" stroke-width="4" fill="none" opacity=".6"/><path d="M44 34l-8 20 10-6 4 14" stroke="#f08a3c" stroke-width="4" fill="none"/>`,
+  togo: `<path d="M20 50h60l-8 38H28Z" fill="currentColor" opacity=".85"/><path d="M14 50q36-44 72 0Z" fill="currentColor" opacity=".55"/><path d="M25 62h50M28 75h44" stroke="var(--carte)" stroke-width="3" opacity=".6"/>`,
+  saintelucie: `<path d="M8 80 34 20 56 80Z" fill="currentColor" opacity=".85"/><path d="M44 80 68 34 92 80Z" fill="currentColor" opacity=".6"/><path d="M6 90q11-6 22 0t22 0 22 0 22 0" stroke="currentColor" stroke-width="3" fill="none"/>`,
+  comores: `<path d="M60 12A39 39 0 1 0 60 88 31 31 0 1 1 60 12Z" fill="currentColor" opacity=".85"/><g fill="currentColor" opacity=".6"><circle cx="62" cy="29" r="4.5"/><circle cx="66" cy="43" r="4.5"/><circle cx="66" cy="57" r="4.5"/><circle cx="62" cy="71" r="4.5"/></g>`,
   moi: `<path d="M50 14 86 44v42H14V44Z" fill="currentColor" opacity=".85"/><rect x="42" y="60" width="16" height="26" fill="var(--carte)"/>`,
 };
 
@@ -1509,7 +1526,7 @@ const ESCALES = [
     id: "reunion", code: "RE", nom: "La Réunion", region: "Océan Indien", couleur: "#b06f00", drapeau: ["#003f87", "#ffd100", "#e4002b"], voix: "fr-FR",
     lon: 55.5, lat: -21.1, contact: "Le Gardien du Volcan", chiffre: 1,
     ambiance: "Le sol tremble un peu sous vos pieds : le Piton de la Fournaise veille sur l'île…",
-    accroche: "« Du haut du Piton de la Fournaise, je surveille le dernier chiffre. Écoutez l'histoire de mon île. »",
+    accroche: "« Du haut du Piton de la Fournaise, je surveille un chiffre précieux. Écoutez l'histoire de mon île. »",
     document: [
       "La Réunion est une île française de l'océan Indien, connue pour son volcan, le Piton de la Fournaise. On y parle le français et le créole réunionnais. La société réunionnaise réunit des populations d'origine africaine, malgache, européenne, indienne et chinoise.",
       "Le 20 décembre, on célèbre la fête de l'abolition de l'esclavage, la « Fèt Kaf », avec des concerts et des défilés. Le maloya, une musique et une danse héritées des esclaves, est inscrit au patrimoine culturel immatériel de l'UNESCO.",
@@ -1528,10 +1545,80 @@ const ESCALES = [
     indice: "La fête et la musique sont dans le deuxième paragraphe, le cari dans le dernier.",
     chezToi: "Quelle musique traditionnelle de ta communauté raconte son histoire ?",
   },
+  {
+    // Escales ajoutées en novembre 2026 (Togo, Sainte-Lucie, Comores) : contenu à faire valider par l'enseignante
+    id: "togo", code: "TG", nom: "Togo", region: "Afrique de l'Ouest", couleur: "#00695c", drapeau: ["#006a4e", "#ffce00", "#d21034"], voix: "fr-FR",
+    lon: 1.2, lat: 6.1, contact: "Afi, commerçante à Lomé", chiffre: 8,
+    ambiance: "Des piles de tissus de toutes les couleurs, des voix qui s'appellent : le grand marché de Lomé s'éveille…",
+    accroche: "« Woezon ! Bienvenue au grand marché. Ici, chaque tissu raconte une histoire : lisez la mienne, et le chiffre est à vous. »",
+    document: [
+      "Le Togo est un pays d'Afrique de l'Ouest. Le français est la langue officielle. Au quotidien, on parle aussi l'éwé, surtout dans le sud, et le kabiyè, surtout dans le nord : ce sont les deux langues nationales. Pour souhaiter la bienvenue en éwé, on dit « Woezon ! ».",
+      "Au grand marché de Lomé, la capitale, les « Nana Benz » sont célèbres : ces commerçantes ont fait fortune en vendant le pagne, un tissu de coton aux motifs colorés. Chaque motif porte un nom et fait passer un message.",
+      "À table, on partage le foufou, de l'igname pilée servie avec une sauce. En juillet, dans le nord du pays, les Evala réunissent les familles : pendant ces luttes traditionnelles, les jeunes hommes kabiyè montrent leur courage pour entrer dans l'âge adulte.",
+    ],
+    questions: [
+      { q: "Quelles sont les deux langues nationales du Togo ?", options: ["Le français et l'éwé", "L'éwé et le kabiyè", "Le kabiyè et le wolof"], correcte: 1, paragraphe: 1 },
+      { q: "Que vendent les « Nana Benz » ?", options: ["Le pagne, un tissu coloré", "Des épices", "Des ignames"], correcte: 0, paragraphe: 2 },
+      { q: "Que sont les Evala ?", options: ["Un plat de fête", "Un marché de nuit", "Des luttes traditionnelles"], correcte: 2, paragraphe: 3 },
+    ],
+    lexique: [
+      ["le pagne", "un tissu de coton aux motifs colorés"],
+      ["le foufou", "de l'igname pilée servie avec une sauce"],
+      ["les Evala", "des luttes traditionnelles pour entrer dans l'âge adulte"],
+    ],
+    indice: "Chaque réponse se trouve dans un paragraphe différent, dans l'ordre.",
+    chezToi: "Dans ta communauté, quelle fête ou quelle épreuve marque le passage à l'âge adulte ?",
+  },
+  {
+    id: "saintelucie", code: "LC", nom: "Sainte-Lucie", region: "Caraïbes", couleur: "#0f75ad", drapeau: ["#65cfff", "#fcd116", "#1e1e1e"], voix: "fr-FR",
+    lon: -61.0, lat: 13.9, decal: [16, 22], contact: "Jocelyne, conteuse à Soufrière", chiffre: 3,
+    ambiance: "Deux montagnes pointues sortent de la mer, et quelque part un tambour annonce la fête…",
+    accroche: "« Bonjou ! Sa ka fèt ? Ici, on parle anglais à l'école et créole à la maison. Écoutez mon histoire, et mon chiffre est à vous. »",
+    document: [
+      "Sainte-Lucie est une île indépendante des Caraïbes, voisine de la Martinique. La langue officielle est l'anglais, mais la plupart des habitants parlent aussi le kwéyòl, un créole né du français. En effet, l'île a été française, puis britannique : elle a changé de mains quatorze fois !",
+      "Chaque année, à la fin du mois d'octobre, on fête le Jounen Kwéyòl, la journée du créole. Ce jour-là, on s'habille en madras, on écoute de la musique traditionnelle et on cuisine les recettes des grands-parents.",
+      "Le plat national associe des bananes vertes, appelées « figues vertes », et de la morue salée. Au sud de l'île, deux anciens volcans dominent la mer : les Pitons sont le symbole du pays.",
+    ],
+    questions: [
+      { q: "Quelle est la langue officielle de Sainte-Lucie ?", options: ["L'anglais", "Le français", "Le kwéyòl"], correcte: 0, paragraphe: 1 },
+      { q: "Que fête-t-on à la fin du mois d'octobre ?", options: ["L'indépendance de l'île", "Le carnaval", "Le Jounen Kwéyòl, la journée du créole"], correcte: 2, paragraphe: 2 },
+      { q: "De quoi se compose le plat national ?", options: ["De riz et de poisson frais", "De bananes vertes et de morue salée", "D'igname pilée et de sauce"], correcte: 1, paragraphe: 3 },
+    ],
+    lexique: [
+      ["le kwéyòl", "un créole né du français"],
+      ["le Jounen Kwéyòl", "la journée du créole, à la fin du mois d'octobre"],
+      ["les Pitons", "deux anciens volcans, symbole du pays"],
+    ],
+    indice: "Chaque réponse se trouve dans un paragraphe différent, dans l'ordre.",
+    chezToi: "Quelle fête de ta communauté met à l'honneur sa langue, ses vêtements ou sa cuisine ?",
+  },
+  {
+    id: "comores", code: "KM", nom: "Comores", region: "Océan Indien", couleur: "#557a12", drapeau: ["#ffd100", "#ef3340", "#003da5"], voix: "fr-FR",
+    lon: 43.3, lat: -11.7, contact: "Fatima, cueilleuse d'ylang-ylang", chiffre: 6,
+    ambiance: "Un parfum de fleurs et de vanille flotte sur le port de Moroni, au pied du volcan…",
+    accroche: "« Karibu ! Bienvenue dans les îles aux parfums. Respirez, lisez bien, et mon chiffre est à vous. »",
+    document: [
+      "Les Comores sont un archipel de l'océan Indien, entre l'Afrique et Madagascar. Il y a trois langues officielles : le comorien, le français et l'arabe. On les appelle les « îles aux parfums », car on y cultive la vanille, le girofle et l'ylang-ylang, une fleur jaune utilisée en parfumerie.",
+      "Sur l'île de la Grande Comore, le « grand mariage », ou anda, est la fête la plus importante d'une vie : la famille économise pendant des années, les festivités durent plusieurs jours et tout le village est invité. Après son grand mariage, un homme devient un notable respecté.",
+      "À table, on sert le mataba, des feuilles de manioc cuites dans du lait de coco, avec du riz. Pour souhaiter la bienvenue, on dit « Karibu ! ».",
+    ],
+    questions: [
+      { q: "Pourquoi appelle-t-on les Comores les « îles aux parfums » ?", options: ["On y fabrique des bougies", "On y cultive l'ylang-ylang, la vanille et le girofle", "Il y a beaucoup de marchés"], correcte: 1, paragraphe: 1 },
+      { q: "Qu'est-ce que le « grand mariage » ?", options: ["Un plat de fête", "Une danse traditionnelle", "La fête la plus importante d'une vie"], correcte: 2, paragraphe: 2 },
+      { q: "Qu'est-ce que le mataba ?", options: ["Des feuilles de manioc cuites dans du lait de coco", "Un gâteau à la vanille", "Du poisson grillé"], correcte: 0, paragraphe: 3 },
+    ],
+    lexique: [
+      ["l'ylang-ylang", "une fleur jaune utilisée en parfumerie"],
+      ["l'anda", "le « grand mariage » de la Grande Comore"],
+      ["le mataba", "des feuilles de manioc cuites dans du lait de coco"],
+    ],
+    indice: "Chaque réponse se trouve dans un paragraphe différent, dans l'ordre.",
+    chezToi: "Quelle fête de famille est la plus importante dans ta communauté ? Qui est invité ?",
+  },
 ];
 const CODE_COFFRE = ESCALES.map((e) => e.chiffre).join("");
 const NB = ESCALES.length;
-const NB_LETTRES = ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit"][NB];
+const NB_LETTRES = ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix"][NB];
 const LISTE_ESCALES = ESCALES.map((e) => e.nom).join(", ");
 const PARIS = { lon: 2.35, lat: 48.85 };
 
@@ -1570,7 +1657,7 @@ const AUTO_EVAL = [
   "J'ai tenu dans les 2 minutes et j'ai conclu.",
 ];
 
-const TEXTE_FIN = "À l'intérieur, une clé USB. Grâce aux informations qu'elle contient, la police retrouve Raoul, sain et sauf, à l'aéroport de Dakar. Il vous remercie : « Vous avez voyagé dans six communautés francophones. Il vous reste une dernière mission : raconter ce que vous avez découvert, et le comparer avec votre propre communauté. »";
+const TEXTE_FIN = `À l'intérieur, une clé USB. Grâce aux informations qu'elle contient, la police retrouve Raoul, sain et sauf, à l'aéroport de Dakar. Il vous remercie : « Vous avez voyagé dans ${NB_LETTRES} communautés francophones. Il vous reste une dernière mission : raconter ce que vous avez découvert, et le comparer avec votre propre communauté. »`;
 
 /* =====================================================================
    ÉTAT ET SAUVEGARDE (compatible avec schema.sql de la version en ligne)
@@ -1849,6 +1936,18 @@ const THEMES = {
   reunion: { bpm: 104, pas: 12, racine: 57, gamme: [0, 3, 5, 7, 10], accords: [[0, 3, 7], [0, 3, 7], [5, 8, 12], [7, 10, 14]],
     lead: "x...x.x...x.", leadInstr: "kora", basse: "x.....x..x..",
     perc: { kayamb: "XxxXxxXxxXxx", roul: "x.....x..x.." } },
+  // Togo : balafon et tambours, ternaire
+  togo: { bpm: 108, pas: 12, racine: 62, gamme: [0, 2, 4, 7, 9], accords: [[0, 4, 7], [7, 11, 14], [5, 9, 12], [0, 4, 7]],
+    lead: "x.x.xx.x.xx.", leadInstr: "kora", basse: "x.....x..x..",
+    perc: { djembe: "x.xx.xx.x.xx", souffle: "x..x..x..x.." } },
+  // Sainte-Lucie : quadrille créole, violon et chacha
+  saintelucie: { bpm: 112, pas: 16, racine: 62, gamme: [0, 2, 4, 5, 7, 9, 11], accords: [[0, 4, 7], [5, 9, 12], [7, 11, 14], [0, 4, 7]],
+    lead: "x.xx.x.xx.x.x.x.", leadInstr: "violon", basse: "x..x..x.x..x..x.",
+    perc: { tibwa: "x.xx.x.xx.x.xx.x", pied: "x.......x......." } },
+  // Comores : twarab, luth et petites percussions
+  comores: { bpm: 84, pas: 16, racine: 60, gamme: [0, 2, 3, 5, 7, 8, 11], accords: [[0, 7, 12], [5, 8, 12], [0, 7, 12], [7, 11, 14]],
+    lead: "x..x.x..x.x.x...", leadInstr: "oud", basse: "x.......x.......",
+    perc: { dum: "x.....x...x.....", tek: "...x.x...x...x.x" } },
   // Coffre : suspense, battement de cœur
   coffre: { bpm: 70, pas: 16, racine: 57, gamme: [0, 2, 3, 7, 8], accords: [[0, 3, 7], [0, 3, 7], [8, 12, 15], [7, 11, 14]],
     lead: "x.......x.......", leadInstr: "cloche", basse: "x.x.............", nappe: true, perc: {} },
@@ -2175,7 +2274,7 @@ const TERRES_D = TERRES.map((t) => {
   return d + "Z";
 }).join("");
 // Position des étiquettes : [décalage x, décalage y, ancrage]
-const ETIQUETTES = { quebec: [16, 6, "start"], senegal: [-16, 6, "end"], maroc: [16, 4, "start"], martinique: [-16, 6, "end"], madagascar: [-18, 0, "end"], reunion: [16, 18, "start"] };
+const ETIQUETTES = { quebec: [16, 6, "start"], senegal: [-16, 6, "end"], maroc: [16, 4, "start"], martinique: [-16, 6, "end"], madagascar: [-18, 6, "end"], reunion: [16, 18, "start"], togo: [16, 6, "start"], saintelucie: [16, 6, "start"], comores: [-16, 2, "end"] };
 const AVION = "M0-9 1.6-3.5 9-0.5V1.8L1.6 0.6 1 6 3.4 8V9.6L0 8.6-3.4 9.6V8L-1 6-1.6 0.6-9 1.8V-0.5L-1.6-3.5Z";
 
 function carteVol({ avion = null, interactive = false } = {}) {
@@ -2190,7 +2289,9 @@ function carteVol({ avion = null, interactive = false } = {}) {
   }).join("");
   const v = interactive && ui.carteVue ? ui.carteVue : VUE_MONDE;
   const points = ESCALES.map((e) => {
-    const [x, y] = proj(e); const s = etat.escales[e.id];
+    // Deux îles trop proches sur la carte (Martinique, Sainte-Lucie) : « decal » écarte l'avion, un fil le relie au vrai lieu
+    const [x0, y0] = proj(e), [ex, ey] = e.decal || [0, 0], x = x0 + ex, y = y0 + ey; const s = etat.escales[e.id];
+    const fil = e.decal ? `<path class="fil-decal" d="M${x0} ${y0}L${x} ${y}"/><circle class="pt-lieu" cx="${x0}" cy="${y0}" r="1.8"/>` : "";
     const [dx, dy, anchor] = ETIQUETTES[e.id] || [14, 5, "start"];
     // Carte interactive : un clic sélectionne l'escale (fiche), le bouton de la fiche fait décoller
     const sel = interactive && ui.carteSel === e.id;
@@ -2199,7 +2300,7 @@ function carteVol({ avion = null, interactive = false } = {}) {
         <svg x="${x + 4}" y="${y - 22}" width="18" height="18" viewBox="0 0 60 40" preserveAspectRatio="xMidYMid slice" clip-path="url(#disc-${e.id})">${DRAPEAUX[e.id]}</svg>
         <circle cx="${x + 13}" cy="${y - 13}" r="9" fill="none" stroke="#fff" stroke-width="2"/><circle cx="${x + 13}" cy="${y - 13}" r="10.5" fill="none" stroke="var(--sepia-fonce)" stroke-width=".8"/></g>` : "";
     return `<g class="pt${s.tamponne ? " visite" : ""}${sel ? " sel" : ""}" data-action="${interactive ? "choisir-escale" : "ouvrir-escale"}" data-id="${e.id}" tabindex="0" role="button" aria-pressed="${sel}" aria-label="Escale ${esc(e.nom)}${s.tamponne ? ", déjà visitée, chiffre " + e.chiffre : ""}">
-      <title>${esc(e.nom)} · ${esc(e.contact)}</title>
+      <title>${esc(e.nom)} · ${esc(e.contact)}</title>${fil}
       <circle class="halo" cx="${x}" cy="${y}" r="20"/>${s.tamponne ? "" : `<circle class="pulse" cx="${x}" cy="${y}" r="12" style="animation-delay:${ESCALES.indexOf(e) * .35}s"/>`}
       <path class="picto" d="${AVION}" transform="translate(${x} ${y}) scale(1.25)"/>
       <text x="${x + dx}" y="${y + dy}" text-anchor="${anchor}">${esc(e.nom)}${s.tamponne ? " · " + e.chiffre : ""}</text>
@@ -2282,7 +2383,9 @@ function ficheCarte() {
 
 /* Carte en liège (image Higgsfield) : une punaise par escale ; un clic affiche le pays en photo.
    Positions en % de l'image, placées à la main sur la carte générée (les petites îles sont approximatives). */
-const PUNAISES = { quebec: [28.7, 38.2], martinique: [30.9, 53.9], senegal: [43.9, 50.7], maroc: [46.3, 42.9], madagascar: [58.7, 72.4], reunion: [61.8, 73.6] };
+const PUNAISES = { quebec: [28.7, 38.2], martinique: [30.9, 53.9], senegal: [43.9, 50.7], maroc: [46.3, 42.9], madagascar: [58.7, 72.4], reunion: [61.8, 73.6], togo: [48.2, 56.5], saintelucie: [33.4, 58.6], comores: [57.2, 67.2] };
+// Décalage des étiquettes (en em) pour qu’elles ne se recouvrent pas quand les punaises sont proches
+const NOMS_PUNAISES = { quebec: [-3.4, -2.9], martinique: [-4.2, -1.3], saintelucie: [1.2, 0], maroc: [3.2, -3], comores: [4, -3.4], madagascar: [-3.6, 0], reunion: [4.2, -1.6] };
 function carteLiege() {
   const sel = escaleParId(ui.carteSel);
   const punaises = ESCALES.map((e) => {
@@ -2300,7 +2403,7 @@ function carteLiege() {
           <circle cx="20" cy="16" r="14" fill="url(#pg-${e.id})" stroke="rgba(0,0,0,.25)" stroke-width=".8"/>
           <ellipse cx="15" cy="10" rx="5" ry="3.2" fill="#fff" opacity=".7" transform="rotate(-30 15 10)"/>
           ${s.tamponne ? `<path d="M13.5 16.5 18 21 26.5 11.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>` : `<circle cx="20" cy="16" r="3.4" fill="#fff" opacity=".9"/>`}
-        </svg><span class="nom-punaise">${esc(e.nom)}</span></button>`;
+        </svg><span class="nom-punaise" style="--nx:${(NOMS_PUNAISES[e.id] || [0, 0])[0]}em;--ny:${(NOMS_PUNAISES[e.id] || [0, 0])[1]}em">${esc(e.nom)}</span></button>`;
   }).join("");
   let fiche = "";
   if (sel) {
@@ -2339,6 +2442,15 @@ const DRAPEAUX = {
   madagascar: `<rect width="20" height="40" fill="#fff"/><rect x="20" width="40" height="20" fill="#fc3d32"/><rect x="20" y="20" width="40" height="20" fill="#007e3a"/>`,
   // La Réunion : Lo Mahavéli (le volcan rouge et les rayons du soleil sur fond bleu)
   reunion: `<rect width="60" height="40" fill="#003f87"/>${[-58, -29, 0, 29, 58].map((a) => `<polygon points="30,23 ${(30 + 44 * Math.sin((a - 6) * Math.PI / 180)).toFixed(1)},${(23 - 44 * Math.cos((a - 6) * Math.PI / 180)).toFixed(1)} ${(30 + 44 * Math.sin((a + 6) * Math.PI / 180)).toFixed(1)},${(23 - 44 * Math.cos((a + 6) * Math.PI / 180)).toFixed(1)}" fill="#ffd100"/>`).join("")}<polygon points="14,40 30,23 46,40" fill="#e4002b"/>`,
+  // Togo : cinq bandes vertes et jaunes, carré rouge à l'étoile blanche
+  togo: `<rect width="60" height="40" fill="#006a4e"/><rect y="8" width="60" height="8" fill="#ffce00"/><rect y="24" width="60" height="8" fill="#ffce00"/>
+    <rect width="24" height="24" fill="#d21034"/><polygon points="${etoile(12, 12.6, 7.2, 2)}" fill="#fff" fill-rule="nonzero"/>`,
+  // Sainte-Lucie : fond bleu ciel, triangle noir bordé de blanc, triangle doré
+  saintelucie: `<rect width="60" height="40" fill="#65cfff"/><polygon points="30,5 17,34 43,34" fill="#fff"/><polygon points="30,10.5 20,34 40,34" fill="#1e1e1e"/><polygon points="30,21 17,34 43,34" fill="#fcd116"/>`,
+  // Comores : quatre bandes (jaune, blanc, rouge, bleu), triangle vert, croissant et quatre étoiles
+  comores: `<rect width="60" height="10" fill="#ffd100"/><rect y="10" width="60" height="10" fill="#fff"/><rect y="20" width="60" height="10" fill="#ef3340"/><rect y="30" width="60" height="10" fill="#003da5"/>
+    <polygon points="0,0 28,20 0,40" fill="#009639"/><circle cx="9" cy="20" r="6.5" fill="#fff"/><circle cx="11.2" cy="20" r="5.6" fill="#009639"/>
+    ${[15.2, 18.4, 21.6, 24.8].map((y) => `<polygon points="${etoile(12.6, y, 1.4, 2)}" fill="#fff" fill-rule="nonzero"/>`).join("")}`,
 };
 // Empreinte d'encre : le drapeau, un peu effacé par un grain (comme un vrai coup de tampon)
 function empreinteDrapeau(e) {
@@ -2361,7 +2473,7 @@ function mrz() {
   const nom = (etat.equipe.nom || "EQUIPE").normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/[^A-Z0-9]+/g, "<");
   const code = ESCALES.map((e) => (etat.escales[e.id].tamponne ? e.chiffre : "<")).join("");
   const l1 = ("P<FRA<PASSEPORT<<FRANCOPHONE<<" + nom).padEnd(44, "<").slice(0, 44);
-  const l2 = ("RAOUL<<" + code + "<<" + ESCALES.map((e) => e.code).join("") + "<<45MIN").padEnd(44, "<").slice(0, 44);
+  const l2 = ("RAOUL<<" + code + "<<" + ESCALES.map((e) => e.code).join("") + "<<" + REGLAGES.DUREE_JEU_MIN + "MIN").padEnd(44, "<").slice(0, 44);
   return l1 + "\n" + l2;
 }
 // Médaillon du guide : la photo si elle existe, sinon l'initiale (l'image se retire si elle manque).
@@ -2427,20 +2539,20 @@ const etaler = (phrases, duree, debut = 0) => {
 const INTRO_HOTESSE = {
   poster: "images/hotesse.jpg",
   clips: [
-    { src: "videos/intro-hotesse-1.mp4", voix: "audio/intro-hotesse-1.wav", st: etaler(["Bienvenue !", "Attachez vos ceintures : le Passeport francophone est verrouillé, et l'avion décolle dans 45 minutes.",
+    { src: "videos/intro-hotesse-1.mp4", voix: "audio/intro-hotesse-1.wav", st: etaler(["Bienvenue !", "Attachez vos ceintures : le Passeport francophone est verrouillé, et l'avion décolle dans " + REGLAGES.DUREE_JEU_MIN + " minutes.",
       "Avant de partir, présentez-vous : votre culture est votre première escale.", "Ensuite, à chaque destination, lisez le document, discutez en équipe et répondez aux questions pour gagner un chiffre."], 21.5, .3) },
     { src: "videos/intro-hotesse-2.mp4", voix: "audio/intro-hotesse-2.wav", st: etaler(["Une erreur ? Pas de panique : le jeu vous dit pourquoi, et un indice vous aide à trouver les bonnes réponses.",
-      "Réunissez les six chiffres pour ouvrir le coffre… et préparer votre dernière mission !"], 12.3, .2) },
+      "Réunissez les " + NB_LETTRES + " chiffres pour ouvrir le coffre… et préparer votre dernière mission !"], 12.3, .2) },
   ],
 };
 // Ancienne introduction (cockpit), arrêtée à 6,6 s : la fin de la vidéo générée montrait des noms de lieux inventés
 const INTRO_COCKPIT = { clips: [{ src: "videos/intro.mp4", fin: 6.6, st: [[0, "Paris, à l'aube. Raoul, l'agent du Passeport francophone, a disparu…"],
-  [2.3, "Il a laissé un coffre verrouillé, et six chiffres cachés dans le monde francophone."], [4.6, "Votre mission : partir à leur recherche. L'avion décolle !"]] }] };
+  [2.3, "Il a laissé un coffre verrouillé, et " + NB_LETTRES + " chiffres cachés dans le monde francophone."], [4.6, "Votre mission : partir à leur recherche. L'avion décolle !"]] }] };
 const introActuelle = () => (ui.mediaAbsent.has("intro-hotesse") ? INTRO_COCKPIT : INTRO_HOTESSE);
 /* Au tout début : l'affiche des consignes de vol se déroule (le clic lance aussi la musique d'ambiance),
    on la lit, puis une annonce en cabine présente la vidéo de l'hôtesse, qui démarre après un compte à rebours. */
 const CONSIGNES = [
-  ["Votre mission", "Raoul a disparu. Retrouvez les 6 chiffres qui ouvrent son coffre, en 45 minutes."],
+  ["Votre mission", `Raoul a disparu. Retrouvez les ${NB} chiffres qui ouvrent son coffre, en ${REGLAGES.DUREE_JEU_MIN} minutes.`],
   ["L'équipage", "Jouez à 3 ou 4. Chacun reçoit un rôle : lecteur, navigateur, gardien du temps, secrétaire."],
   ["À chaque escale", "Lisez le document à voix haute, discutez en équipe, puis répondez ensemble aux questions."],
   ["Une erreur ?", "Aucune pénalité : relisez et réessayez. Votre guide vous offre un indice par escale."],
@@ -2546,7 +2658,7 @@ function ecranAccueil() {
     </section>
     <section class="page">
       <p class="bienvenue">B I E N V E N U E !</p>
-      <p>Attachez vos ceintures : le Passeport francophone est verrouillé, et l'avion décolle dans 45 minutes.</p>
+      <p>Attachez vos ceintures : le Passeport francophone est verrouillé, et l'avion décolle dans ${REGLAGES.DUREE_JEU_MIN} minutes.</p>
       <p>Avant de partir, présentez-vous : votre culture est votre première escale. Ensuite, à chaque destination, lisez le document, discutez en équipe et répondez aux questions pour gagner un chiffre.</p>
       <p>Une erreur ? Pas de panique : le jeu vous dit pourquoi, et un indice vous aide à trouver les bonnes réponses. Réunissez les ${NB_LETTRES} chiffres pour ouvrir le coffre… et préparer votre dernière mission !</p>
     </section>
@@ -2567,8 +2679,8 @@ function ecranCapitaine() {
         ${ui.mediaAbsent.has("intro-hotesse") ? "" : `<button class="btn-cuir revoir-capitaine" data-action="revoir-capitaine">▶ Écouter l'hôtesse</button>`}</figure>
       <div class="message">
         <p>Raoul, l'agent chargé du Passeport francophone, a disparu. Avant de partir, il a verrouillé le coffre qui contient la clé de son enquête. Pour l'ouvrir, il faut un code à ${NB} chiffres.</p>
-        <p>Chaque chiffre est gardé par un contact, dans une communauté francophone : au Québec, au Sénégal, au Maroc, en Martinique, à Madagascar et à La Réunion. Pour l'obtenir, lisez le document de chaque escale et répondez à ses questions. Notez aussi ce que vous découvrez dans votre carnet de voyage : il vous servira pour votre dernière mission.</p>
-        <p>L'avion décolle dans 45 minutes. Embarquez !</p>
+        <p>Chaque chiffre est gardé par un contact, dans une communauté francophone : ${ESCALES.map((e) => (PREP[e.id] || ["", e.nom])[1]).join(", ").replace(/, ([^,]*)$/, " et $1")}. Pour l'obtenir, lisez le document de chaque escale et répondez à ses questions. Notez aussi ce que vous découvrez dans votre carnet de voyage : il vous servira pour votre dernière mission.</p>
+        <p>L'avion décolle dans ${REGLAGES.DUREE_JEU_MIN} minutes. Embarquez !</p>
       </div>
     </section>
     <section class="page"><h2>Règles du voyage</h2><ol class="regles">${REGLES.map((r) => `<li>${esc(r)}</li>`).join("")}</ol></section>
@@ -2729,7 +2841,7 @@ function ecranCarte() {
       ${ui.mediaAbsent.has("carte-liege") ? carteVol({ interactive: true }) : carteLiege()}
       <p class="doux">Cliquez sur une punaise pour voir le pays en photo, puis envolez-vous. Une punaise verte marque une escale déjà visitée. L'ordre de jeu est libre, mais le code du coffre suit l'ordre des visas.</p>
     </section>
-    <div class="visas" role="list" aria-label="Les visas des six escales">
+    <div class="visas" role="list" aria-label="Les visas des escales">
       ${ESCALES.map((e, i) => {
         const s = etat.escales[e.id];
         const c = e.teinte || e.couleur;
@@ -2807,10 +2919,17 @@ const ALBUMS = {
     ["album/madagascar-bredes", "Les brèdes, des feuilles vertes, au marché"], ["album/madagascar-moramora", "« Mora mora » : on prend le temps"]],
   reunion: [["escales/reunion", "Le Piton de la Fournaise"], ["album/reunion-cari", "Le cari, avec du riz et des « grains »"],
     ["album/reunion-maloya", "Les instruments du maloya"], ["album/reunion-fetkaf", "La Fèt Kaf, le 20 décembre"]],
+  togo: [["escales/togo", "Le grand marché de Lomé"], ["album/togo-pagnes", "Le pagne : chaque motif porte un nom"],
+    ["album/togo-foufou", "Le foufou, de l'igname pilée, et sa sauce"], ["album/togo-evala", "Les Evala, les luttes traditionnelles de juillet"]],
+  saintelucie: [["escales/saintelucie", "Les Pitons, symbole du pays"], ["album/saintelucie-jounen", "Le Jounen Kwéyòl, la journée du créole"],
+    ["album/saintelucie-plat", "Les « figues vertes » et la morue salée"], ["album/saintelucie-madras", "Le madras, porté le jour de la fête"]],
+  comores: [["escales/comores", "Le port de Moroni, au pied du volcan"], ["album/comores-ylang", "L'ylang-ylang, la vanille et le girofle"],
+    ["album/comores-mariage", "Le « grand mariage » : tout le village est invité"], ["album/comores-mataba", "Le mataba, avec du riz"]],
 };
 // Les bonnes prépositions : « souvenirs du Maroc », « atterrir en Martinique »…
 const PREP = { quebec: ["du Québec", "au Québec"], senegal: ["du Sénégal", "au Sénégal"], maroc: ["du Maroc", "au Maroc"],
-  martinique: ["de la Martinique", "en Martinique"], madagascar: ["de Madagascar", "à Madagascar"], reunion: ["de La Réunion", "à La Réunion"] };
+  martinique: ["de la Martinique", "en Martinique"], madagascar: ["de Madagascar", "à Madagascar"], reunion: ["de La Réunion", "à La Réunion"],
+  togo: ["du Togo", "au Togo"], saintelucie: ["de Sainte-Lucie", "à Sainte-Lucie"], comores: ["des Comores", "aux Comores"] };
 function albumHTML(dest) {
   const photos = ALBUMS[dest.id] || [];
   const [de, a] = PREP[dest.id] || ["de " + dest.nom, "à " + dest.nom];
@@ -3576,7 +3695,7 @@ function cartePaysHTML(e) {
    MUSIQUE D'AMBIANCE ENREGISTRÉE · un morceau par pays (ElevenLabs Music via Higgsfield)
    Si le fichier manque, la musique générée (THEMES) prend le relais.
    ===================================================================== */
-const PISTES = ["quebec", "senegal", "maroc", "martinique", "madagascar", "reunion", "carte", "voyage", "accueil"];
+const PISTES = ["quebec", "senegal", "maroc", "martinique", "madagascar", "reunion", "togo", "saintelucie", "comores", "carte", "voyage", "accueil"];
 const VOLUME_PISTE = 0.32;
 const piste = { el: null, id: null };
 function volumePiste() { return musique.attenue ? VOLUME_PISTE * 0.22 : VOLUME_PISTE; }
@@ -3692,7 +3811,7 @@ function majSablier() {
 
 /* =====================================================================
    CHANGER DE PAYS · temps conseillé par escale, dernier appel, embarquement
-   Pour tenir les 45 minutes, chaque escale a un temps conseillé : le sablier
+   Pour tenir la durée du jeu, chaque escale a un temps conseillé : le sablier
    affiche « Vol suivant dans… », puis une annonce de cabine invite l'équipe
    à finir et à embarquer. Rien n'est bloqué : c'est une incitation.
    ===================================================================== */
@@ -3800,7 +3919,10 @@ const MESSAGES_CAPITAINE = {
   martinique: "Mesdames et messieurs, ici votre hôtesse. Bienvenue en Martinique, l'île aux fleurs ! Le Botaniste des Tropiques vous attend. Ouvrez l'œil, et bonne exploration !",
   madagascar: "Mesdames et messieurs, ici votre hôtesse. Nous atterrissons à Antananarivo, à Madagascar ! Hery, votre guide, vous attend. Prenez votre temps, mais gardez un œil sur le chrono.",
   reunion: "Mesdames et messieurs, ici votre hôtesse. Bienvenue à La Réunion, au pied du volcan ! Le Gardien du Volcan vous attend. Attention : ici, les indices sont brûlants !",
-  coffre: "Ici votre hôtesse. Bravo, chers voyageurs ! Vous avez les six chiffres. Direction le coffre : à vous d'ouvrir le Passeport francophone !",
+  togo: "Mesdames et messieurs, ici votre hôtesse. Bienvenue à Lomé, au Togo ! Afi vous attend au grand marché, au milieu des pagnes colorés. Ouvrez l'œil : chaque motif a un message.",
+  saintelucie: "Mesdames et messieurs, ici votre hôtesse. Bienvenue à Sainte-Lucie, au pied des Pitons ! Jocelyne, la conteuse, vous attend à Soufrière. Tendez l'oreille : ici, on parle anglais et créole.",
+  comores: "Mesdames et messieurs, ici votre hôtesse. Nous atterrissons à Moroni, aux Comores, les îles aux parfums ! Fatima vous attend parmi les fleurs d'ylang-ylang. Respirez, et lisez bien.",
+  coffre: "Ici votre hôtesse. Bravo, chers voyageurs ! Vous avez les " + NB_LETTRES + " chiffres. Direction le coffre : à vous d'ouvrir le Passeport francophone !",
   fin: "Ici votre hôtesse. Mission accomplie ! Grâce à vous, Raoul est sain et sauf. Toute la compagnie est fière de vous remettre votre brevet de grand voyageur francophone. Félicitations !",
 };
 let voixCapitaine = null;
@@ -3870,7 +3992,7 @@ function textesBrevet(pour = ui.brevetPour) {
     decerne: "est décerné à l'équipe",
     nom: etat.equipe.nom || "Les voyageurs",
     sous: membresInscrits().join(" · "),
-    motif: `pour avoir traversé ${NB_LETTRES} communautés francophones, du Québec à La Réunion, comparé leurs cultures avec la sienne et ouvert le coffre du Passeport francophone.`,
+    motif: `pour avoir traversé ${NB_LETTRES} communautés francophones, du Québec aux Comores, comparé leurs cultures avec la sienne et ouvert le coffre du Passeport francophone.`,
     fichier: "equipe-" + (etat.equipe.nom || "voyageurs"),
   };
 }
@@ -3927,10 +4049,10 @@ async function dessinerBrevet() {
   ligne(T.sous, 498, "500 33px Fraunces, Georgia, serif");
   const motif = T.motif;
   coupe(motif, "400 28px 'Atkinson Hyperlegible', sans-serif", 1000).forEach((l, i) => ligne(l, 562 + i * 38, "400 28px 'Atkinson Hyperlegible', sans-serif"));
-  // Six petits tampons ronds, avec le vrai drapeau de chaque escale
+  // Un petit tampon rond par escale, avec son vrai drapeau
   const images = await Promise.all(ESCALES.map((e) => charge("data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 40" width="180" height="120">${DRAPEAUX[e.id] || ""}</svg>`))));
   ESCALES.forEach((e, i) => {
-    const px = cx + (i - 2.5) * 124, py = 722, r = 42;
+    const pasT = Math.min(124, 940 / NB), r = Math.min(42, pasT * .36), px = cx + (i - (NB - 1) / 2) * pasT, py = 722;
     x.save(); x.translate(px, py); x.rotate((i % 2 ? 1 : -1) * 0.12);
     x.beginPath(); x.arc(0, 0, r, 0, Math.PI * 2); x.clip();
     if (images[i]) x.drawImage(images[i], -r * 1.5, -r, r * 3, r * 2);
