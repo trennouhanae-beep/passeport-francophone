@@ -87,3 +87,6 @@ Depuis le 10 novembre 2026 : `afi.jpg` (Togo), `jocelyne.jpg` (Sainte-Lucie), `f
 - Faites valider chaque image par rapport au contenu de l'escale : plats, lieux, fête. L'IA peut confondre des cultures voisines.
 - Si une image montre un cliché ou une erreur, régénérez-la ou supprimez simplement le fichier : le jeu reprend son dessin.
 - Les fichiers restent dans le dossier du jeu. Pour la mise en ligne sur Netlify, glissez tout le dossier, `images/` et `videos/` compris.
+
+### Consignes et mission (images/consignes/, images/mission/)
+Modèle *GPT Image 2.6*, qualité moyenne, 1:1. Style : affiche de voyage peinte à la gouache, texture de pinceau, palette turquoise, corail, safran, émeraude, cobalt. Le même groupe de trois étudiants (une étudiante noire aux tresses, un étudiant maghrébin barbu, une étudiante asiatique à lunettes) revient sur chaque image : c'est le groupe qui voyage. Image de référence : `images/consignes/mission.jpg`. Pas de texte dans les images.

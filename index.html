@@ -11,33 +11,34 @@
 /* Direction visuelle : un passeport. Couverture bleu nuit et or, pages en papier de sécurité,
    une encre de tampon par escale. Une colonne de lecture (~68 caractères). */
 :root {
-  /* Palette chaude : cuir de passeport brun, or cuivré, papier crème */
-  --nuit: #4a2417; --nuit-2: #5e3020; --or: #c07a1c; --or-clair: #f0c27a;
-  --papier: #f7efe2; --papier-2: #efe1cb; --carte: #fffaf2;
-  --encre: #2b1a12; --encre-douce: #6b5243; --trait: #e2cfb3;
+  /* Palette vive et moderne (novembre 2026) : passeport bleu cobalt, pages blanches, accents turquoise, corail et safran */
+  --nuit: #14284a; --nuit-2: #1e3a66; --or: #ef5b3c; --or-clair: #ffc857;
+  --papier: #f2f6f9; --papier-2: #e6eef4; --carte: #ffffff;
+  --encre: #14283d; --encre-douce: #4f6476; --trait: #d5e0e8;
+  --turquoise: #14a3a0; --corail: #ef5b3c; --safran: #f5b82e; --emeraude: #1f9d55; --cobalt: #2f5bd3;
   --mix-titre: 72%;
   --ok: #2e7a3a; --ok-fond: #e3f1dc; --erreur: #b3261e; --erreur-fond: #fbe2dc; --surligne: #ffe28a;
   --mer: #dfe9ef; --mer-trait: #bfd0db;
   /* Carte ancienne : même parchemin dans les deux thèmes, par choix */
-  --parch: #f1e7d2; --terre: #d8c4a0; --sepia: #8a6f4e; --sepia-fonce: #4a3a28; --x: #d42a22;
+  --parch: #e3f2f6; --terre: #f6dcae; --sepia: #4f7a96; --sepia-fonce: #1d3a57; --x: #ef5b3c;
   --f-titre: "Fraunces", Georgia, "Times New Roman", serif;
   --f-texte: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
   --f-code: "IBM Plex Mono", ui-monospace, "Courier New", monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --nuit: #2a140c; --nuit-2: #3a1d12; --or: #e3a04a; --or-clair: #f3cf92;
-    --papier: #1c1410; --papier-2: #271c16; --carte: #2a1f18;
-    --encre: #f4e9dc; --encre-douce: #c7b3a1; --trait: #4a382c; --mix-titre: 45%;
+    --nuit: #0b1830; --nuit-2: #142a4d; --or: #ff7a5c; --or-clair: #ffd27a;
+    --papier: #0f1a2a; --papier-2: #16243a; --carte: #18273d;
+    --encre: #eef4fa; --encre-douce: #a9bccd; --trait: #2a3d57; --mix-titre: 45%;
     --ok: #5fc792; --ok-fond: #15352a; --erreur: #f0837a; --erreur-fond: #3d1c1d; --surligne: #4a3f17;
     --mer: #142033; --mer-trait: #24344f;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --nuit: #2a140c; --nuit-2: #3a1d12; --or: #e3a04a; --or-clair: #f3cf92;
-  --papier: #1c1410; --papier-2: #271c16; --carte: #2a1f18;
-  --encre: #f4e9dc; --encre-douce: #c7b3a1; --trait: #4a382c; --mix-titre: 45%;
+  --nuit: #0b1830; --nuit-2: #142a4d; --or: #ff7a5c; --or-clair: #ffd27a;
+  --papier: #0f1a2a; --papier-2: #16243a; --carte: #18273d;
+  --encre: #eef4fa; --encre-douce: #a9bccd; --trait: #2a3d57; --mix-titre: 45%;
   --ok: #5fc792; --ok-fond: #15352a; --erreur: #f0837a; --erreur-fond: #3d1c1d; --surligne: #4a3f17;
   --mer: #142033; --mer-trait: #24344f;
   color-scheme: dark;
@@ -46,9 +47,9 @@
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0; background: var(--papier);
-  background-image:
-    repeating-radial-gradient(circle at 20% 30%, transparent 0 14px, color-mix(in srgb, var(--trait) 35%, transparent) 14px 15px),
-    repeating-radial-gradient(circle at 80% 70%, transparent 0 18px, color-mix(in srgb, var(--trait) 25%, transparent) 18px 19px);
+  background-image: radial-gradient(1200px 600px at 10% -10%, color-mix(in srgb, var(--turquoise) 14%, transparent), transparent 70%),
+    radial-gradient(900px 500px at 100% 0%, color-mix(in srgb, var(--safran) 12%, transparent), transparent 70%);
+  background-attachment: fixed;
   color: var(--encre); font-family: var(--f-texte); font-size: 1.05rem; line-height: 1.6; min-height: 100vh;
 }
 h1, h2, h3 { font-family: var(--f-titre); line-height: 1.15; text-wrap: balance; margin: 0; font-weight: 700; }
@@ -58,14 +59,14 @@ button { font: inherit; cursor: pointer; }
 
 /* Barre */
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--nuit); }
-.barre { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--nuit); color: #f3efe4; padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); border-bottom: 2px solid var(--or); }
+.barre { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--nuit); color: #f3f8fc; padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); border-bottom: 2px solid var(--or); }
 .barre-in { max-width: 1040px; margin: 0 auto; display: flex; align-items: center; gap: 10px 16px; flex-wrap: wrap; }
 .marque { font-family: var(--f-titre); font-size: 1.05rem; color: var(--or-clair); background: none; border: 0; padding: 0; }
 .nav { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
-.nav button, .icone-btn { background: transparent; color: #f3efe4; border: 1px solid color-mix(in srgb, var(--or-clair) 45%, transparent); border-radius: 999px; padding: 4px 14px; font-size: .92rem; }
+.nav button, .icone-btn { background: transparent; color: #f3f8fc; border: 1px solid color-mix(in srgb, var(--or-clair) 45%, transparent); border-radius: 999px; padding: 4px 14px; font-size: .92rem; }
 .nav button[aria-current="true"] { background: var(--or-clair); color: #15233f; border-color: var(--or-clair); }
 .icone-btn { padding: 4px 10px; }
-.chrono { font-family: var(--f-code); font-size: 1.05rem; font-variant-numeric: tabular-nums; padding: 3px 10px; border-radius: 6px; background: var(--nuit-2); color: #f3efe4; }
+.chrono { font-family: var(--f-code); font-size: 1.05rem; font-variant-numeric: tabular-nums; padding: 3px 10px; border-radius: 6px; background: var(--nuit-2); color: #f3f8fc; }
 .chrono.urgent { background: var(--or); color: #2a160c; box-shadow: 0 0 0 1px var(--or-clair) inset; }
 .chrono small { font-family: var(--f-texte); font-size: .75rem; opacity: .8; margin-right: 6px; }
 
@@ -88,7 +89,7 @@ main section, .lexique, .question { scroll-margin-top: 120px; }
 .rangee { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 
 /* Couverture */
-.couverture { background: radial-gradient(120% 90% at 50% 0%, var(--nuit-2), var(--nuit)); color: #f3efe4; border-radius: 14px 28px 28px 14px; border-left: 14px solid color-mix(in srgb, var(--nuit) 70%, #000); padding: clamp(28px, 6vw, 56px) clamp(20px, 5vw, 48px); display: grid; justify-items: center; text-align: center; gap: 18px; box-shadow: 0 18px 40px -20px rgba(10,18,35,.55); max-width: 560px; width: 100%; margin: 0 auto; }
+.couverture { background: radial-gradient(120% 90% at 50% 0%, var(--nuit-2), var(--nuit)); color: #f3f8fc; border-radius: 14px 28px 28px 14px; border-left: 14px solid color-mix(in srgb, var(--nuit) 70%, #000); padding: clamp(28px, 6vw, 56px) clamp(20px, 5vw, 48px); display: grid; justify-items: center; text-align: center; gap: 18px; box-shadow: 0 18px 40px -20px rgba(10,18,35,.55); max-width: 560px; width: 100%; margin: 0 auto; }
 .couverture .pays { font-family: var(--f-code); letter-spacing: .32em; font-size: .8rem; color: var(--or-clair); }
 .couverture h1 { font-size: clamp(2rem, 7vw, 3rem); color: var(--or-clair); letter-spacing: .03em; }
 .couverture .sous { font-family: var(--f-titre); font-style: italic; color: #d9d3c1; }
@@ -141,21 +142,21 @@ input:focus, textarea:focus, select:focus { border-color: var(--or); outline: no
 @media (max-width: 640px) { .carte-zone { min-width: 640px; } }
 .carte-vol .parchemin { fill: var(--parch); }
 /* Carte ancienne : côtes gravées, océans nommés, voilier, rose des vents, cartouche, cadre gradué */
-.carte-vol .cote { fill: none; stroke: #8a6f4e; stroke-opacity: .28; stroke-width: 7; stroke-linejoin: round; }
+.carte-vol .cote { fill: none; stroke: #5d7a94; stroke-opacity: .28; stroke-width: 7; stroke-linejoin: round; }
 .carte-vol .terres { fill: url(#terre-grad); }
-.carte-vol .oceans text { font-family: var(--f-titre); font-style: italic; font-size: 15px; letter-spacing: .32em; text-transform: uppercase; fill: #8a6f4e; fill-opacity: .75; stroke: none; text-anchor: middle; }
-.carte-vol .voilier path { fill: #6b4a2a; opacity: .7; }
-.carte-vol .rose-vents circle { stroke: #6b4a2a; stroke-width: 1; opacity: .7; }
-.carte-vol .rose-vents .branche { fill: #6b4a2a; opacity: .8; } .carte-vol .rose-vents .branche.petite { fill: #b0884f; }
-.carte-vol .rose-vents text { font-size: 13px; fill: #6b4a2a; stroke: none; font-weight: 700; }
-.carte-vol .cartouche rect { fill: #f6ecd3; stroke: #6b4a2a; stroke-width: 1.2; } .carte-vol .cartouche .filet-int { fill: none; stroke-width: .6; stroke-dasharray: 3 2; }
+.carte-vol .oceans text { font-family: var(--f-titre); font-style: italic; font-size: 15px; letter-spacing: .32em; text-transform: uppercase; fill: #5d7a94; fill-opacity: .75; stroke: none; text-anchor: middle; }
+.carte-vol .voilier path { fill: #2f4d6b; opacity: .7; }
+.carte-vol .rose-vents circle { stroke: #2f4d6b; stroke-width: 1; opacity: .7; }
+.carte-vol .rose-vents .branche { fill: #2f4d6b; opacity: .8; } .carte-vol .rose-vents .branche.petite { fill: #b0884f; }
+.carte-vol .rose-vents text { font-size: 13px; fill: #2f4d6b; stroke: none; font-weight: 700; }
+.carte-vol .cartouche rect { fill: #f6ecd3; stroke: #2f4d6b; stroke-width: 1.2; } .carte-vol .cartouche .filet-int { fill: none; stroke-width: .6; stroke-dasharray: 3 2; }
 .carte-vol .cartouche text { font-size: 14px; font-style: italic; fill: #4a3a28; stroke: none; letter-spacing: .06em; }
-.carte-vol .cadre-carte { fill: none; stroke: #6b4a2a; stroke-width: 1.4; opacity: .55; }
-.carte-vol .graduations { stroke: #6b4a2a; stroke-width: 1.2; opacity: .55; }
+.carte-vol .cadre-carte { fill: none; stroke: #2f4d6b; stroke-width: 1.4; opacity: .55; }
+.carte-vol .graduations { stroke: #2f4d6b; stroke-width: 1.2; opacity: .55; }
 /* Routes : prévues en pointillés, effectuées en rouge plein, celle de l'escale choisie qui s'anime */
-.carte-vol .fil-decal { stroke: #6b4a2a; stroke-width: 1; fill: none; opacity: .7; }
-.carte-vol .pt-lieu { fill: #6b4a2a; }
-.carte-vol .route.prevue { stroke: #6b4a2a; stroke-width: 1.2; stroke-dasharray: 3 6; opacity: .45; }
+.carte-vol .fil-decal { stroke: #2f4d6b; stroke-width: 1; fill: none; opacity: .7; }
+.carte-vol .pt-lieu { fill: #2f4d6b; }
+.carte-vol .route.prevue { stroke: #2f4d6b; stroke-width: 1.2; stroke-dasharray: 3 6; opacity: .45; }
 .carte-vol .route.faite { stroke: var(--or); stroke-width: 1.8; stroke-dasharray: none; opacity: .75; }
 .carte-vol .route.sel { stroke: var(--or); stroke-width: 2.2; opacity: .9; stroke-dasharray: 6 6; animation: route-fil 1.2s linear infinite; }
 @keyframes route-fil { to { stroke-dashoffset: -24; } }
@@ -164,7 +165,7 @@ input:focus, textarea:focus, select:focus { border-color: var(--or); outline: no
 .carte-vol .oceans, .carte-vol .cartouche { transition: opacity .3s; }
 /* Boutons de zoom */
 .carte-wrap .zoom-carte { position: absolute; top: 10px; right: 10px; z-index: 4; display: flex; gap: 4px; }
-.zoom-carte button { min-width: 34px; height: 34px; padding: 0 10px; border-radius: 8px; border: 1px solid #6b4a2a; background: rgba(246, 236, 211, .92); color: #4a3a28; font-family: var(--f-titre); font-weight: 700; font-size: 1.05rem; box-shadow: 0 2px 6px -2px rgba(0,0,0,.35); }
+.zoom-carte button { min-width: 34px; height: 34px; padding: 0 10px; border-radius: 8px; border: 1px solid #2f4d6b; background: rgba(246, 236, 211, .92); color: #4a3a28; font-family: var(--f-titre); font-weight: 700; font-size: 1.05rem; box-shadow: 0 2px 6px -2px rgba(0,0,0,.35); }
 .zoom-carte button:hover { background: #fff6df; }
 .fiche-carte.attend { opacity: 0; pointer-events: none; animation: none; }
 /* Carte en liège : punaises rouges (vertes une fois l'escale visitée) et photo du pays au clic */
@@ -183,12 +184,12 @@ main.entree .punaise-liege .tete { animation: planter .55s cubic-bezier(.3, 1.5,
 main.entree .punaise-liege:not(.visite):not(.sel) .tete { animation: planter .55s cubic-bezier(.3, 1.5, .5, 1) both, respirer-pin 2.8s ease-in-out 1.2s infinite; animation-delay: calc(.3s + var(--k, 0) * .12s), calc(1.2s + var(--k, 0) * .4s); }
 @keyframes respirer-pin { 50% { transform: translate(-50%, -100%) rotate(-6deg); filter: drop-shadow(0 6px 4px rgba(60, 25, 5, .3)); } }
 .punaise-liege:hover .tete, .punaise-liege.survol .tete, .punaise-liege:focus-visible .tete { transform: translate(-50%, -104%) rotate(-3deg) scale(1.15); filter: drop-shadow(0 8px 6px rgba(60, 25, 5, .35)); animation: none; }
-.punaise-liege.sel .tete { transform: translate(-50%, -104%) rotate(0) scale(1.3); filter: drop-shadow(0 0 6px #f3d79a) drop-shadow(0 8px 6px rgba(60, 25, 5, .4)); animation: none; }
+.punaise-liege.sel .tete { transform: translate(-50%, -104%) rotate(0) scale(1.3); filter: drop-shadow(0 0 6px #ffd27a) drop-shadow(0 8px 6px rgba(60, 25, 5, .4)); animation: none; }
 .punaise-liege:focus-visible { outline: none; }
 .nom-punaise { position: absolute; left: 0; top: clamp(14px, 2vw, 24px); transform: translate(calc(-50% + var(--nx, 0em)), var(--ny, 0em)); white-space: nowrap; font-family: var(--f-titre); font-weight: 700; font-size: clamp(.7rem, 1.3vw, .95rem);
   color: #3b2416; background: rgba(255, 250, 240, .85); padding: 1px 8px; border-radius: 999px; box-shadow: 0 1px 3px rgba(0,0,0,.2); pointer-events: none; }
 .fiche-pays { --c: #333; position: absolute; z-index: 5; width: min(320px, 70%); background: #fffdf8; border-radius: 6px; padding: 10px 10px 12px; display: grid; gap: 10px;
-  box-shadow: 0 18px 34px -12px rgba(30, 15, 5, .6); animation: poser-fiche .35s cubic-bezier(.2, 1.3, .4, 1) both; color: #2b1a12; }
+  box-shadow: 0 18px 34px -12px rgba(30, 15, 5, .6); animation: poser-fiche .35s cubic-bezier(.2, 1.3, .4, 1) both; color: #14283d; }
 .fiche-pays.a-droite { margin-left: 30px; } .fiche-pays.a-gauche { transform: translateX(-100%); margin-left: -30px; }
 .fiche-pays.en-bas { margin-top: -30px; } .fiche-pays.en-haut { translate: 0 -100%; margin-top: 30px; }
 @keyframes poser-fiche { from { opacity: 0; scale: .85; rotate: -4deg; } to { opacity: 1; scale: 1; rotate: -1.5deg; } }
@@ -197,7 +198,7 @@ main.entree .punaise-liege:not(.visite):not(.sel) .tete { animation: planter .55
 .fp-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .fp-photo .bande-drapeau { position: absolute; inset: auto 0 0; height: 6px; }
 .fp-texte { display: grid; gap: 4px; }
-.fp-texte strong { font-family: var(--f-titre); font-size: 1.3rem; color: color-mix(in srgb, var(--c) 70%, #2b1a12); }
+.fp-texte strong { font-family: var(--f-titre); font-size: 1.3rem; color: color-mix(in srgb, var(--c) 70%, #14283d); }
 .fp-texte span { font-size: .8rem; color: #6b5243; }
 .fp-texte p { font-family: var(--f-titre); font-style: italic; font-size: .92rem; line-height: 1.35; color: #4a3a28; }
 .fiche-pays .fermer-fiche { top: 14px; right: 14px; z-index: 2; background: rgba(255, 250, 240, .9); }
@@ -213,7 +214,7 @@ main.entree .punaise-liege:not(.visite):not(.sel) .tete { animation: planter .55
 .carte-vol .pt .picto, .carte-vol .pt .punaise { transform-box: fill-box; transform-origin: center; }
 .carte-vol .pt.sel .punaise, .carte-vol .pt.survol .punaise { transform: scale(1.25); }
 .carte-vol .pt .punaise { transition: transform .2s; }
-.visa-vignette.survol { transform: translateY(-3px); box-shadow: 0 0 0 2px var(--or), 0 12px 22px -14px rgba(60, 20, 10, .5); }
+.visa-vignette.survol { transform: translateY(-3px); box-shadow: 0 0 0 2px var(--or), 0 12px 22px -14px rgba(20, 40, 61, .5); }
 .fiche-carte { --c: #333; position: absolute; z-index: 3; width: min(280px, 62%); padding: 16px 14px 12px; border-radius: 10px; overflow: hidden;
   background: var(--page); background-image: var(--guilloche); background-size: 300px 150px; border: 1px solid color-mix(in srgb, var(--c) 35%, var(--trait));
   box-shadow: 0 16px 30px -14px rgba(40, 15, 5, .55); display: grid; gap: 8px; animation: fiche .28s cubic-bezier(.2, 1.3, .4, 1) both; }
@@ -293,7 +294,7 @@ main.entree .punaise-liege:not(.visite):not(.sel) .tete { animation: planter .55
 .entete-escale { --c: #333; border-radius: 10px; padding: clamp(18px, 4vw, 28px); background: color-mix(in srgb, var(--c) 12%, var(--carte)); border: 1px solid color-mix(in srgb, var(--c) 35%, var(--trait)); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px 18px; align-items: center; }
 .entete-escale > div { display: grid; gap: 8px; }
 /* Portrait du contact de l'escale (médaillon rond) */
-.photo-contact { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; flex: none; box-shadow: 0 0 0 3px var(--carte), 0 0 0 4px color-mix(in srgb, var(--c, var(--or)) 55%, transparent), 0 6px 14px -6px rgba(40, 14, 4, .45); }
+.photo-contact { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; flex: none; box-shadow: 0 0 0 3px var(--carte), 0 0 0 4px color-mix(in srgb, var(--c, var(--or)) 55%, transparent), 0 6px 14px -6px rgba(20, 40, 61, .45); }
 .photo-contact.grande { width: 112px; height: 112px; justify-self: center; animation: pop-contact .6s cubic-bezier(.2, 1.5, .4, 1) both; }
 @keyframes pop-contact { from { transform: scale(.4) rotate(-8deg); opacity: 0; } to { transform: none; opacity: 1; } }
 .ligne-contact { display: flex; align-items: center; gap: 12px; margin: 0; }
@@ -383,7 +384,7 @@ details[open] summary { margin-bottom: 12px; }
 .tu-sous { font-size: .8rem; color: var(--encre-douce); line-height: 1.3; }
 .tuile-outil:hover .tu-photo, .tuile-outil:focus-visible .tu-photo { transform: translateY(-3px); box-shadow: 0 12px 22px rgba(74, 44, 20, .3); }
 .tuile-outil.sel .tu-photo { outline-color: var(--or); }
-.tuile-outil.sel .tu-titre { color: #7a3b1c; }
+.tuile-outil.sel .tu-titre { color: #1d4fa8; }
 .outil-panneau { scroll-margin-top: 96px; }
 .outil-panneau.ferme { display: none; }
 /* Les minuteurs sont rangés dans leur outil (préparation dans l'outil 2, présentation dans l'outil 4), en version compacte */
@@ -407,10 +408,10 @@ details[open] summary { margin-bottom: 12px; }
 .face-a-face > div { background: var(--papier-2); border-radius: 8px; padding: 12px 14px; display: grid; gap: 6px; align-content: start; font-size: .95rem; }
 .face-a-face h3 { font-family: var(--f-texte); font-size: .95rem; }
 .minuteurs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-.minuteur { background: var(--nuit); color: #f3efe4; border-radius: 10px; padding: 16px; display: grid; gap: 10px; justify-items: center; text-align: center; }
+.minuteur { background: var(--nuit); color: #f3f8fc; border-radius: 10px; padding: 16px; display: grid; gap: 10px; justify-items: center; text-align: center; }
 .minuteur .temps { font-family: var(--f-code); font-size: clamp(2.2rem, 8vw, 3rem); font-variant-numeric: tabular-nums; font-weight: 600; color: var(--or-clair); }
 .minuteur .temps.fini { color: #ff9b90; }
-.minuteur .btn.second { color: #f3efe4; border-color: #47577a; }
+.minuteur .btn.second { color: #f3f8fc; border-color: #47577a; }
 .minuteur .btn.second:hover:not(:disabled) { background: var(--nuit-2); }
 .minuteur .phase { font-size: .9rem; color: #cfd6e4; min-height: 1.4em; }
 .tableau { overflow-x: auto; }
@@ -575,20 +576,20 @@ main.entree .embleme .hib-fleur { transform-origin: 50px 50px; animation: eclore
 /* =====================================================================
    LE LIVRET : le jeu est un vrai passeport (couverture en cuir, pages de sécurité, pages qui tournent)
    ===================================================================== */
-:root { --cuir: #4a2c1a; --cuir-2: #6a4128; --cuir-ombre: #2a160c; --page: #fffaf0; --page-2: #f6ecd9; --lisere: #c9a25a; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --cuir: #3a2214; --cuir-2: #53331f; --cuir-ombre: #1e0f07; --page: #2a1f18; --page-2: #33261d; --lisere: #a8813c; } }
-:root[data-theme="dark"] { --cuir: #3a2214; --cuir-2: #53331f; --cuir-ombre: #1e0f07; --page: #2a1f18; --page-2: #33261d; --lisere: #a8813c; }
+:root { --cuir: #1d3a7a; --cuir-2: #2f5bd3; --cuir-ombre: #10224d; --page: #ffffff; --page-2: #eef3f7; --lisere: #14a3a0; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --cuir: #10224d; --cuir-2: #1d3a7a; --cuir-ombre: #08142e; --page: #18273d; --page-2: #1f3049; --lisere: #2fc4bf; } }
+:root[data-theme="dark"] { --cuir: #10224d; --cuir-2: #1d3a7a; --cuir-ombre: #08142e; --page: #18273d; --page-2: #1f3049; --lisere: #2fc4bf; }
 
 /* La barre du haut prend le cuir de la couverture */
 .barre { background: linear-gradient(180deg, var(--cuir-2), var(--cuir)); border-bottom-color: var(--lisere); box-shadow: 0 2px 10px -4px rgba(40, 8, 12, .5); }
 body::before { background: var(--cuir-2); }
-.marque { color: #e9c77e; }
+.marque { color: #ffd27a; }
 
 /* La page ouverte du passeport */
 main.livret { position: relative; width: calc(100% - 32px); max-width: 1000px; margin: 22px auto 44px; padding: 54px clamp(16px, 4vw, 44px) 56px calc(clamp(16px, 4vw, 44px) + 22px);
   background-color: var(--page); background-image: var(--guilloche), linear-gradient(90deg, rgba(0,0,0,.07), transparent 40px);
   background-size: 420px 210px, auto; border-radius: 6px 16px 16px 6px; border: 1px solid var(--trait);
-  box-shadow: 2px 2px 0 -1px var(--page-2), 2px 2px 0 0 var(--trait), 5px 5px 0 -1px var(--page-2), 5px 5px 0 0 var(--trait), 8px 8px 0 -1px var(--page-2), 8px 8px 0 0 var(--trait), 0 26px 50px -26px rgba(60, 20, 10, .45);
+  box-shadow: 2px 2px 0 -1px var(--page-2), 2px 2px 0 0 var(--trait), 5px 5px 0 -1px var(--page-2), 5px 5px 0 0 var(--trait), 8px 8px 0 -1px var(--page-2), 8px 8px 0 0 var(--trait), 0 26px 50px -26px rgba(20, 40, 61, .45);
   transform-origin: left center; }
 /* Page d'un pays : fond aux couleurs du drapeau, et la tranche des pages rayée de ses couleurs */
 main.livret.pays { background-image: var(--guilloche), linear-gradient(90deg, rgba(0,0,0,.07), transparent 40px), var(--fond-pays); background-size: 420px 210px, auto, auto; transition: background-color .4s; }
@@ -598,7 +599,7 @@ main.livret.pays .page { background: color-mix(in srgb, var(--carte) 82%, transp
 main.livret::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 22px; border-radius: 6px 0 0 6px;
   background: linear-gradient(90deg, var(--cuir-ombre), var(--cuir) 60%, var(--cuir-2)); box-shadow: inset -2px 0 3px rgba(0,0,0,.35); }
 main.livret::after { content: ""; position: absolute; top: 14px; bottom: 14px; left: 10px; border-left: 2px dashed color-mix(in srgb, var(--lisere) 75%, transparent); pointer-events: none; }
-main.livret .page, main.livret .entete-escale { box-shadow: 0 1px 0 rgba(255,255,255,.5) inset, 0 6px 14px -12px rgba(60, 20, 10, .4); }
+main.livret .page, main.livret .entete-escale { box-shadow: 0 1px 0 rgba(255,255,255,.5) inset, 0 6px 14px -12px rgba(20, 40, 61, .4); }
 main.livret .page { background: color-mix(in srgb, var(--carte) 88%, transparent); }
 /* Titre courant et folio, comme dans un vrai passeport */
 .tete-page, .pied-page { position: absolute; left: 22px; right: 0; display: flex; align-items: center; gap: 12px; padding: 0 clamp(16px, 4vw, 44px); font-family: var(--f-code); font-size: .7rem; letter-spacing: .22em; text-transform: uppercase; color: var(--encre-douce); pointer-events: none; }
@@ -631,9 +632,9 @@ main.livret.tourne-arriere { transform-origin: right center; animation: tourner-
 .couverture .dorure { position: absolute; inset: 22px; border: 1px solid color-mix(in srgb, var(--lisere) 60%, transparent); outline: 1px solid color-mix(in srgb, var(--lisere) 35%, transparent); outline-offset: 4px; border-radius: 4px 14px 14px 4px; z-index: 1; pointer-events: none; }
 .couverture h1 { background: linear-gradient(100deg, #b8862f 0%, #f7dd9a 30%, #c8953a 50%, #fbe7b0 70%, #b8862f 100%); background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 1px 0 rgba(0,0,0,.5)); animation: dorure 6s ease-in-out infinite; }
 @keyframes dorure { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-.couverture .globe { color: #e9c77e !important; filter: drop-shadow(0 1px 0 rgba(0,0,0,.6)); }
-.couverture .pays { color: #e9c77e; }
-.puce-bio { width: 46px; height: 30px; color: #e9c77e; opacity: .9; }
+.couverture .globe { color: #ffd27a !important; filter: drop-shadow(0 1px 0 rgba(0,0,0,.6)); }
+.couverture .pays { color: #ffd27a; }
+.puce-bio { width: 46px; height: 30px; color: #ffd27a; opacity: .9; }
 /* Ouverture de la couverture au moment d'embarquer */
 @keyframes ouvrir-couverture { 0% { transform: perspective(1800px) rotateY(0); } 100% { transform: perspective(1800px) rotateY(-112deg); opacity: .4; } }
 .couverture.ouvre { animation: ouvrir-couverture .85s cubic-bezier(.55, .05, .6, .4) forwards; }
@@ -643,7 +644,7 @@ main.livret.tourne-arriere { transform-origin: right center; animation: tourner-
 .album h2 { display: flex; align-items: center; gap: 10px; color: color-mix(in srgb, var(--c) var(--mix-titre), var(--encre)); }
 .polaroids { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(16px, 3vw, 28px); padding: 10px 4px 6px; }
 .polaroid { --r: calc((var(--i) - 1.5) * 2.4deg); margin: 0; background: #fffdf8; padding: 10px 10px 0; border-radius: 3px; position: relative;
-  box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 12px 22px -14px rgba(60, 20, 10, .55); transform: rotate(var(--r));
+  box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 12px 22px -14px rgba(20, 40, 61, .55); transform: rotate(var(--r));
   animation: poser .55s cubic-bezier(.2, 1.3, .4, 1) backwards; animation-delay: calc(.25s + var(--i) * .32s); }
 .polaroid:nth-child(even) { --r: calc((1.5 - var(--i)) * 2.1deg + 1deg); }
 .polaroid::before { content: ""; position: absolute; top: -10px; left: 50%; width: 74px; height: 22px; transform: translateX(-50%) rotate(-3deg);
@@ -683,44 +684,44 @@ main.livret.tourne-arriere { transform-origin: right center; animation: tourner-
 .intro-barre span { display: block; height: 100%; width: 0; background: var(--or-clair); transition: width .25s linear; }
 .intro .intro-passer { position: absolute; top: 12px; right: 12px; z-index: 2; color: #fff6e2; border-color: rgba(255, 246, 226, .6); background: rgba(20, 8, 4, .6); padding: 6px 14px; }
 .intro .intro-passer:hover:not(:disabled) { background: rgba(20, 8, 4, .8); color: #fff; }
-.revoir-intro { color: #e9c77e !important; font-size: .9rem; }
+.revoir-intro { color: #ffd27a !important; font-size: .9rem; }
 /* Affiche des consignes de vol : elle descend, se déroule entre deux baguettes, puis on la lit */
 .affiche-zone { display: grid; justify-items: center; gap: 14px; padding-top: 22px; }
-.affiche { position: relative; width: min(720px, 100%); display: grid; animation: affiche-tombe .8s cubic-bezier(.3, 1.4, .5, 1) both; transform-origin: 50% 0; }
+.affiche { position: relative; width: min(920px, 100%); display: grid; animation: affiche-tombe .8s cubic-bezier(.3, 1.4, .5, 1) both; transform-origin: 50% 0; }
 @keyframes affiche-tombe { from { transform: translateY(-60px) rotate(-3deg); opacity: 0; } to { transform: none; opacity: 1; } }
-.affiche-baguette { position: relative; z-index: 2; height: 22px; margin: 0 -14px; border-radius: 11px; background: linear-gradient(180deg, #8a5a2b, #5b3416 55%, #3e2210); box-shadow: 0 6px 12px -6px rgba(0,0,0,.6), inset 0 2px 0 rgba(255,255,255,.18); }
-.affiche-baguette::before, .affiche-baguette::after { content: ""; position: absolute; top: 50%; width: 26px; height: 26px; border-radius: 50%; transform: translateY(-50%); background: radial-gradient(circle at 35% 35%, #f3d79a, #b8863b 60%, #7a5216); }
+.affiche-baguette { position: relative; z-index: 2; height: 22px; margin: 0 -14px; border-radius: 11px; background: linear-gradient(180deg, #2f5bd3, #1d3a7a 55%, #3e2210); box-shadow: 0 6px 12px -6px rgba(0,0,0,.6), inset 0 2px 0 rgba(255,255,255,.18); }
+.affiche-baguette::before, .affiche-baguette::after { content: ""; position: absolute; top: 50%; width: 26px; height: 26px; border-radius: 50%; transform: translateY(-50%); background: radial-gradient(circle at 35% 35%, #ffd27a, #f5b82e 60%, #7a5216); }
 .affiche-baguette::before { left: -10px; } .affiche-baguette::after { right: -10px; }
 .affiche-ruban { margin: -4px auto; z-index: 1; display: grid; gap: 4px; justify-items: center; padding: 18px 26px; width: 100%; border: 0; cursor: pointer;
-  background: linear-gradient(180deg, #e9d6ae, #f6ead0 40%, #e2cb9a); color: #3b2414; font-family: var(--f-titre); box-shadow: inset 0 0 0 2px rgba(138, 90, 31, .35); }
+  background: linear-gradient(180deg, #e9d6ae, #ffffff 40%, #e2cb9a); color: #14283d; font-family: var(--f-titre); box-shadow: inset 0 0 0 2px rgba(20, 120, 140, .35); }
 .affiche-ruban span { font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.affiche-ruban small { font-family: var(--f-texte, inherit); font-size: .95rem; color: #8a5a1f; animation: respirer 2.4s ease-in-out infinite; }
+.affiche-ruban small { font-family: var(--f-texte, inherit); font-size: .95rem; color: #0b7c86; animation: respirer 2.4s ease-in-out infinite; }
 .affiche-ruban:hover { filter: brightness(1.05); } .affiche-ruban:focus-visible { outline: 3px solid var(--or); outline-offset: 3px; }
 .affiche-corps { display: grid; grid-template-rows: 1fr; margin: -4px 0; animation: affiche-deroule 1.2s cubic-bezier(.45, 0, .2, 1) both; }
 @keyframes affiche-deroule { from { grid-template-rows: 0fr; } to { grid-template-rows: 1fr; } }
-.affiche-feuille { overflow: hidden; min-height: 0; padding: clamp(22px, 4vw, 38px) clamp(18px, 5vw, 48px); display: grid; gap: 10px; text-align: center; color: #3b2414;
-  background: radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.55), transparent 60%), linear-gradient(180deg, #f6ead0, #efdcb4); box-shadow: inset 0 0 0 2px rgba(138, 90, 31, .3), inset 0 0 40px rgba(138, 90, 31, .18); }
-.affiche-sur { margin: 0; font-size: .8rem; letter-spacing: .3em; text-transform: uppercase; color: #8a5a1f; font-weight: 700; }
-.affiche-titre { margin: 0; font-family: var(--f-titre); font-size: clamp(2rem, 6vw, 3rem); line-height: 1; color: #7a3b1c; }
-.affiche-sous { margin: 0 0 6px; font-style: italic; color: #8a5a1f; }
+.affiche-feuille { overflow: hidden; min-height: 0; padding: clamp(22px, 4vw, 38px) clamp(18px, 5vw, 48px); display: grid; gap: 10px; text-align: center; color: #14283d;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.55), transparent 60%), linear-gradient(180deg, #ffffff, #eef4f8); box-shadow: inset 0 0 0 2px rgba(20, 120, 140, .3), inset 0 0 40px rgba(20, 120, 140, .18); }
+.affiche-sur { margin: 0; font-size: .8rem; letter-spacing: .3em; text-transform: uppercase; color: #0b7c86; font-weight: 700; }
+.affiche-titre { margin: 0; font-family: var(--f-titre); font-size: clamp(2rem, 6vw, 3rem); line-height: 1; color: #1d4fa8; }
+.affiche-sous { margin: 0 0 6px; font-style: italic; color: #0b7c86; }
 .affiche-liste { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 22px; text-align: left; }
 .affiche-liste li { display: flex; gap: 12px; align-items: flex-start; animation: consigne-apparait .5s ease-out both; animation-delay: calc(1s + var(--i) * .15s); }
 @keyframes consigne-apparait { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-.affiche-num { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-family: var(--f-titre); font-weight: 700; color: #fff6e2; background: radial-gradient(circle at 35% 35%, #c98a3a, #7a3b1c); box-shadow: 0 0 0 2px #f6ead0, 0 0 0 3px #b8863b; }
-.affiche-liste strong { font-family: var(--f-titre); font-size: 1.1rem; color: #7a3b1c; }
+.affiche-num { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-family: var(--f-titre); font-weight: 700; color: #fff6e2; background: radial-gradient(circle at 35% 35%, #ef5b3c, #1d4fa8); box-shadow: 0 0 0 2px #ffffff, 0 0 0 3px #f5b82e; }
+.affiche-liste strong { font-family: var(--f-titre); font-size: 1.1rem; color: #1d4fa8; }
 .affiche-liste p { margin: 2px 0 0; line-height: 1.4; }
-.affiche-pied { display: grid; gap: 10px; justify-items: center; margin-top: 10px; padding-top: 14px; border-top: 2px dashed rgba(138, 90, 31, .35); animation: consigne-apparait .5s ease-out 2s both; }
+.affiche-pied { display: grid; gap: 10px; justify-items: center; margin-top: 10px; padding-top: 14px; border-top: 2px dashed rgba(20, 120, 140, .35); animation: consigne-apparait .5s ease-out 2s both; }
 .affiche-pied p { margin: 0; font-weight: 700; }
 .affiche-passer { color: var(--encre-douce) !important; font-size: .9rem; }
 @media (max-width: 620px) { .affiche-liste { grid-template-columns: minmax(0, 1fr); } }
 /* Annonce de la vidéo, avec compte à rebours */
 .annonce-video { position: absolute; inset: 0; z-index: 2; display: grid; place-content: center; justify-items: center; gap: 10px; padding: 20px; text-align: center; color: #fff6e2;
   background: linear-gradient(160deg, rgba(122, 59, 28, .8), rgba(201, 138, 58, .62)); backdrop-filter: blur(2px); text-shadow: 0 1px 3px rgba(60, 20, 6, .55); animation: fondu .4s ease both; }
-.annonce-video .etiquette { color: #f3d79a; }
+.annonce-video .etiquette { color: #ffd27a; }
 .annonce-video strong { font-family: var(--f-titre); font-size: clamp(1.2rem, 3.4vw, 2rem); max-width: 26ch; line-height: 1.2; }
 .annonce-son { font-size: .95rem; opacity: .9; }
-.annonce-decompte { margin-top: 6px; width: 82px; height: 82px; border-radius: 50%; display: grid; place-items: center; font-family: var(--f-titre); font-size: 2.6rem; font-weight: 700; color: #3b2414;
-  background: radial-gradient(circle at 35% 35%, #f3d79a, #c98a3a); box-shadow: 0 0 0 4px rgba(243, 215, 154, .35), 0 0 0 10px rgba(243, 215, 154, .12); }
+.annonce-decompte { margin-top: 6px; width: 82px; height: 82px; border-radius: 50%; display: grid; place-items: center; font-family: var(--f-titre); font-size: 2.6rem; font-weight: 700; color: #14283d;
+  background: radial-gradient(circle at 35% 35%, #ffd27a, #ef5b3c); box-shadow: 0 0 0 4px rgba(243, 215, 154, .35), 0 0 0 10px rgba(243, 215, 154, .12); }
 .annonce-decompte.bat { animation: decompte-bat .5s cubic-bezier(.2, 1.6, .4, 1); }
 @keyframes decompte-bat { from { transform: scale(1.35); } to { transform: none; } }
 @media (prefers-reduced-motion: reduce) { .affiche, .affiche-corps, .affiche-liste li, .affiche-pied, .annonce-decompte.bat { animation: none !important; } }
@@ -741,7 +742,7 @@ main.livret.tourne-arriere { transform-origin: right center; animation: tourner-
 .visa-vignette { --c: #333; position: relative; overflow: hidden; text-align: left; display: grid; gap: 10px; padding: 18px 14px 12px; border-radius: 8px; color: var(--encre);
   border: 1px solid color-mix(in srgb, var(--c) 30%, var(--trait)); background-color: color-mix(in srgb, var(--c) 5%, var(--page));
   background-image: var(--guilloche); background-size: 300px 150px; transition: transform .15s, box-shadow .2s; }
-.visa-vignette:hover { transform: translateY(-3px) rotate(-.4deg); box-shadow: 0 12px 22px -14px rgba(60, 20, 10, .5); }
+.visa-vignette:hover { transform: translateY(-3px) rotate(-.4deg); box-shadow: 0 12px 22px -14px rgba(20, 40, 61, .5); }
 .visa-vignette .bande-drapeau { height: 6px; }
 .vv-tete { display: flex; justify-content: space-between; gap: 8px; font-family: var(--f-code); font-size: .66rem; letter-spacing: .14em; text-transform: uppercase; color: var(--encre-douce); }
 .vv-code { color: color-mix(in srgb, var(--c) 70%, var(--encre)); font-weight: 600; }
@@ -758,26 +759,26 @@ main.livret.tourne-arriere { transform-origin: right center; animation: tourner-
 @keyframes attendre { 50% { border-color: var(--c); transform: scale(1.04); } }
 .vv-pied .tampon { width: 78px; height: 78px; margin: -6px -4px -6px 0; }
 .vv-pied .tampon .t-chiffre { font-size: 1.8rem; }
-/* La serrure du code : une plaque de laiton à 6 crans */
+/* La serrure du code : une plaque bleu cobalt, un cran par escale */
 .serrure-code .plaque { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 2vw, 18px); padding: 16px clamp(10px, 3vw, 22px); border-radius: 12px;
-  background: linear-gradient(160deg, #e8c77f, #c39443 45%, #a87a32); box-shadow: inset 0 2px 0 rgba(255,255,255,.45), inset 0 -3px 6px rgba(0,0,0,.25), 0 8px 18px -10px rgba(60, 30, 5, .6); }
+  background: linear-gradient(135deg, #1d3a7a, #2f5bd3); box-shadow: inset 0 2px 0 rgba(255,255,255,.25), inset 0 -3px 6px rgba(0,0,0,.2), 0 8px 18px -10px rgba(16, 34, 77, .6); }
 .crans { display: flex; gap: clamp(6px, 1.6vw, 12px); flex-wrap: wrap; justify-content: center; }
 .cran { --c: #333; width: clamp(40px, 9vw, 56px); height: clamp(54px, 12vw, 72px); border-radius: 8px; display: grid; grid-template-rows: auto 1fr; justify-items: center; align-items: center; padding-top: 4px;
-  background: #2a1a10; box-shadow: inset 0 3px 6px rgba(0,0,0,.6), 0 1px 0 rgba(255,255,255,.35); color: #f3e3c0; }
-.cran small { font-family: var(--f-code); font-size: .58rem; letter-spacing: .12em; color: #b9a27a; }
+  background: #0b1830; box-shadow: inset 0 3px 6px rgba(0,0,0,.6), 0 1px 0 rgba(255,255,255,.25); color: #eef4fa; }
+.cran small { font-family: var(--f-code); font-size: .58rem; letter-spacing: .12em; color: #8fb3d9; }
 .cran b { font-family: var(--f-code); font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 600; }
-.cran.plein { background: linear-gradient(180deg, #fff6df, #f1dfb6); color: #2b1a12; box-shadow: inset 0 0 0 2px var(--c), 0 2px 0 rgba(0,0,0,.2); }
-.cran.plein small { color: color-mix(in srgb, var(--c) 70%, #2b1a12); }
+.cran.plein { background: #fff; color: #14283d; box-shadow: inset 0 0 0 2px var(--c), 0 2px 0 rgba(0,0,0,.2); }
+.cran.plein small { color: color-mix(in srgb, var(--c) 70%, #14283d); }
 .cran.enclenche { animation: enclencher .5s cubic-bezier(.2, 1.6, .4, 1) both; animation-delay: calc(.5s + var(--d)); }
 @keyframes enclencher { 0% { transform: translateY(-14px) scale(1.15); opacity: .3; } 70% { transform: translateY(2px); } 100% { transform: none; opacity: 1; } }
-.trou { width: 30px; height: 42px; fill: #2a1a10; flex: none; filter: drop-shadow(0 1px 0 rgba(255,255,255,.4)); }
+.trou { width: 30px; height: 42px; fill: #0b1830; flex: none; filter: drop-shadow(0 1px 0 rgba(255,255,255,.4)); }
 .serrure-code.complete .plaque { animation: briller 2.4s ease-in-out infinite; }
 @keyframes briller { 50% { box-shadow: inset 0 2px 0 rgba(255,255,255,.45), inset 0 -3px 6px rgba(0,0,0,.25), 0 0 0 4px rgba(240, 194, 122, .55), 0 0 30px rgba(240, 194, 122, .6); } }
 @media (max-width: 760px) { .visas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 440px) {
   .visas { grid-template-columns: minmax(0, 1fr); } .trou { display: none; }
   .serrure-code .plaque { padding: 12px 8px; }
-  .crans { flex-wrap: nowrap; gap: 5px; }
+  .crans { flex-wrap: wrap; gap: 5px; }
   .cran { width: 36px; height: 52px; } .cran b { font-size: 1.3rem; } .cran small { font-size: .52rem; letter-spacing: .06em; }
 }
 
@@ -790,7 +791,7 @@ main.entree .album-cn .polaroid { animation: poser .55s cubic-bezier(.2, 1.3, .4
 .album-cn .polaroid:hover { transform: rotate(var(--r)); }
 .album-cn .polaroid figcaption { display: grid; gap: 4px; text-align: left; padding: 8px 4px 10px; }
 .q-cn { font-family: var(--f-texte); font-style: normal; font-size: .74rem; line-height: 1.3; color: #6b5243; }
-.legende { font-family: var(--f-titre) !important; font-style: italic; font-size: 1rem !important; line-height: 24px; color: #2b1a12 !important; min-height: 74px;
+.legende { font-family: var(--f-titre) !important; font-style: italic; font-size: 1rem !important; line-height: 24px; color: #14283d !important; min-height: 74px;
   background: repeating-linear-gradient(transparent 0 23px, rgba(107, 82, 67, .28) 23px 24px) !important; border: 0 !important; border-radius: 0 !important; padding: 0 2px !important; resize: vertical; box-shadow: none !important; }
 .legende::placeholder { color: rgba(107, 82, 67, .55); }
 .legende:focus { background-color: rgba(217, 154, 43, .08) !important; }
@@ -799,37 +800,37 @@ main.entree .album-cn .polaroid { animation: poser .55s cubic-bezier(.2, 1.3, .4
 
 /* Page 3 : « Choisis ton guide », fidèle à la maquette (bureau, bandeau de cuir, cartes à médaillon, bouton de cuir) */
 .salle-guides { position: relative; display: grid; gap: 18px; padding: 0 clamp(12px, 3vw, 28px) 26px; border-radius: 14px; overflow: hidden;
-  background: linear-gradient(rgba(42, 24, 12, .55), rgba(42, 24, 12, .72)), url("images/couverture.jpg") center / cover, var(--cuir);
-  box-shadow: 0 18px 36px -20px rgba(40, 18, 6, .7); }
+  background: linear-gradient(rgba(16, 34, 77, .55), rgba(16, 34, 77, .72)), url("images/couverture.jpg") center / cover, var(--cuir);
+  box-shadow: 0 18px 36px -20px rgba(16, 34, 77, .7); }
 .bandeau-cuir { margin: 0 calc(-1 * clamp(12px, 3vw, 28px)); padding: 16px 16px 18px; text-align: center; font-family: var(--f-titre); font-weight: 700;
-  font-size: clamp(1.7rem, 4.4vw, 2.8rem); color: #f3d79a; text-shadow: 0 2px 0 rgba(0,0,0,.45); background: linear-gradient(180deg, var(--cuir-2), var(--cuir));
+  font-size: clamp(1.7rem, 4.4vw, 2.8rem); color: #ffd27a; text-shadow: 0 2px 0 rgba(0,0,0,.45); background: linear-gradient(180deg, var(--cuir-2), var(--cuir));
   box-shadow: inset 0 -1px 0 rgba(255,255,255,.08), 0 6px 14px -6px rgba(0,0,0,.6); position: relative; }
-.bandeau-cuir::before, .bandeau-cuir::after { content: ""; position: absolute; left: 10px; right: 10px; border-top: 2px dashed rgba(233, 199, 126, .45); }
+.bandeau-cuir::before, .bandeau-cuir::after { content: ""; position: absolute; left: 10px; right: 10px; border-top: 2px dashed rgba(255, 210, 122, .45); }
 .bandeau-cuir::before { top: 6px; } .bandeau-cuir::after { bottom: 6px; }
-.salle-texte { color: #f6ead2; text-align: center; max-width: 62ch; margin: 0 auto; font-size: .98rem; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.salle-texte { color: #f3f8fc; text-align: center; max-width: 62ch; margin: 0 auto; font-size: .98rem; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
 .cartes-guides { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(8px, 1.6vw, 18px); }
 .carte-guide { --g: #555; position: relative; display: grid; justify-items: center; align-content: start; gap: 4px; text-align: center; padding: 20px 8px 14px; border-radius: 14px; container-type: inline-size; /* dix guides : le texte suit la largeur de la carte */
-  background: #fbf4e6; color: #2b1a12;
-  background-image: radial-gradient(circle at 14px 14px, #c9a25a 2.5px, transparent 3px), radial-gradient(circle at calc(100% - 14px) 14px, #c9a25a 2.5px, transparent 3px),
-    radial-gradient(circle at 14px calc(100% - 14px), #c9a25a 2.5px, transparent 3px), radial-gradient(circle at calc(100% - 14px) calc(100% - 14px), #c9a25a 2.5px, transparent 3px);
-  box-shadow: inset 0 0 0 7px #fbf4e6, inset 0 0 0 9px var(--g), inset 0 0 0 12px #fbf4e6, inset 0 0 0 13px rgba(201, 162, 90, .8), 0 10px 22px -12px rgba(0,0,0,.6);
+  background: #ffffff; color: #14283d;
+  background-image: radial-gradient(circle at 14px 14px, #14a3a0 2.5px, transparent 3px), radial-gradient(circle at calc(100% - 14px) 14px, #14a3a0 2.5px, transparent 3px),
+    radial-gradient(circle at 14px calc(100% - 14px), #14a3a0 2.5px, transparent 3px), radial-gradient(circle at calc(100% - 14px) calc(100% - 14px), #14a3a0 2.5px, transparent 3px);
+  box-shadow: inset 0 0 0 7px #ffffff, inset 0 0 0 9px var(--g), inset 0 0 0 12px #ffffff, inset 0 0 0 13px rgba(201, 162, 90, .8), 0 10px 22px -12px rgba(0,0,0,.6);
   transition: transform .15s, box-shadow .2s, filter .4s, opacity .4s; }
 .medaillon { position: relative; width: min(150px, 82%); aspect-ratio: 1; border-radius: 50%; overflow: hidden; display: grid; place-items: center; margin-bottom: 8px;
   background: var(--g); color: #fff; font-family: var(--f-titre); font-size: 3rem; font-weight: 700;
-  box-shadow: 0 0 0 4px var(--g), 0 0 0 7px #fbf4e6, 0 0 0 8.5px #c9a25a; }
+  box-shadow: 0 0 0 4px var(--g), 0 0 0 7px #ffffff, 0 0 0 8.5px #14a3a0; }
 .medaillon img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
 .carte-guide strong { font-family: var(--f-titre); font-weight: 700; font-size: clamp(.85rem, 12cqi, 1.45rem); letter-spacing: .02em; text-transform: uppercase; line-height: 1.1; overflow-wrap: anywhere; }
 .carte-guide .metier { font-family: var(--f-titre); font-size: clamp(.6rem, 8cqi, .9rem); text-transform: uppercase; letter-spacing: 0; hyphens: auto; color: #3b2a1e; }
-.carte-guide .filet { display: flex; align-items: center; gap: 8px; width: 100%; margin-top: 6px; color: #8a5a1f; }
+.carte-guide .filet { display: flex; align-items: center; gap: 8px; width: 100%; margin-top: 6px; color: #0b7c86; }
 .carte-guide .filet::before, .carte-guide .filet::after { content: ""; flex: 1; height: 2px; background: linear-gradient(90deg, transparent, var(--g)); opacity: .7; }
 .carte-guide .filet::after { background: linear-gradient(90deg, var(--g), transparent); }
 .carte-guide .filet .ico-guide { width: clamp(22px, 22cqi, 34px); height: clamp(22px, 22cqi, 34px); flex: none; }
-.carte-guide.vise { transform: translateY(-6px) scale(1.04); box-shadow: inset 0 0 0 7px #fbf4e6, inset 0 0 0 9px var(--g), inset 0 0 0 12px #fbf4e6, inset 0 0 0 13px #c9a25a, 0 0 0 4px #f3d79a, 0 16px 30px -10px rgba(240, 194, 122, .6); }
-.carte-guide.choisi { transform: translateY(-4px); box-shadow: inset 0 0 0 7px #fbf4e6, inset 0 0 0 9px var(--g), inset 0 0 0 12px #fbf4e6, inset 0 0 0 13px #c9a25a, 0 0 0 4px var(--g), 0 18px 34px -12px rgba(0,0,0,.7); }
+.carte-guide.vise { transform: translateY(-6px) scale(1.04); box-shadow: inset 0 0 0 7px #ffffff, inset 0 0 0 9px var(--g), inset 0 0 0 12px #ffffff, inset 0 0 0 13px #14a3a0, 0 0 0 4px #ffd27a, 0 16px 30px -10px rgba(240, 194, 122, .6); }
+.carte-guide.choisi { transform: translateY(-4px); box-shadow: inset 0 0 0 7px #ffffff, inset 0 0 0 9px var(--g), inset 0 0 0 12px #ffffff, inset 0 0 0 13px #14a3a0, 0 0 0 4px var(--g), 0 18px 34px -12px rgba(0,0,0,.7); }
 .carte-guide.ecarte { filter: grayscale(.75); opacity: .6; }
 .salle-bouton { display: flex; justify-content: center; }
-.btn-cuir { font-family: var(--f-titre); font-weight: 700; font-size: clamp(1.15rem, 2.6vw, 1.6rem); color: #f3d79a; padding: 12px 38px; border-radius: 999px;
-  border: 2px solid var(--cuir-ombre); background: linear-gradient(180deg, var(--cuir-2), var(--cuir)); outline: 1.5px dashed rgba(233, 199, 126, .6); outline-offset: -8px;
+.btn-cuir { font-family: var(--f-titre); font-weight: 700; font-size: clamp(1.15rem, 2.6vw, 1.6rem); color: #ffd27a; padding: 12px 38px; border-radius: 999px;
+  border: 2px solid var(--cuir-ombre); background: linear-gradient(180deg, var(--cuir-2), var(--cuir)); outline: 1.5px dashed rgba(255, 210, 122, .6); outline-offset: -8px;
   box-shadow: 0 8px 18px -8px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.12); text-shadow: 0 1px 0 rgba(0,0,0,.5); transition: transform .12s, filter .15s; }
 .btn-cuir span { color: #ffd76a; }
 .btn-cuir:hover:not(:disabled) { filter: brightness(1.12); }
@@ -1098,33 +1099,36 @@ canvas.confettis { position: fixed; inset: 0; width: 100%; height: 100%; pointer
 .cp-texte span { opacity: 0; animation: mot-apparait .3s ease forwards calc(.5s + var(--i) * .2s); }
 @keyframes mot-apparait { from { opacity: 0; filter: blur(3px); } to { opacity: 1; filter: none; } }
 
-/* ===== Brevet de Grand Voyageur ===== */
+/* ===== Attestation de participation (ancien « brevet ») : document sobre et moderne ===== */
 .brevet-zone { gap: 16px; }
 .brevet-choix { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .puce-choix { font: inherit; font-size: .95rem; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--trait); background: var(--carte); color: var(--encre); cursor: pointer; }
 .puce-choix[aria-pressed="true"] { background: var(--or); border-color: var(--or); color: #fff; font-weight: 700; }
 .puce-choix:focus-visible { outline: 3px solid var(--or); outline-offset: 2px; }
-.brevet { position: relative; width: 100%; aspect-ratio: 3 / 2; max-width: 100%; container-type: inline-size; border-radius: 6px; overflow: hidden;
-  background: #f6ecd9; color: #3b2414; box-shadow: 0 24px 50px -24px rgba(40, 14, 4, .7), 0 0 0 1px rgba(138, 90, 31, .4); }
+.brevet { position: relative; width: 100%; aspect-ratio: 3 / 2; max-width: 100%; container-type: inline-size; border-radius: 10px; overflow: hidden;
+  background: #fff; color: #14283d; box-shadow: 0 24px 50px -24px rgba(20, 40, 61, .45), 0 0 0 1px #d8e2ea; }
+.brevet::before { content: ""; position: absolute; inset: 0 0 auto; height: 2.4cqw; background: linear-gradient(90deg, #14a3a0, #2f5bd3 35%, #f5b82e 68%, #f2643d); }
+.brevet .att-filet { position: absolute; inset: 4.4cqw 3cqw 3cqw; border: 1px solid #d8e2ea; border-radius: 1cqw; pointer-events: none; }
+.brevet .att-coin { position: absolute; right: 3cqw; bottom: 3cqw; width: 26cqw; height: 26cqw; border-radius: 50%; background: radial-gradient(circle at 70% 70%, rgba(20, 163, 160, .12), transparent 65%); pointer-events: none; }
 .brevet-fond { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.brevet-texte { position: absolute; inset: 11% 17% 21% 17%; display: grid; align-content: start; justify-items: center; text-align: center; gap: .7cqw; }
-.brevet-sur { margin: 0; font-size: 1.35cqw; letter-spacing: .3em; text-transform: uppercase; color: #8a5a1f; font-weight: 700; }
-.brevet-titre { margin: 0; font-family: var(--f-titre); font-size: 3.7cqw; line-height: 1.05; color: #3b2414; }
-.brevet-decerne { margin: .2cqw 0 0; font-style: italic; font-size: 1.7cqw; color: #8a5a1f; }
-.brevet-equipe { margin: 0; font-family: var(--f-titre); font-weight: 700; font-size: 4.5cqw; line-height: 1.1; color: #7a3b1c; }
+.brevet-texte { position: absolute; inset: 10% 10% 12% 10%; display: grid; align-content: start; justify-items: center; text-align: center; gap: .8cqw; }
+.brevet-sur { margin: 0; font-size: 1.25cqw; letter-spacing: .28em; text-transform: uppercase; color: #0b7c86; font-weight: 700; }
+.brevet-titre { margin: .4cqw 0 0; font-family: var(--f-titre); font-size: 4.4cqw; line-height: 1.05; color: #14283d; }
+.brevet-decerne { margin: .6cqw 0 0; font-size: 1.7cqw; color: #4a6072; }
+.brevet-equipe { margin: 0; font-family: var(--f-titre); font-weight: 700; font-size: 4.6cqw; line-height: 1.1; color: #2f5bd3; }
 .brevet-membres { margin: 0; font-family: var(--f-titre); font-size: 1.8cqw; }
 .brevet-motif { margin: .2cqw 0 0; font-size: 1.5cqw; line-height: 1.35; max-width: 56cqw; }
 .brevet-tampons { display: flex; gap: 2cqw; justify-content: center; margin-top: .6cqw; }
-.mini-tampon { display: grid; justify-items: center; gap: .3cqw; font-size: 1cqw; font-weight: 700; color: #3b2414; transform: rotate(calc((var(--i) - 2.5) * 4deg)); }
-.mini-tampon .drapeau-mini { width: 4.4cqw; height: 4.4cqw; border-radius: 50%; box-shadow: 0 0 0 .35cqw var(--c), 0 0 0 .6cqw rgba(255, 255, 255, .6); }
-.brevet-pied { width: 76%; margin-top: 1.2cqw; display: flex; justify-content: space-between; align-items: end; gap: 2cqw; font-size: 1.3cqw; text-align: left; }
+.mini-tampon { display: grid; justify-items: center; gap: .3cqw; font-size: 1cqw; font-weight: 700; color: #14283d; }
+.mini-tampon .drapeau-mini { width: 4cqw; height: 4cqw; border-radius: 50%; box-shadow: 0 0 0 .25cqw #fff, 0 0 0 .45cqw #d8e2ea; }
+.brevet-pied { width: 80%; margin-top: 1.6cqw; display: flex; justify-content: space-between; align-items: end; gap: 2cqw; font-size: 1.3cqw; text-align: left; }
 .brevet-pied > div { display: grid; gap: .3cqw; }
 .brevet-signature { justify-items: center; text-align: center; }
-.brevet-signature .paraphe { font-family: var(--f-titre); font-style: italic; font-weight: 700; font-size: 2.6cqw; color: #7a3b1c; border-bottom: 1px solid #8a5a1f; padding: 0 2cqw .2cqw; min-width: 18cqw; }
-.brevet-sceau { position: absolute; left: 84.4%; top: 76.6%; width: 13.5%; transform: translate(-50%, -50%) rotate(-10deg); }
-.brevet-sceau .sceau { width: 100%; height: auto; display: block; filter: drop-shadow(0 .5cqw .6cqw rgba(40, 14, 4, .45)); }
+.brevet-signature .paraphe { font-family: var(--f-titre); font-style: italic; font-weight: 700; font-size: 2.6cqw; color: #2f5bd3; border-bottom: 1px solid #8aa0b2; padding: 0 2cqw .2cqw; min-width: 18cqw; }
+.brevet-sceau { position: absolute; left: 87%; top: 79%; width: 11.5%; transform: translate(-50%, -50%) rotate(-10deg); }
+.brevet-sceau .sceau { width: 100%; height: auto; display: block; filter: drop-shadow(0 .4cqw .6cqw rgba(20, 40, 61, .3)); }
 .brevet.deroule { animation: brevet-deroule 1.3s cubic-bezier(.6, 0, .2, 1) both; }
-.brevet.deroule::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 35%, rgba(255, 240, 200, .7) 50%, transparent 65%); transform: translateX(-100%); animation: brevet-reflet 1.4s ease 1.2s both; pointer-events: none; }
+.brevet.deroule::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, .8) 50%, transparent 65%); transform: translateX(-100%); animation: brevet-reflet 1.4s ease 1.2s both; pointer-events: none; }
 .brevet.deroule .brevet-sceau { animation: sceau-tombe .55s cubic-bezier(.5, 0, .4, 1.4) 1.5s both; }
 .brevet.deroule .mini-tampon { animation: mini-tampon .4s cubic-bezier(.2, 1.6, .4, 1) both; animation-delay: calc(1.25s + var(--i) * .12s); }
 @keyframes brevet-deroule { from { clip-path: inset(0 0 100% 0); transform: translateY(-14px); } to { clip-path: inset(0); transform: none; } }
@@ -1149,17 +1153,17 @@ canvas.confettis { position: fixed; inset: 0; width: 100%; height: 100%; pointer
 .carte-pays-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .carte-pays-svg text { font-family: var(--f-texte); }
 .cp-mer { font-family: var(--f-titre) !important; font-style: italic; font-size: 40px; fill: #4d7489; letter-spacing: .08em; }
-.cp-voisin { font-size: 30px; fill: #8a6f4e; letter-spacing: .25em; font-weight: 700; }
+.cp-voisin { font-size: 30px; fill: #5d7a94; letter-spacing: .25em; font-weight: 700; }
 .cp-detroit { font-size: 22px; fill: #4d7489; font-style: italic; }
 .cp-relief { font-size: 27px; font-style: italic; fill: #fff3e6; font-weight: 700; paint-order: stroke; stroke: rgba(90, 15, 18, .6); stroke-width: 4px; }
 .cp-ville { fill: #fff6e2; stroke: #4a1012; stroke-width: 2.5; }
 .cp-nom-ville { font-size: 27px; fill: #fff6e2; font-weight: 700; paint-order: stroke; stroke: rgba(70, 12, 14, .75); stroke-width: 5px; }
-.cp-suite { font-size: 25px; fill: #8a5a1f; font-style: italic; }
+.cp-suite { font-size: 25px; fill: #0b7c86; font-style: italic; }
 .cp-rose text { font-size: 22px; font-weight: 700; fill: #6e1418; }
 /* Punaises des lieux : pastille dorée qui pulse, verte une fois explorée */
 .poi { position: absolute; transform: translate(-50%, -50%); background: none; border: 0; padding: 0; cursor: pointer; z-index: 2; display: grid; place-items: center; }
 .poi-pastille { display: grid; place-items: center; width: clamp(26px, 4.2vw, 36px); height: clamp(26px, 4.2vw, 36px); border-radius: 50%; font-family: var(--f-code); font-weight: 700; font-size: clamp(.8rem, 1.6vw, 1rem);
-  background: radial-gradient(circle at 35% 30%, #fbe3a8, var(--or) 60%, #8a5a1f); color: #2a160c; box-shadow: 0 0 0 2px #fff6e2, 0 4px 10px rgba(30, 6, 4, .55); transition: transform .2s; }
+  background: radial-gradient(circle at 35% 30%, #fbe3a8, var(--or) 60%, #0b7c86); color: #2a160c; box-shadow: 0 0 0 2px #fff6e2, 0 4px 10px rgba(30, 6, 4, .55); transition: transform .2s; }
 .poi::before { content: ""; position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid #fbe3a8; animation: poi-pouls 2s ease-out infinite; animation-delay: calc(var(--i) * .3s); }
 .poi.vu .poi-pastille { background: radial-gradient(circle at 35% 30%, #7fd09a, #006233 65%, #003d20); color: #fff; }
 .poi.vu::before { display: none; }
@@ -1193,7 +1197,7 @@ canvas.confettis { position: fixed; inset: 0; width: 100%; height: 100%; pointer
 .cp-plan.moderne { border-radius: 16px; box-shadow: 0 0 0 1px rgba(255, 255, 255, .5) inset, 0 0 0 1px var(--lisere), 0 24px 44px -22px rgba(6, 28, 36, .8); }
 .carte-pays-svg text { font-family: var(--f-texte); }
 .cm-mer { font-family: var(--f-titre) !important; font-style: italic; font-size: 40px; fill: rgba(222, 242, 248, .62); letter-spacing: .06em; }
-.cm-voisin { font-size: 26px; fill: #8a6f4e; letter-spacing: .32em; font-weight: 700; }
+.cm-voisin { font-size: 26px; fill: #5d7a94; letter-spacing: .32em; font-weight: 700; }
 .cm-detroit { font-size: 21px; fill: rgba(222, 242, 248, .75); font-style: italic; }
 .cm-relief { font-size: 20px; fill: rgba(255, 238, 230, .9); letter-spacing: .28em; font-weight: 700; paint-order: stroke; stroke: rgba(80, 6, 10, .45); stroke-width: 3px; }
 .cm-ville { fill: #fff; stroke: #5a0f14; stroke-width: 2.5; }
@@ -1269,6 +1273,47 @@ canvas.confettis { position: fixed; inset: 0; width: 100%; height: 100%; pointer
   body.imprime-brevet #brevet { position: fixed; inset: 0; width: 100vw; height: auto; box-shadow: none; animation: none; }
   body.imprime-brevet #sablier, body.imprime-brevet #popups { display: none !important; }
 }
+/* =====================================================================
+   THÈME VIF ET MODERNE (novembre 2026) : surcharges finales
+   ===================================================================== */
+.btn.or { color: #fff; }
+.btn.or:hover:not(:disabled) { background: #ff7556; border-color: #ff7556; color: #fff; }
+.barre { background: linear-gradient(90deg, var(--cuir), var(--cuir-2)); border-bottom: 3px solid transparent; border-image: linear-gradient(90deg, var(--turquoise), var(--cobalt), var(--safran), var(--corail)) 1; }
+.marque { color: #fff; letter-spacing: .01em; }
+.nav button[aria-current="true"] { background: #fff; color: var(--cuir); border-color: #fff; }
+.page { border-radius: 14px; box-shadow: 0 1px 0 rgba(255,255,255,.6) inset, 0 10px 30px -22px rgba(20, 40, 61, .35); }
+main.livret { border-radius: 8px 20px 20px 8px; }
+.minuteur { background: linear-gradient(135deg, var(--cuir), var(--cuir-2)); }
+.minuteur .temps { color: #ffd27a; }
+.salle-guides { background: linear-gradient(rgba(16, 34, 77, .55), rgba(16, 34, 77, .78)), url("images/couverture.jpg") center / cover, var(--cuir); }
+.bandeau-cuir { background: linear-gradient(90deg, var(--cuir), var(--cuir-2)); color: #fff; text-shadow: none; }
+/* L'affiche des consignes : bannière de voyage, six tuiles illustrées */
+.affiche-baguette { height: 10px; margin: 0; border-radius: 10px 10px 0 0; background: linear-gradient(90deg, var(--turquoise), var(--cobalt) 35%, var(--safran) 68%, var(--corail)); box-shadow: none; }
+.affiche-baguette.bas { border-radius: 0 0 10px 10px; }
+.affiche-baguette::before, .affiche-baguette::after { display: none; }
+.affiche-ruban { margin: 0; padding: 28px 26px; border-radius: 0; background: linear-gradient(135deg, var(--cuir), var(--cuir-2)); color: #fff; box-shadow: 0 20px 40px -24px rgba(16, 34, 77, .7); }
+.affiche-ruban small { color: #ffd27a; }
+.affiche-feuille { background: #fff; color: var(--encre); box-shadow: 0 30px 60px -30px rgba(16, 34, 77, .45); padding: clamp(22px, 4vw, 40px) clamp(16px, 4vw, 40px); gap: 12px; }
+.affiche-sur { color: var(--turquoise); }
+.affiche-titre { color: var(--cuir); font-size: clamp(2.2rem, 6vw, 3.4rem); }
+.affiche-sous { color: var(--encre-douce); font-style: normal; max-width: 52ch; justify-self: center; }
+.affiche-liste { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(14px, 2.4vw, 24px); margin-top: 8px; }
+.affiche-liste li { display: grid; gap: 10px; align-content: start; }
+.affiche-img { display: block; aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: var(--papier-2); box-shadow: 0 10px 22px -14px rgba(16, 34, 77, .55); }
+.affiche-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s ease; }
+.affiche-liste li:hover .affiche-img img { transform: scale(1.04); }
+.affiche-txt { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; align-items: center; }
+.affiche-txt p { grid-column: 1 / -1; color: var(--encre-douce); font-size: .95rem; }
+.affiche-num { width: 30px; height: 30px; font-size: .95rem; color: #fff; background: var(--corail); box-shadow: none; }
+.affiche-liste li:nth-child(6n+2) .affiche-num { background: var(--turquoise); } .affiche-liste li:nth-child(6n+3) .affiche-num { background: var(--safran); color: var(--encre); }
+.affiche-liste li:nth-child(6n+4) .affiche-num { background: var(--cobalt); } .affiche-liste li:nth-child(6n+5) .affiche-num { background: var(--emeraude); } .affiche-liste li:nth-child(6n) .affiche-num { background: var(--cuir); }
+.affiche-liste strong { color: var(--encre); font-size: 1.1rem; text-transform: uppercase; letter-spacing: .02em; }
+.affiche-pied { border-top: 1px solid var(--trait); }
+@media (max-width: 760px) { .affiche-liste { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 460px) { .affiche-liste { grid-template-columns: minmax(0, 1fr); } }
+/* Annonce de la vidéo */
+.annonce-video { background: linear-gradient(160deg, rgba(29, 58, 122, .82), rgba(20, 163, 160, .66)); text-shadow: 0 1px 3px rgba(8, 20, 46, .5); }
+.annonce-video .etiquette { color: #ffd27a; }
 </style>
 </head>
 <body>
@@ -1289,7 +1334,7 @@ const REGLAGES = {
   DUREE_JEU_MIN: 65, // 9 escales de 6 minutes + la préparation et le coffre
   PREPARATION_MIN: 4,
   PRESENTATION_MIN: 2,
-  // Dernière mission : adresse où les élèves déposent leur enregistrement (dossier Google Drive, Padlet, Moodle, formulaire…).
+  // Dernière mission : adresse où les étudiants déposent leur enregistrement (dossier Google Drive, Padlet, Moodle, formulaire…).
   // Laisser vide pour cacher le bouton « Déposer ».
   LIEN_DEPOT: "https://digipad.app/p/1969325/81d79e72d91fd8",
   NOM_DEPOT: "le Digipad", // affiché sur le bouton : « Déposer l'enregistrement sur le Digipad »
@@ -2340,16 +2385,16 @@ function carteVol({ avion = null, interactive = false } = {}) {
       <button data-action="zoom-carte" data-z="monde" aria-label="Voir le monde entier">Monde</button></div>` : "";
   return `<div class="carte-wrap">${interactive ? ficheCarte() : ""}${zoom}<div class="carte-cadre${interactive ? " interactive" : ""}"><div class="carte-zone"><svg class="carte-vol" id="${interactive ? "carte-svg" : "carte-vol"}" viewBox="${v.x} ${v.y} ${v.w} ${v.h}" style="--z:${(v.w / 1000).toFixed(3)}" role="img" aria-label="Carte du monde : choisissez une des ${NB_LETTRES} escales au départ de Paris">
     <defs><filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .35  0 0 0 0 .25  0 0 0 0 .12  0 0 0 .22 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
-      <radialGradient id="vieilli" cx="50%" cy="50%" r="75%"><stop offset=".55" stop-color="#8a6f4e" stop-opacity="0"/><stop offset="1" stop-color="#6b4a2a" stop-opacity=".42"/></radialGradient>
-      <pattern id="vagues" width="26" height="14" patternUnits="userSpaceOnUse"><path d="M2 9q4-4 8 0t8 0" fill="none" stroke="#8a6f4e" stroke-width=".7" opacity=".45"/></pattern>
-      <linearGradient id="terre-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dcc79f"/><stop offset="1" stop-color="#cdb184"/></linearGradient></defs>
+      <radialGradient id="vieilli" cx="50%" cy="50%" r="75%"><stop offset=".55" stop-color="#5d7a94" stop-opacity="0"/><stop offset="1" stop-color="#2f4d6b" stop-opacity=".42"/></radialGradient>
+      <pattern id="vagues" width="26" height="14" patternUnits="userSpaceOnUse"><path d="M2 9q4-4 8 0t8 0" fill="none" stroke="#5d7a94" stroke-width=".7" opacity=".45"/></pattern>
+      <linearGradient id="terre-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbe6c0"/><stop offset="1" stop-color="#f3cf8e"/></linearGradient></defs>
     <rect x="0" y="28" width="1000" height="355" class="parchemin"/>
-    ${[[180, 90, 70], [620, 300, 90], [880, 120, 60], [420, 360, 50]].map(([cx, cy, r]) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#a07a4a" opacity=".07"/>`).join("")}
+    ${[[180, 90, 70], [620, 300, 90], [880, 120, 60], [420, 360, 50]].map(([cx, cy, r]) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#4f7a96" opacity=".07"/>`).join("")}
     <rect x="0" y="28" width="1000" height="355" fill="url(#vagues)"/>
     <path class="grille" d="${grille}"/>
     <path class="cote" d="${TERRES_D}"/>
     <path class="terres" d="${TERRES_D}"/>
-    <rect x="0" y="28" width="1000" height="355" filter="url(#grain)" fill="#000"/>
+
     <g class="oceans" aria-hidden="true"><text x="394" y="160">Océan Atlantique</text><text x="740" y="336">Océan Indien</text><text x="140" y="196">Océan Pacifique</text></g>
     <g class="voilier" aria-hidden="true" transform="translate(452 340)"><path d="M-9 4h18l-4 4H-5Z"/><path d="M0 3V-12l8 13Z" opacity=".85"/><path d="M-1 3V-9l-6 11Z" opacity=".6"/></g>
     <g class="rose-vents" aria-hidden="true" transform="translate(78 292)">
@@ -2361,7 +2406,7 @@ function carteVol({ avion = null, interactive = false } = {}) {
       <text x="100" y="19" text-anchor="middle">Le monde francophone</text></g>
     <rect x="2" y="30" width="996" height="351" class="cadre-carte"/>
     <path class="graduations" d="${[...Array(13)].map((_, i) => { const x = i * 1000 / 12; return `M${x} 30v7M${x} 381v-7`; }).join("")}${[...Array(9)].map((_, i) => { const [, y] = proj({ lon: 0, lat: 80 - i * 20 }); return y > 30 && y < 381 ? `M2 ${y}h7M998 ${y}h-7` : ""; }).join("")}"/>
-    <rect x="0" y="28" width="1000" height="355" fill="url(#vieilli)" pointer-events="none"/>
+
     ${routes}
     <g class="paris"><title>Paris · départ</title><circle cx="${px}" cy="${py}" r="9"/><path d="M${px} ${py + 4}l-4.2-4.2a2.4 2.4 0 0 1 4.2-2.6 2.4 2.4 0 0 1 4.2 2.6Z" fill="var(--parch)"/></g>
     ${points}${av}</svg></div></div></div>`;
@@ -2579,12 +2624,12 @@ const introActuelle = () => (ui.mediaAbsent.has("intro-hotesse") ? INTRO_COCKPIT
 /* Au tout début : l'affiche des consignes de vol se déroule (le clic lance aussi la musique d'ambiance),
    on la lit, puis une annonce en cabine présente la vidéo de l'hôtesse, qui démarre après un compte à rebours. */
 const CONSIGNES = [
-  ["Votre mission", `Raoul a disparu. Retrouvez les ${NB} chiffres qui ouvrent son coffre, en ${REGLAGES.DUREE_JEU_MIN} minutes.`],
-  ["L'équipage", "Jouez à 3 ou 4. Chacun reçoit un rôle : lecteur, navigateur, gardien du temps, secrétaire."],
-  ["À chaque escale", "Lisez le document à voix haute, discutez en équipe, puis répondez ensemble aux questions."],
-  ["Une erreur ?", "Aucune pénalité : relisez et réessayez. Votre guide vous offre un indice par escale."],
-  ["Le carnet", "Notez vos découvertes et répondez à « Et chez toi ? » : elles vous serviront pour l'exposé final."],
-  ["La langue du voyage", "Pendant tout le voyage, on parle français !"],
+  ["Votre mission", `Raoul a disparu. Votre groupe embarque pour ${NB_LETTRES} escales francophones : retrouvez les ${NB} chiffres qui ouvrent son coffre, en ${REGLAGES.DUREE_JEU_MIN} minutes.`, "mission"],
+  ["L'équipage", "Voyagez à 3 ou 4. Chacun reçoit un rôle : lecteur, navigateur, gardien du temps, secrétaire.", "equipage"],
+  ["À chaque escale", "Lisez le document à voix haute, discutez en groupe, puis répondez ensemble aux questions.", "escale"],
+  ["Une erreur ?", "Aucune pénalité : relisez et réessayez. Votre guide vous offre un indice par escale.", "erreur"],
+  ["Le carnet de voyage", "Notez vos découvertes et répondez à « Et chez toi ? » : elles nourriront votre exposé comparatif final.", "carnet"],
+  ["La langue du voyage", "Du décollage à l'atterrissage, on échange en français !", "langue"],
 ];
 function afficheHTML() {
   const ouverte = ui.affiche === "ouverte";
@@ -2592,10 +2637,10 @@ function afficheHTML() {
       <div class="affiche${ouverte ? " ouverte" : ""}">
         <span class="affiche-baguette" aria-hidden="true"></span>
         ${ouverte ? `<div class="affiche-corps"><div class="affiche-feuille">
-            <p class="affiche-sur">Compagnie du Passeport francophone</p>
+            <p class="affiche-sur">Compagnie du Passeport francophone · Vol PF 2026</p>
             <h2 class="affiche-titre">Consignes de vol</h2>
-            <p class="affiche-sous">À lire en équipe, avant d'embarquer</p>
-            <ol class="affiche-liste">${CONSIGNES.map(([t, d], i) => `<li style="--i:${i}"><span class="affiche-num" aria-hidden="true">${i + 1}</span><div><strong>${esc(t)}</strong><p>${esc(d)}</p></div></li>`).join("")}</ol>
+            <p class="affiche-sous">Votre groupe part en voyage dans le monde francophone. À lire ensemble avant d'embarquer.</p>
+            <ol class="affiche-liste">${CONSIGNES.map(([t, d, img], i) => `<li style="--i:${i}"><span class="affiche-img"><img src="images/consignes/${img}.jpg" alt="" onerror="this.parentNode.remove()"></span><div class="affiche-txt"><span class="affiche-num" aria-hidden="true">${i + 1}</span><strong>${esc(t)}</strong><p>${esc(d)}</p></div></li>`).join("")}</ol>
             <div class="affiche-pied">
               <p>Vous avez tout lu ? Montez le son : votre hôtesse va vous accueillir en vidéo.</p>
               <button class="btn or" data-action="lire-video">J'ai lu les consignes · place à la vidéo ▶</button>
@@ -3156,7 +3201,7 @@ const OUTILS_MISSION = [
   ["canevas", "Le canevas", "Cinq parties en 2 minutes"],
   ["micro", "S'enregistrer", "Présenter l'exposé au micro"],
   ["autoeval", "S'auto-évaluer", "Réécouter et cocher les critères"],
-  ["bilan", "Le bilan et le brevet", "Terminer le voyage"],
+  ["attestation", "Le bilan et l'attestation", "Terminer le voyage"],
 ];
 function ecranMission() {
   const t = etat.sujetTire;
@@ -3231,8 +3276,8 @@ function ecranMission() {
       ${suite(4)}
     </section>
     <section ${panneau(5)}>
-      <h2>6. Le bilan et le brevet</h2>
-      <p>Votre exposé est présenté et évalué ? Terminez le voyage : vous verrez votre bilan, puis le brevet de l'équipe et celui de chaque élève.</p>
+      <h2>6. Le bilan et l'attestation</h2>
+      <p>Votre exposé est présenté et évalué ? Terminez le voyage : vous verrez votre bilan, puis l'attestation de l'équipe et celle de chaque étudiant(e).</p>
       <div class="rangee"><button class="btn or" data-action="terminer">Terminer le voyage : voir le bilan</button></div>
     </section>
   </div>`;
@@ -3980,7 +4025,7 @@ const MESSAGES_CAPITAINE = {
   saintelucie: "Mesdames et messieurs, ici votre hôtesse. Bienvenue à Sainte-Lucie, au pied des Pitons ! Jocelyne, la conteuse, vous attend à Soufrière. Tendez l'oreille : ici, on parle anglais et créole.",
   comores: "Mesdames et messieurs, ici votre hôtesse. Nous atterrissons à Moroni, aux Comores, les îles aux parfums ! Fatima vous attend parmi les fleurs d'ylang-ylang. Respirez, et lisez bien.",
   coffre: "Ici votre hôtesse. Bravo, chers voyageurs ! Vous avez les " + NB_LETTRES + " chiffres. Direction le coffre : à vous d'ouvrir le Passeport francophone !",
-  fin: "Ici votre hôtesse. Mission accomplie ! Grâce à vous, Raoul est sain et sauf. Toute la compagnie est fière de vous remettre votre brevet de grand voyageur francophone. Félicitations !",
+  fin: "Ici votre hôtesse. Mission accomplie ! Grâce à vous, Raoul est sain et sauf. Toute la compagnie est fière de vous remettre votre attestation de participation. Félicitations !",
 };
 let voixCapitaine = null;
 function capitaineParle(cle, { force = false } = {}) {
@@ -4021,15 +4066,15 @@ function capitaineParle(cle, { force = false } = {}) {
 }
 
 /* =====================================================================
-   BREVET DE GRAND VOYAGEUR · le certificat de fin de mission
+   ATTESTATION DE PARTICIPATION · le document de fin de mission (une pour l'équipe, une par étudiant)
    ===================================================================== */
 const SCEAU = `<svg class="sceau" viewBox="0 0 120 120" aria-hidden="true">
-  <defs><radialGradient id="cire" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#b8692c"/><stop offset=".55" stop-color="#7a3b1c"/><stop offset="1" stop-color="#4a2210"/></radialGradient></defs>
-  <path fill="url(#cire)" d="M60 4c8 0 10 6 17 8s13-1 18 5 1 12 4 18 10 9 9 17-7 9-8 16 4 13-1 19-12 3-18 7-7 11-15 12-10-6-17-6-12 6-18 2-4-11-9-15-13-4-15-12 4-11 3-18-8-11-4-18 10-7 13-13-2-13 4-17 12 1 18-3S52 4 60 4Z"/>
-  <circle cx="60" cy="60" r="38" fill="none" stroke="#e9b46a" stroke-opacity=".55" stroke-width="2"/>
-  <circle cx="60" cy="60" r="31" fill="none" stroke="#e9b46a" stroke-opacity=".35" stroke-width="1" stroke-dasharray="2 3"/>
-  <g transform="translate(60 52) scale(1.9)" fill="#f0c27a" fill-opacity=".9"><path d="${AVION}"/></g>
-  <text x="60" y="86" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="700" font-size="15" fill="#f0c27a" fill-opacity=".9" letter-spacing="2">P · F</text></svg>`;
+  <defs><radialGradient id="cire" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#2fc4bf"/><stop offset=".6" stop-color="#14a3a0"/><stop offset="1" stop-color="#2f5bd3"/></radialGradient></defs>
+  <path fill="url(#cire)" d="${Array.from({ length: 24 }, (_, k) => { const a = k * Math.PI / 12, r = k % 2 ? 52 : 57; return (k ? "L" : "M") + (60 + r * Math.cos(a)).toFixed(1) + " " + (60 + r * Math.sin(a)).toFixed(1); }).join("")}Z"/>
+  <circle cx="60" cy="60" r="41" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="2"/>
+  <circle cx="60" cy="60" r="35" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1" stroke-dasharray="2 3"/>
+  <g transform="translate(60 52) scale(1.9)" fill="#fff"><path d="${AVION}"/></g>
+  <text x="60" y="86" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="700" font-size="15" fill="#fff" letter-spacing="2">P · F</text></svg>`;
 function dateLongue(t) { return new Date(t || Date.now()).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }); }
 // Pour qui est le brevet ? null = l'équipe, sinon l'index de l'élève dans la liste de l'équipage
 function eleves() { return etat.equipe.membres.map((m, i) => ({ nom: m.trim(), i })).filter((x) => x.nom); }
@@ -4040,34 +4085,34 @@ function textesBrevet(pour = ui.brevetPour) {
   const commun = { date: dateLongue(Date.now()), // toujours la date du jour où le brevet est affiché, imprimé ou téléchargé
     infos: [etat.classe ? "Classe " + etat.classe : "", debut ? mmss(duree) + " de jeu" : "", fmtMiles(etat.miles) + " miles"].filter(Boolean).join(" · ") };
   return el ? { ...commun,
-    decerne: "est décerné à l'élève",
+    decerne: "Nous attestons que l'étudiant(e)",
     nom: el.nom,
     sous: `membre de l'équipe « ${etat.equipe.nom || "Les voyageurs"} »${roles.length ? " · " + roles.join(" et ").toLowerCase() : ""}`,
-    motif: `pour avoir traversé avec son équipe ${NB_LETTRES} communautés francophones, comparé leurs cultures avec la sienne et contribué à ouvrir le coffre du Passeport francophone.`,
+    motif: `a participé à l'escape game pédagogique « Le Passeport francophone » : exploration de ${NB_LETTRES} communautés francophones, comparaison interculturelle avec sa propre communauté et exposé oral en français.`,
     fichier: el.nom,
   } : { ...commun,
-    decerne: "est décerné à l'équipe",
+    decerne: "Nous attestons que l'équipe",
     nom: etat.equipe.nom || "Les voyageurs",
     sous: membresInscrits().join(" · "),
-    motif: `pour avoir traversé ${NB_LETTRES} communautés francophones, du Québec aux Comores, comparé leurs cultures avec la sienne et ouvert le coffre du Passeport francophone.`,
+    motif: `a mené à bien l'escape game pédagogique « Le Passeport francophone » : exploration de ${NB_LETTRES} communautés francophones, du Québec aux Comores, comparaison interculturelle et exposé oral en français.`,
     fichier: "equipe-" + (etat.equipe.nom || "voyageurs"),
   };
 }
 function brevetHTML({ anime = false } = {}) {
   const t = textesBrevet(), liste = eleves();
-  const choix = liste.length ? `<div class="brevet-choix" role="group" aria-label="Choisir le brevet">
-      <button class="puce-choix" data-action="brevet-pour" data-i="" aria-pressed="${ui.brevetPour == null}">Brevet de l'équipe</button>
+  const choix = liste.length ? `<div class="brevet-choix" role="group" aria-label="Choisir l'attestation">
+      <button class="puce-choix" data-action="brevet-pour" data-i="" aria-pressed="${ui.brevetPour == null}">Attestation de l'équipe</button>
       ${liste.map((x) => `<button class="puce-choix" data-action="brevet-pour" data-i="${x.i}" aria-pressed="${ui.brevetPour === x.i}">${esc(x.nom)}</button>`).join("")}
     </div>
-    <p class="doux petit" style="text-align:center;margin:0">Commencez par le brevet de l'équipe, puis chaque élève peut afficher, imprimer ou télécharger son brevet personnel.</p>` : "";
+    <p class="doux petit" style="text-align:center;margin:0">Commencez par l'attestation de l'équipe, puis chaque étudiant(e) peut afficher, imprimer ou télécharger son attestation personnelle.</p>` : "";
   return `<section class="page brevet-zone">
-      <span class="etiquette">Votre récompense · à imprimer ou à télécharger</span>
+      <span class="etiquette">Votre attestation · à imprimer ou à télécharger</span>
       ${choix}
       <div class="brevet${anime ? " deroule" : ""}" id="brevet">
-        <img class="brevet-fond" src="images/certificat.jpg" alt="" onerror="this.remove()">
+        <span class="att-filet" aria-hidden="true"></span><span class="att-coin" aria-hidden="true"></span>
         <div class="brevet-texte">
-          <p class="brevet-sur">Compagnie du Passeport francophone</p>
-          <h2 class="brevet-titre">Brevet de Grand Voyageur francophone</h2>
+          <p class="brevet-sur">Le Passeport francophone · Escape game de français</p>
+          <h2 class="brevet-titre">Attestation de participation</h2>
           <p class="brevet-decerne">${t.decerne}</p>
           <p class="brevet-equipe">${esc(t.nom)}</p>
           <p class="brevet-membres">${esc(t.sous)}</p>
@@ -4081,28 +4126,30 @@ function brevetHTML({ anime = false } = {}) {
         <div class="brevet-sceau">${SCEAU}</div>
       </div>
       <div class="rangee" style="justify-content:center">
-        <button class="btn or" data-action="telecharger-brevet">Télécharger ce brevet (image)</button>
-        <button class="btn second" data-action="imprimer-brevet">Imprimer ce brevet</button>
+        <button class="btn or" data-action="telecharger-brevet">Télécharger cette attestation (image)</button>
+        <button class="btn second" data-action="imprimer-brevet">Imprimer cette attestation</button>
         <button class="btn second" data-action="ecouter-capitaine-fin">▶ Le mot de l'hôtesse</button>
       </div>
     </section>`;
 }
-// Image du brevet (PNG 1800 × 1200) dessinée dans un canevas, pour la garder ou l'envoyer
+// Image de l'attestation (PNG 1800 × 1200) dessinée dans un canevas, pour la garder ou l'envoyer
 async function dessinerBrevet() {
   const W = 1800, H = 1200, c = document.createElement("canvas"); c.width = W; c.height = H;
   const x = c.getContext("2d");
   const charge = (src) => new Promise((ok) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; });
   try { await Promise.all(["700 80px Fraunces", "500 40px Fraunces", "italic 400 30px 'Atkinson Hyperlegible'", "700 30px 'Atkinson Hyperlegible'"].map((f) => document.fonts.load(f))); } catch (e) {}
-  const fond = await charge("images/certificat.jpg");
-  if (fond) x.drawImage(fond, 0, 0, W, H); else { x.fillStyle = "#f6ecd9"; x.fillRect(0, 0, W, H); }
-  const encre = "#3b2414", or = "#8a5a1f", cx = W / 2;
+  x.fillStyle = "#fff"; x.fillRect(0, 0, W, H);
+  const bande = x.createLinearGradient(0, 0, W, 0); [["0", "#14a3a0"], [".35", "#2f5bd3"], [".68", "#f5b82e"], ["1", "#f2643d"]].forEach(([o, c]) => bande.addColorStop(+o, c));
+  x.fillStyle = bande; x.fillRect(0, 0, W, 42);
+  x.strokeStyle = "#d8e2ea"; x.lineWidth = 2; x.strokeRect(54, 80, W - 108, H - 134);
+  const encre = "#14283d", or = "#0b7c86", cx = W / 2;
   const ligne = (t, y, font, couleur = encre, max = 1120) => { x.font = font; x.fillStyle = couleur; x.textAlign = "center"; x.fillText(t, cx, y, max); };
   const coupe = (t, font, max) => { x.font = font; const mots = t.split(" "), l = []; let cur = ""; for (const m of mots) { const essai = cur ? cur + " " + m : m; if (x.measureText(essai).width > max && cur) { l.push(cur); cur = m; } else cur = essai; } if (cur) l.push(cur); return l; };
   const T = textesBrevet();
-  ligne("COMPAGNIE DU PASSEPORT FRANCOPHONE", 190, "700 25px 'Atkinson Hyperlegible', sans-serif", or);
-  ligne("Brevet de Grand Voyageur francophone", 278, "700 70px Fraunces, Georgia, serif");
-  ligne(T.decerne, 342, "italic 400 31px 'Atkinson Hyperlegible', sans-serif", or);
-  ligne(T.nom, 432, "700 84px Fraunces, Georgia, serif", "#7a3b1c");
+  ligne("LE PASSEPORT FRANCOPHONE · ESCAPE GAME DE FRANÇAIS", 190, "700 25px 'Atkinson Hyperlegible', sans-serif", or);
+  ligne("Attestation de participation", 278, "700 78px Fraunces, Georgia, serif");
+  ligne(T.decerne, 342, "400 31px 'Atkinson Hyperlegible', sans-serif", "#4a6072");
+  ligne(T.nom, 432, "700 84px Fraunces, Georgia, serif", "#2f5bd3");
   ligne(T.sous, 498, "500 33px Fraunces, Georgia, serif");
   const motif = T.motif;
   coupe(motif, "400 28px 'Atkinson Hyperlegible', sans-serif", 1000).forEach((l, i) => ligne(l, 562 + i * 38, "400 28px 'Atkinson Hyperlegible', sans-serif"));
@@ -4110,14 +4157,13 @@ async function dessinerBrevet() {
   const images = await Promise.all(ESCALES.map((e) => charge("data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 40" width="180" height="120">${DRAPEAUX[e.id] || ""}</svg>`))));
   ESCALES.forEach((e, i) => {
     const pasT = Math.min(124, 940 / NB), r = Math.min(42, pasT * .36), px = cx + (i - (NB - 1) / 2) * pasT, py = 722;
-    x.save(); x.translate(px, py); x.rotate((i % 2 ? 1 : -1) * 0.12);
+    x.save(); x.translate(px, py);
     x.beginPath(); x.arc(0, 0, r, 0, Math.PI * 2); x.clip();
     if (images[i]) x.drawImage(images[i], -r * 1.5, -r, r * 3, r * 2);
     else e.drapeau.forEach((col, k, t) => { x.fillStyle = col; x.fillRect(-r + (2 * r / t.length) * k, -r, 2 * r / t.length + 1, 2 * r); });
     x.restore();
-    x.save(); x.translate(px, py); x.rotate((i % 2 ? 1 : -1) * 0.12);
-    x.beginPath(); x.arc(0, 0, r, 0, Math.PI * 2); x.lineWidth = 5; x.strokeStyle = e.teinte || e.couleur; x.stroke();
-    x.beginPath(); x.arc(0, 0, r - 9, 0, Math.PI * 2); x.lineWidth = 1.5; x.setLineDash([4, 4]); x.strokeStyle = "rgba(255,255,255,.8)"; x.stroke();
+    x.save(); x.translate(px, py);
+    x.beginPath(); x.arc(0, 0, r, 0, Math.PI * 2); x.lineWidth = 4; x.strokeStyle = "#d8e2ea"; x.stroke();
     x.restore();
     x.font = "700 19px 'Atkinson Hyperlegible', sans-serif"; x.fillStyle = encre; x.textAlign = "center"; x.fillText(e.nom, px, py + r + 26);
   });
@@ -4125,9 +4171,9 @@ async function dessinerBrevet() {
   x.fillText("Fait le " + T.date, 470, 868); x.fillText(T.infos, 470, 902, 560);
   x.textAlign = "center"; x.font = "400 21px 'Atkinson Hyperlegible', sans-serif"; x.fillStyle = or; x.fillText("Signature de l'enseignant(e)", 1220, 910);
   x.strokeStyle = or; x.lineWidth = 2; x.setLineDash([]); x.beginPath(); x.moveTo(1090, 885); x.lineTo(1350, 885); x.stroke();
-  // Le sceau de cire (dessiné à partir du même SVG que la page)
+  // Le badge (dessiné à partir du même SVG que la page)
   const sceau = await charge("data:image/svg+xml;charset=utf-8," + encodeURIComponent(SCEAU.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" ')));
-  if (sceau) { x.save(); x.translate(1520, 920); x.rotate(-0.18); x.drawImage(sceau, -115, -115, 230, 230); x.restore(); }
+  if (sceau) { x.save(); x.translate(1560, 950); x.rotate(-0.18); x.drawImage(sceau, -100, -100, 200, 200); x.restore(); }
   return c;
 }
 
@@ -4197,7 +4243,7 @@ function tableauClasseHTML() {
         <td class="num">${duree(l)}</td>
         <td>${l.fin ? `<span class="etat-pill ok">Mission accomplie</span>` : `<span class="etat-pill">En vol</span>`}</td></tr>`).join("")}</tbody>
     </table></div>` : `<p class="doux">Aucune équipe n'a encore décollé${supabaseActif ? "" : " sur ce poste"}.</p>`}
-    <p class="doux petit">Classement : coffre ouvert, puis nombre de tampons, puis miles. Pour séparer les groupes, donnez aux élèves le lien avec <code>?classe=1A</code> à la fin.</p>`;
+    <p class="doux petit">Classement : coffre ouvert, puis nombre de tampons, puis miles. Pour séparer les groupes, donnez aux étudiants le lien avec <code>?classe=1A</code> à la fin.</p>`;
 }
 
 /* =====================================================================
@@ -4430,7 +4476,7 @@ const actions = {
     if (nbTampons() < NB) return;
     if (code.length < NB) { ui.coffreMsg = `Il faut ${NB_LETTRES} chiffres, un par escale.`; son.faux(); afficher(); return; }
     if (code === CODE_COFFRE) { ui.coffreMsg = null; son.coffre(); ui.coffreAnime = true; maj({ coffreOuvert: true, coffreEssais: etat.coffreEssais + 1 }); setTimeout(() => confettis({ nombre: 160, origine: centreDe(".serrure") }), 300);
-      setTimeout(() => { gagnerMiles(500, centreDe(".serrure"), "Coffre ouvert !"); popup({ titre: "Le coffre s'ouvre !", texte: "Il vous reste une dernière mission avant le brevet de Grand Voyageur.", icone: PICTO_AVION, duree: 5500 }); }, 900); }
+      setTimeout(() => { gagnerMiles(500, centreDe(".serrure"), "Coffre ouvert !"); popup({ titre: "Le coffre s'ouvre !", texte: "Il vous reste une dernière mission avant votre attestation.", icone: PICTO_AVION, duree: 5500 }); }, 900); }
     else {
       son.faux();
       ui.coffreMsg = nbTampons() < NB
@@ -4447,7 +4493,7 @@ const actions = {
     aller("bilan", etat.finJeu ? {} : { finJeu: Date.now() });
     window.scrollTo({ top: 0 });
     setTimeout(() => confettis({ couleurs: ESCALES.flatMap((x) => x.drapeau).filter((c) => c !== "#ffffff"), nombre: 200 }), 200);
-    // Le brevet se déroule, le sceau de cire tombe, puis l'hôtesse prend la parole
+    // L'attestation apparaît, le badge se pose, puis l'hôtesse prend la parole
     setTimeout(() => son.tampon(), 1650);
     setTimeout(() => { ui.brevetAnime = false; capitaineParle("fin"); }, 2700);
   },
@@ -4457,11 +4503,11 @@ const actions = {
       const c = await dessinerBrevet();
       const nom = textesBrevet().fichier.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
       c.toBlob((blob) => {
-        const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `brevet-grand-voyageur-${nom || "equipe"}.png`;
+        const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `attestation-passeport-francophone-${nom || "equipe"}.png`;
         document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-        popup({ titre: "Brevet téléchargé !", texte: "Retrouvez l'image dans le dossier Téléchargements.", icone: PICTO_AVION });
+        popup({ titre: "Attestation téléchargée !", texte: "Retrouvez l'image dans le dossier Téléchargements.", icone: PICTO_AVION });
       }, "image/png");
-    } catch (e) { popup({ titre: "Téléchargement impossible", texte: "Utilisez « Imprimer le brevet » à la place.", ton: "urgent" }); }
+    } catch (e) { popup({ titre: "Téléchargement impossible", texte: "Utilisez « Imprimer cette attestation » à la place.", ton: "urgent" }); }
     b.disabled = false; b.textContent = t;
   },
   "brevet-pour"(b) { ui.brevetPour = b.dataset.i === "" ? null : +b.dataset.i; ui.brevetAnime = true; afficher(); setTimeout(() => { ui.brevetAnime = false; }, 1800); },
