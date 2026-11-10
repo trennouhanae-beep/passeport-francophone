@@ -3546,7 +3546,7 @@ function ecranEnseignante() {
     <section class="page">
       <h2>Avant l'usage en classe</h2>
       <ul class="regles">
-        <li>Faire valider les contenus culturels et les lexiques des autres escales (la Martinique et le Maroc, carte de Yasmine comprise, sont validés).</li>
+        <li>Faire valider les contenus culturels et les lexiques des autres escales (la Martinique et le Maroc sont validés).</li>
         <li>Remplacer les documents de travail par des documents authentiques (textes, images, audios).</li>
         <li>Sans Supabase, les progrès sont gardés seulement dans le navigateur utilisé : une équipe par poste.</li>
         <li>Changer le code de cet espace dans les réglages du fichier (il est visible dans le code source).</li>
@@ -3732,6 +3732,10 @@ const CARTES_PAYS = {
     ],
   },
 };
+// La carte d'exploration du Maroc est retirée du jeu (novembre 2026) : l'escale suit le même parcours que les autres,
+// et le quiz n'est plus verrouillé. Pour la remettre, passez CARTE_MAROC_ACTIVE à true.
+const CARTE_MAROC_ACTIVE = false;
+if (!CARTE_MAROC_ACTIVE) delete CARTES_PAYS.maroc;
 const lieuxExplores = (e) => (etat.escales[e.id].lieux || []).length;
 const carteDebloquee = (e) => !CARTES_PAYS[e.id] || lieuxExplores(e) >= CARTES_PAYS[e.id].seuil;
 function projLieu(g, [lon, lat]) { return [(lon - g.LON0) * g.C * g.K, (g.LAT1 - lat) * g.K]; }
