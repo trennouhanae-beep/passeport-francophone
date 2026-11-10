@@ -1306,7 +1306,10 @@ main.livret { border-radius: 8px 20px 20px 8px; }
 .affiche-liste { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(14px, 2.4vw, 24px); margin-top: 8px; }
 .affiche-liste li { display: grid; gap: 10px; align-content: start; }
 .affiche-img { display: block; aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: var(--papier-2); box-shadow: 0 10px 22px -14px rgba(16, 34, 77, .55); }
+.affiche-img { position: relative; }
 .affiche-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s ease; }
+.affiche-img video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+@media (prefers-reduced-motion: reduce) { .affiche-img video { display: none; } }
 .affiche-liste li:hover .affiche-img img { transform: scale(1.04); }
 .affiche-txt { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; align-items: center; }
 .affiche-txt p { grid-column: 1 / -1; color: var(--encre-douce); font-size: .95rem; }
@@ -2681,6 +2684,8 @@ const CONSIGNES = [
   ["Le carnet de voyage", "Notez vos découvertes et répondez à « Et chez toi ? » : elles nourriront votre exposé comparatif final.", "carnet"],
   ["La langue du voyage", "Du décollage à l'atterrissage, on échange en français !", "langue"],
 ];
+// Tuiles de l'affiche dont l'image est animée (vidéo courte en boucle, sans son, dans videos/consignes/)
+const CONSIGNES_ANIMEES = ["mission"];
 function afficheHTML() {
   const ouverte = ui.affiche === "ouverte";
   return `<div class="colonne"><section class="affiche-zone" aria-label="Consignes de vol">
@@ -2690,7 +2695,7 @@ function afficheHTML() {
             <p class="affiche-sur">Compagnie du Passeport francophone · Vol PF 2026</p>
             <h2 class="affiche-titre">Consignes de vol</h2>
             <p class="affiche-sous">Votre groupe part en voyage dans le monde francophone. À lire ensemble avant d'embarquer.</p>
-            <ol class="affiche-liste">${CONSIGNES.map(([t, d, img], i) => `<li style="--i:${i}"><span class="affiche-img"><img src="images/consignes/${img}.jpg" alt="" onerror="this.parentNode.remove()"></span><div class="affiche-txt"><span class="affiche-num" aria-hidden="true">${i + 1}</span><strong>${esc(t)}</strong><p>${esc(d)}</p></div></li>`).join("")}</ol>
+            <ol class="affiche-liste">${CONSIGNES.map(([t, d, img], i) => `<li style="--i:${i}"><span class="affiche-img"><img src="images/consignes/${img}.jpg" alt="" onerror="this.parentNode.remove()">${CONSIGNES_ANIMEES.includes(img) ? `<video src="videos/consignes/${img}.mp4" poster="images/consignes/${img}.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true" onerror="this.remove()"></video>` : ""}</span><div class="affiche-txt"><span class="affiche-num" aria-hidden="true">${i + 1}</span><strong>${esc(t)}</strong><p>${esc(d)}</p></div></li>`).join("")}</ol>
             <div class="affiche-pied">
               <p>Vous avez tout lu ? Montez le son : votre hôtesse va vous accueillir en vidéo.</p>
               <button class="btn or" data-action="lire-video">J'ai lu les consignes · place à la vidéo ▶</button>
