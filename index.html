@@ -373,7 +373,7 @@ details[open] summary { margin-bottom: 12px; }
 /* Dernière mission : la boîte à outils, une grille de tuiles numérotées (une tuile = un outil) */
 .boite-outils { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 2.4vw, 22px); margin-top: 6px; }
 .tuile-outil { display: grid; gap: 8px; align-content: start; text-align: left; padding: 0; border: 0; background: none; cursor: pointer; color: inherit; font: inherit; }
-.tu-photo { position: relative; display: grid; place-items: center; aspect-ratio: 1; border-radius: 6px; overflow: hidden; background: linear-gradient(150deg, #c98a3a, #7a3b1c);
+.tu-photo { position: relative; display: grid; place-items: center; aspect-ratio: 1; border-radius: 14px; overflow: hidden; background: linear-gradient(150deg, #1fb5a8, #f2643d);
   box-shadow: 0 2px 0 rgba(255, 255, 255, .7) inset, 0 6px 14px rgba(74, 44, 20, .22); outline: 3px solid transparent; outline-offset: 3px; transition: transform .18s, outline-color .18s, box-shadow .18s; }
 .tu-photo b { font-family: var(--f-titre); font-size: clamp(2rem, 7vw, 3.4rem); color: rgba(255, 255, 255, .85); }
 .tu-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -386,6 +386,13 @@ details[open] summary { margin-bottom: 12px; }
 .tuile-outil.sel .tu-titre { color: #7a3b1c; }
 .outil-panneau { scroll-margin-top: 96px; }
 .outil-panneau.ferme { display: none; }
+/* Les minuteurs sont rangés dans leur outil (préparation dans l'outil 2, présentation dans l'outil 4), en version compacte */
+.outil-panneau .minuteur { grid-template-columns: auto auto 1fr; align-items: center; justify-items: start; text-align: left; padding: 10px 16px; gap: 6px 16px; }
+.outil-panneau .minuteur .temps { font-size: clamp(1.6rem, 5vw, 2.1rem); }
+.outil-panneau .minuteur .phase { grid-column: 1 / -1; grid-row: 2; }
+.outil-panneau .minuteur .phase:empty { display: none; }
+.outil-panneau .minuteur .rangee { grid-row: 1; grid-column: 3; justify-content: flex-end !important; justify-self: end; }
+@media (max-width: 560px) { .outil-panneau .minuteur { grid-template-columns: 1fr; justify-items: center; text-align: center; } .outil-panneau .minuteur .rangee { justify-self: center; grid-row: auto; grid-column: auto; } .outil-panneau .minuteur .phase { grid-row: auto; } }
 .outil-suite { justify-content: flex-end; margin-top: 4px; }
 @media (max-width: 560px) { .boite-outils { grid-template-columns: repeat(2, minmax(0, 1fr)); } .tu-sous { display: none; } }
 @media (prefers-reduced-motion: reduce) { .tu-photo { transition: none; } }
@@ -3182,7 +3189,6 @@ function ecranMission() {
       <p class="doux">Six outils, dans l'ordre. Cliquez sur une tuile pour ouvrir l'outil ; une coche verte marque ce qui est fait.</p>
       <div class="boite-outils" role="group" aria-label="La boîte à outils de la mission">${tuiles}</div>
     </section>
-    <section class="minuteurs">${minuteurHTML("prep", "Préparation")}${minuteurHTML("pres", "Présentation")}</section>
     <section ${panneau(0)}>
       <h2>1. Le sujet</h2>
       <p class="doux">Choisissez un sujet ou tirez-le au sort.</p>
@@ -3192,6 +3198,7 @@ function ecranMission() {
     </section>
     <section ${panneau(1)}>
       <h2>2. La fiche de préparation</h2>
+      ${minuteurHTML("prep", "Préparation")}
       <div class="choix-escale" role="group" aria-label="Communauté francophone comparée">
         ${ESCALES.map((e) => `<button style="--c:${e.couleur}" data-action="choisir-comparaison" data-id="${e.id}" aria-pressed="${p.escale === e.id}">${esc(e.nom)}</button>`).join("")}
       </div>
@@ -3212,10 +3219,10 @@ function ecranMission() {
         <thead><tr><th>Partie</th><th>Durée</th><th>Contenu</th></tr></thead>
         <tbody>${CANEVAS.map(([pa, d, c], k) => `<tr id="canevas-${k}"><td><strong>${esc(pa)}</strong></td><td class="num">${d}</td><td>${esc(c)}</td></tr>`).join("")}</tbody>
       </table></div>
-      <p class="avis">Pendant les ${REGLAGES.PRESENTATION_MIN} minutes de présentation, le minuteur « Présentation » surligne la partie du canevas en cours.</p>
+      <p class="avis">Pendant les ${REGLAGES.PRESENTATION_MIN} minutes de présentation, le minuteur « Présentation » (outil 4) surligne la partie du canevas en cours.</p>
       ${suite(2)}
     </section>
-    <section ${panneau(3)}><div id="enregistrement" style="display:grid;gap:inherit">${enregistrementHTML()}</div>${suite(3)}</section>
+    <section ${panneau(3)}><h2>4. L'enregistrement</h2>${minuteurHTML("pres", "Présentation")}<div id="enregistrement" style="display:grid;gap:inherit">${enregistrementHTML()}</div>${suite(3)}</section>
     <section ${panneau(4)}>
       <h2>5. Auto-évaluation</h2>
       <p class="doux">Après l'exposé, écoutez l'enregistrement et cochez ce qui est réussi.</p>
@@ -3313,7 +3320,7 @@ function enregistrementHTML() {
   else corps = `${enreg.etat === "erreur" ? `<p class="msg-coffre" role="alert">${esc(enreg.msg)}</p>${vocaroo}` : ""}
       <p class="doux">Le micro de l'ordinateur enregistre l'exposé. Le minuteur « Présentation » démarre en même temps. Le fichier reste sur cet ordinateur : rien n'est envoyé en ligne.</p>
       <div><button class="btn or" data-action="enreg-go">● Démarrer l'enregistrement</button></div>${enreg.etat === "erreur" ? "" : petitVocaroo}`;
-  return `<h2>4. L'enregistrement</h2>${corps}${depot}`;
+  return `${corps}${depot}`;
 }
 function majEnregistrement() { const s = document.getElementById("enregistrement"); if (s) s.innerHTML = enregistrementHTML(); }
 async function demarrerEnregistrement() {
