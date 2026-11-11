@@ -1419,6 +1419,63 @@ main.livret { border-radius: 8px 20px 20px 8px; }
 .vv-etoiles i { font-style: normal; color: var(--trait); }
 .miles small { white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { .vp-rayons, .vp-etoile.gagnee, .vp-gain, .succes-pop, .succes-pop::after { animation: none !important; } }
+/* =====================================================================
+   QUIZ FAÇON KAHOOT : tuiles colorées à formes, chrono par question, séries ; podium de la classe
+   ===================================================================== */
+.quiz-k .options { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.quiz-k .option { --k: #2f5bd3; min-height: 74px; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 12px; padding: 12px 14px; border: 0; border-radius: 14px; color: #fff; font-weight: 700; font-size: 1.02rem; line-height: 1.3;
+  background: var(--k); box-shadow: 0 5px 0 color-mix(in srgb, var(--k) 70%, #000); transition: transform .1s, box-shadow .1s, filter .15s, opacity .2s; }
+.quiz-k .option:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-2px); box-shadow: 0 7px 0 color-mix(in srgb, var(--k) 70%, #000); border: 0; }
+.quiz-k .option:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 color-mix(in srgb, var(--k) 70%, #000); }
+/* Trois couleurs de réponse : jaune, bleu ciel, vert (pas de rouge, qui évoque l'erreur) */
+.quiz-k .option.k0 { --k: #e0a400; } .quiz-k .option.k1 { --k: #1f9fe0; } .quiz-k .option.k2 { --k: #2e9e4f; } .quiz-k .option.k3 { --k: #14a3a0; }
+.quiz-k .option .forme { width: 34px; height: 34px; display: grid; place-items: center; }
+.quiz-k .option .forme svg { width: 28px; height: 28px; fill: #fff; filter: drop-shadow(0 1px 0 rgba(0, 0, 0, .25)); }
+.quiz-k .option .marque-etat { color: #fff !important; font-family: var(--f-texte); font-size: 1.3rem; }
+.quiz-k .option.juste { outline: 4px solid #fff; outline-offset: -4px; box-shadow: 0 0 0 4px #1f9d55, 0 5px 0 #146b39; }
+.quiz-k .option.faux { opacity: .55; filter: saturate(.6); }
+.quiz-k .question.resolue .option:not(.juste) { opacity: .35; filter: grayscale(.4); }
+.quiz-k .option:disabled { cursor: default; }
+@media (max-width: 520px) { .quiz-k .options { grid-template-columns: minmax(0, 1fr); } .quiz-k .option { min-height: 58px; } }
+/* Le chrono de la question : la barre fond en 20 secondes ; tant qu'elle n'est pas vide, la bonne réponse rapporte un bonus */
+.chrono-q { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; font-size: .85rem; color: var(--encre-douce); }
+.chrono-q .barre { height: 10px; border-radius: 999px; background: var(--papier-2); overflow: hidden; }
+.chrono-q .barre i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #2e9e4f, #1f9fe0 55%, #e0a400); transform-origin: left; animation: chrono-q var(--d, 20s) linear forwards; animation-delay: var(--t0, 0s); }
+@keyframes chrono-q { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+.chrono-q b { font-family: var(--f-code); color: var(--encre); min-width: 2.2em; text-align: right; }
+.chrono-q.fini .barre i { animation: none; transform: scaleX(0); }
+/* Série de bonnes réponses : une flamme qui grossit */
+.serie-pop { position: fixed; z-index: 93; left: 50%; bottom: 96px; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; padding: 10px 20px 10px 14px; border-radius: 999px;
+  background: linear-gradient(90deg, #ff7a1a, #e21b3c); color: #fff; font-family: var(--f-titre); font-weight: 700; font-size: 1.25rem; box-shadow: 0 14px 30px -10px rgba(226, 27, 60, .7); animation: serie-entre .9s cubic-bezier(.2, 1.7, .4, 1) both; pointer-events: none; }
+.serie-pop svg { width: 30px; height: 30px; fill: #ffd27a; animation: flamme .35s ease-in-out infinite alternate; }
+.serie-pop small { font-family: var(--f-texte); font-weight: 400; font-size: .85rem; opacity: .9; }
+@keyframes serie-entre { 0% { opacity: 0; transform: translate(-50%, 30px) scale(.6); } 15% { opacity: 1; transform: translate(-50%, 0) scale(1.08); } 25% { transform: translate(-50%, 0) scale(1); } 85% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -20px); } }
+@keyframes flamme { from { transform: scale(1) rotate(-4deg); } to { transform: scale(1.15) rotate(4deg); } }
+.serie-barre { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; background: linear-gradient(90deg, #ff7a1a, #e21b3c); color: #fff; font-weight: 700; font-size: .85rem; }
+.serie-barre svg { width: 14px; height: 14px; fill: #ffd27a; }
+/* Podium de la classe : plein écran, à projeter */
+.podium-ecran { position: fixed; inset: 0; z-index: 120; overflow: auto; display: grid; grid-template-rows: auto 1fr auto; gap: 18px; padding: clamp(16px, 3vw, 36px);
+  background: radial-gradient(1200px 700px at 50% 0%, #2f5bd3, #14284a 60%, #0b1830); color: #fff; animation: fondu .4s ease both; }
+.podium-tete { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.podium-tete h2 { font-size: clamp(1.8rem, 4.5vw, 3rem); color: #ffd27a; }
+.podium-tete .rangee .btn.second { color: #fff; border-color: rgba(255, 255, 255, .4); }
+.podium-scene { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; gap: clamp(8px, 2vw, 22px); max-width: 980px; width: 100%; margin: 0 auto; }
+.marche { display: grid; justify-items: center; gap: 10px; text-align: center; animation: marche-monte .8s cubic-bezier(.2, 1.4, .4, 1) both; }
+.marche.p1 { order: 2; animation-delay: 1.4s; } .marche.p2 { order: 1; animation-delay: .8s; } .marche.p3 { order: 3; animation-delay: .3s; }
+@keyframes marche-monte { from { opacity: 0; transform: translateY(80px); } to { opacity: 1; transform: none; } }
+.marche .nom { font-family: var(--f-titre); font-weight: 700; font-size: clamp(1.1rem, 2.6vw, 1.8rem); line-height: 1.1; }
+.marche .detail { font-size: .95rem; opacity: .85; }
+.marche .bloc { width: 100%; display: grid; place-items: start center; padding-top: 16px; border-radius: 14px 14px 0 0; font-family: var(--f-titre); font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 700; color: rgba(255, 255, 255, .92);
+  background: linear-gradient(180deg, var(--m), color-mix(in srgb, var(--m) 65%, #000)); box-shadow: inset 0 3px 0 rgba(255, 255, 255, .3); }
+.marche.p1 { --m: #f5b82e; } .marche.p2 { --m: #9fb3c8; } .marche.p3 { --m: #d9824a; }
+.marche.p1 .bloc { height: clamp(150px, 26vh, 260px); } .marche.p2 .bloc { height: clamp(110px, 19vh, 190px); } .marche.p3 .bloc { height: clamp(80px, 14vh, 140px); }
+.marche .couronne { font-size: 2.4rem; line-height: 1; animation: flamme .6s ease-in-out infinite alternate; }
+.podium-liste { max-width: 980px; width: 100%; margin: 0 auto; display: grid; gap: 8px; }
+.podium-ligne { display: grid; grid-template-columns: 3em minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 10px 16px; border-radius: 12px; background: rgba(255, 255, 255, .1); animation: monter .5s ease both; animation-delay: calc(1.8s + var(--i) * .08s); }
+.podium-ligne b { font-family: var(--f-code); font-size: 1.1rem; }
+.podium-ligne .num { font-family: var(--f-code); }
+.podium-vide { text-align: center; opacity: .85; align-self: center; }
+@media (prefers-reduced-motion: reduce) { .marche, .podium-ligne, .serie-pop, .chrono-q .barre i { animation: none !important; } }
 </style>
 </head>
 <body>
@@ -1874,6 +1931,8 @@ function etatInitial() {
     capitaine: [],         // annonces de l'hôtesse déjà entendues
     etapes: [],            // étapes du jeu déjà annoncées par la carte d'étape
     badges: [],            // succès débloqués (pop-up de jeu)
+    serie: 0,              // bonnes réponses du premier coup à la suite (quiz)
+    serieMax: 0,
   };
 }
 function charger() {
@@ -2746,7 +2805,7 @@ const CONSIGNES = [
   ["La langue du voyage", "Du décollage à l'atterrissage, on échange en français !", "langue"],
 ];
 // Tuiles de l'affiche dont l'image est animée (vidéo courte en boucle, sans son, dans videos/consignes/)
-const CONSIGNES_ANIMEES = ["mission", "equipage", "escale", "erreur", "carnet", "langue"];
+const CONSIGNES_ANIMEES = []; // vidéos en cours de régénération dans le style jeu vidéo
 function afficheHTML() {
   const ouverte = ui.affiche === "ouverte";
   return `<div class="colonne"><section class="affiche-zone" aria-label="Consignes de vol">
@@ -3141,6 +3200,36 @@ function apresVol(t) {
   ALBUMS[t.vers].forEach((_, i) => setTimeout(() => { if (ui.transit === t) son.photo(); }, 250 + i * 320));
 }
 
+/* Quiz façon Kahoot : quatre couleurs, quatre formes ; un chrono de 20 s par question.
+   Pas de pénalité : le chrono ne fait que donner un bonus de rapidité, on peut toujours répondre après. */
+const FORMES_K = [
+  '<svg viewBox="0 0 24 24"><path d="M12 3 22 20H2z"/></svg>',
+  '<svg viewBox="0 0 24 24"><path d="M12 2 22 12 12 22 2 12z"/></svg>',
+  '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>',
+  '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>',
+];
+const CHRONO_Q = 20;
+const FLAMME = '<svg viewBox="0 0 24 24"><path d="M12 2c1 4 5 5.5 5 11a5 5 0 0 1-10 0c0-2.5 1.2-3.8 2.2-4.8C9.5 10 10 11.5 11 12c0-3 .2-6.5 1-10z"/></svg>';
+function chronoQuestionHTML(e, i) {
+  const cle = e.id + ":" + i; ui.chronoQ = ui.chronoQ || {};
+  if (!ui.chronoQ[cle]) ui.chronoQ[cle] = Date.now();
+  const ecoule = (Date.now() - ui.chronoQ[cle]) / 1000, reste = Math.max(0, CHRONO_Q - ecoule);
+  return `<div class="chrono-q${reste <= 0 ? " fini" : ""}" data-cle="${cle}" aria-hidden="true"><span>Bonus rapidité</span>
+      <span class="barre"><i style="--d:${CHRONO_Q}s;--t0:-${ecoule.toFixed(2)}s"></i></span><b>${Math.ceil(reste)} s</b></div>`;
+}
+// Le compteur des secondes tourne tout seul (la barre est animée en CSS)
+setInterval(() => document.querySelectorAll(".chrono-q:not(.fini)").forEach((c) => {
+  const t0 = ui.chronoQ && ui.chronoQ[c.dataset.cle]; if (!t0) return;
+  const reste = Math.max(0, CHRONO_Q - (Date.now() - t0) / 1000);
+  c.querySelector("b").textContent = Math.ceil(reste) + " s";
+  if (reste <= 0) { c.classList.add("fini"); c.querySelector("span").textContent = "Prenez votre temps"; }
+}), 250);
+function seriePop(n, bonus) {
+  document.querySelector(".serie-pop")?.remove();
+  const p = document.createElement("div"); p.className = "serie-pop"; p.setAttribute("role", "status");
+  p.innerHTML = `${FLAMME}<span>Série de ${n} !</span><small>+${bonus} miles</small>`;
+  document.body.appendChild(p); setTimeout(() => p.remove(), 2400);
+}
 function ecranEscale() {
   const e = escaleParId(etat.escaleActive);
   if (!e) return ecranCarte();
@@ -3153,17 +3242,20 @@ function ecranEscale() {
   const carte = CARTES_PAYS[e.id];
   const etapes = [["Document", true], ...(carte ? [[`Carte ${lieuxExplores(e)}/${carte.lieux.length}`, carteDebloquee(e)]] : []), ["Quiz", toutJuste(e)], ["Lexique", lexiqueFini(e)], ["Et chez toi ?", chezToiRempli(e)], ["Tampon", s.tamponne]];
 
+  // La question en cours (la première pas encore réussie) a son chrono de 20 secondes
+  const enCours = e.questions.findIndex((_, i) => !questionJuste(e, i));
   const questions = e.questions.map((q, i) => {
     const juste = questionJuste(e, i);
     const faux = !juste && erreurs[i] !== undefined ? erreurs[i] : null;
-    return `<div class="question">
+    return `<div class="question${juste ? " resolue" : ""}" data-qi="${i}">
       <h3>${i + 1}. ${esc(q.q)}</h3>
+      ${i === enCours && !s.essais[i] ? chronoQuestionHTML(e, i) : ""}
       <div class="options">
         ${q.options.map((o, j) => {
           const cls = juste && j === q.correcte ? " juste" : faux === j ? " faux" : "";
-          const marque = juste && j === q.correcte ? "Juste" : faux === j ? "Pas encore" : "";
-          return `<button class="option${cls}" data-action="repondre" data-q="${i}" data-o="${j}" ${juste ? "disabled" : ""}>
-            <span class="l">${lettre(j)}.</span><span>${esc(o)}</span><span class="marque-etat">${marque}</span></button>`;
+          const marque = juste && j === q.correcte ? "✓" : faux === j ? "✗" : "";
+          return `<button class="option k${j % 4}${cls}" data-action="repondre" data-q="${i}" data-o="${j}" ${juste ? "disabled" : ""} aria-label="${lettre(j)}. ${esc(o)}">
+            <span class="forme" aria-hidden="true">${FORMES_K[j % 4]}</span><span>${esc(o)}</span><span class="marque-etat" aria-hidden="true">${marque}</span></button>`;
         }).join("")}
       </div>
       ${juste ? `<p class="retour juste">Bravo, c'est la bonne réponse.</p>`
@@ -3172,6 +3264,7 @@ function ecranEscale() {
   }).join("");
 
   if (!ui.lexOrdre[e.id]) ui.lexOrdre[e.id] = melanger(e.lexique.map((_, i) => i));
+  /* (quiz façon Kahoot : voir FORMES_K et chronoQuestionHTML) */
   const trouves = new Set(s.lexique);
   const lexique = `<div class="lexique">
       <div class="col" role="group" aria-label="Mots">${e.lexique.map(([mot], i) => `<button class="tuile mot${trouves.has(i) ? " trouve" : ""}" data-action="lex-mot" data-i="${i}" aria-pressed="${ui.lexSel === i}" ${trouves.has(i) ? "disabled" : ""}>${esc(mot)}</button>`).join("")}</div>
@@ -3211,7 +3304,7 @@ function ecranEscale() {
       </div>
     </section>
     ${cartePaysHTML(e)}
-    <section class="page">
+    <section class="page quiz-k">
       <span class="etiquette">Épreuve 1 · le quiz · discutez, puis répondez ensemble</span>
       ${carteDebloquee(e) ? questions : `<div class="quiz-verrou"><span aria-hidden="true">🔒</span><p><strong>Quiz verrouillé.</strong> Explorez encore ${carte.seuil - lieuxExplores(e)} lieu${carte.seuil - lieuxExplores(e) > 1 ? "x" : ""} sur la carte de Yasmine pour l'ouvrir.</p>
         <button class="btn second" data-action="voir-carte-pays">Aller à la carte</button></div>`}
@@ -3321,7 +3414,7 @@ const OUTILS_MISSION = [
   ["attestation", "Le bilan et l'attestation", "Terminer le voyage"],
 ];
 // Tuiles de la mission dont l'image est animée (videos/mission/)
-const MISSION_ANIMEES = ["sujet", "fiche", "canevas", "micro", "autoeval", "attestation"];
+const MISSION_ANIMEES = [];
 function ecranMission() {
   const t = etat.sujetTire;
   const p = etat.preparation;
@@ -3564,6 +3657,8 @@ function ecranEnseignante() {
   return `<section class="page">
       <span class="etiquette">Espace enseignante</span>
       <h2>Tableau des équipes</h2>
+      <div class="rangee"><button class="btn or" data-action="podium">🏆 Afficher le podium (à projeter)</button>
+        <span class="doux petit">Plein écran, comme à la fin d'un quiz en classe : les trois premières équipes montent sur le podium. Mis à jour toutes les 15 secondes.</span></div>
       <div id="tableau-classe">${tableauClasseHTML()}</div>
     </section>
     <section class="page">
@@ -4282,6 +4377,7 @@ const SUCCES = [
   { id: "mi", nom: "Mi-parcours", desc: "Cinq tampons dans le passeport", ic: "avion", si: () => nbTampons() >= 5 },
   { id: "tour", nom: "Tour du monde", desc: "Tous les tampons réunis", ic: "globe", si: () => nbTampons() === NB },
   { id: "serrurier", nom: "Serrurier", desc: "Le coffre ouvert au premier essai", ic: "cle", si: () => etat.coffreOuvert && etat.coffreEssais === 1 },
+  { id: "serie5", nom: "En feu !", desc: "Cinq bonnes réponses du premier coup à la suite", ic: "eclair", si: () => (etat.serieMax || 0) >= 5 },
   { id: "orateur", nom: "Orateur", desc: "L'exposé enregistré", ic: "micro", si: () => Boolean(etat.expose && etat.expose.enregistre) },
 ];
 // File d'attente : une célébration à la fois, jamais par-dessus une autre fenêtre du jeu
@@ -4511,6 +4607,27 @@ function majRegistre() {
   if (!etat.debutJeu) return;
   try { const r = lireRegistre().filter((x) => x.id !== etat.partieId); r.unshift(resumeEquipe()); localStorage.setItem(CLE_REGISTRE, JSON.stringify(r.slice(0, 300))); } catch (e) {}
 }
+function podiumHTML() {
+  const l = lignesClasse().slice().sort((a, b) => (b.miles || 0) - (a.miles || 0) || (b.tampons - a.tampons));
+  const top = l.slice(0, 3), reste = l.slice(3, 12);
+  const det = (x) => `${fmtMiles(x.miles)} miles · ${x.tampons}/${NB} tampons${x.coffre ? " · coffre ouvert" : ""}`;
+  return `<div class="podium-tete"><div><span class="etiquette" style="color:#9fe3df">Le Passeport francophone${ui.filtreClasse ? " · " + esc(ui.filtreClasse) : ""}</span><h2>Le podium des voyageurs</h2></div>
+      <div class="rangee"><button class="btn second" data-action="podium-maj">Actualiser</button><button class="btn or" data-action="podium-fermer">Fermer</button></div></div>
+    ${top.length ? `<div class="podium-scene">${top.map((x, k) => `<div class="marche p${k + 1}">${k === 0 ? '<span class="couronne" aria-hidden="true">👑</span>' : ""}
+        <span class="nom">${esc(x.equipe || "(sans nom)")}</span><span class="detail">${det(x)}</span><div class="bloc">${k + 1}</div></div>`).join("")}</div>`
+      : `<p class="podium-vide">Aucune équipe n'a encore décollé.</p>`}
+    <div class="podium-liste">${reste.map((x, k) => `<div class="podium-ligne" style="--i:${k}"><b>${k + 4}</b><span>${esc(x.equipe || "(sans nom)")}</span><span class="num">${x.tampons}/${NB}</span><span class="num">${fmtMiles(x.miles)} miles</span></div>`).join("")}</div>`;
+}
+let podiumMinuterie = null;
+function ouvrirPodium() {
+  let p = document.querySelector(".podium-ecran");
+  if (!p) { p = document.createElement("div"); p.className = "podium-ecran"; p.setAttribute("role", "dialog"); p.setAttribute("aria-label", "Podium de la classe"); document.body.appendChild(p); }
+  p.innerHTML = podiumHTML();
+  setTimeout(() => { if (p.isConnected && document.querySelector(".marche.p1")) { confettis({ nombre: 160, origine: centreEl(document.querySelector(".marche.p1")) }); son.etincelles(); } }, 1700);
+  clearInterval(podiumMinuterie);
+  podiumMinuterie = setInterval(async () => { if (!document.querySelector(".podium-ecran")) return clearInterval(podiumMinuterie); await chargerClasse(); const q = document.querySelector(".podium-ecran"); if (q) q.innerHTML = podiumHTML(); }, 15000);
+  try { p.requestFullscreen && !document.fullscreenElement && p.requestFullscreen().catch(() => {}); } catch (err) {}
+}
 async function chargerClasse() {
   if (!supabaseActif) { ui.classe = { statut: "local" }; return; }
   ui.classe = { ...(ui.classe || {}), statut: "chargement" };
@@ -4737,9 +4854,16 @@ const actions = {
     window.scrollTo({ top: y });
     // Récompense : 100 miles du premier coup, 50 ensuite, et une pluie d'étincelles
     if (bon) {
-      gagnerMiles(essais[i] === 1 ? 100 : 50, origine, ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)]);
+      // Bonus de rapidité (chrono de 20 s) et série de bonnes réponses du premier coup
+      const t0 = ui.chronoQ && ui.chronoQ[e.id + ":" + i], rapide = essais[i] === 1 && t0 && Date.now() - t0 < CHRONO_Q * 1000;
+      const base = essais[i] === 1 ? 100 : 50, bonusR = rapide ? 50 : 0;
+      gagnerMiles(base + bonusR, origine, rapide ? "Rapide ! +50" : ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)]);
       confettis({ couleurs: [...e.drapeau, "#d99a2b", "#f0c35a"], nombre: 28, origine });
-    }
+      if (essais[i] === 1) {
+        etat.serie = (etat.serie || 0) + 1; etat.serieMax = Math.max(etat.serieMax || 0, etat.serie); sauver();
+        if (etat.serie >= 3) { const b = Math.min(100, etat.serie * 10); setTimeout(() => { gagnerMiles(b, null, null); seriePop(etat.serie, b); }, 700); }
+      }
+    } else if (etat.serie) { etat.serie = 0; sauver(); }
     annoncer(bon ? "Bonne réponse" : `Pas encore. Relisez le paragraphe ${e.questions[i].paragraphe}.`);
     const q = document.querySelectorAll(".question")[i];
     if (q) { q.classList.add("vient"); const opt = q.querySelector(bon ? ".option.juste" : ".option.faux"); opt?.classList.add("vient"); opt?.focus({ preventScroll: true }); }
@@ -4887,6 +5011,9 @@ const actions = {
     etat = etatInitial(); etat.son = sonPref; etat.musique = musiquePref; etat.ecran = "enseignante";
     sauver(); afficher();
   },
+  async podium() { if (supabaseActif) await chargerClasse(); ouvrirPodium(); },
+  async "podium-maj"() { if (supabaseActif) await chargerClasse(); ouvrirPodium(); },
+  "podium-fermer"() { clearInterval(podiumMinuterie); if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); document.querySelector(".podium-ecran")?.remove(); },
   "sortir-enseignante"() { ui.enseignanteOk = false; ui.corrigeVisible = false; aller(etat.debutJeu ? "carte" : "accueil"); },
 };
 let dernierChampPrep = "prep-r";
