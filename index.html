@@ -2398,7 +2398,7 @@ function melanger(t) { const a = [...t]; for (let i = a.length - 1; i > 0; i--) 
 function aller(ecran, extra = {}) {
   arreterLecture();
   ui.coffreMsg = null; ui.copieSecours = null; ui.messageCopie = null; ui.confirmerReset = false; ui.lexSel = null;
-  if (ecran !== etat.ecran) son.page();
+  if (ecran !== etat.ecran) bruitage("transition", son.page); // swoosh et carillon entre deux parties du jeu
   maj({ ecran, ...extra });
   window.scrollTo({ top: 0 });
   const h = document.querySelector("main h1, main h2");
@@ -3795,10 +3795,13 @@ function afficher() {
 }
 
 /* Bruitages enregistrés (audio/sons/, générés avec Higgsfield) ; sinon le son synthétisé */
+// Volume et départ (en secondes) de chaque bruitage enregistré : les sons générés n'ont pas tous le même niveau
+const RÉGLAGE_SONS = { transition: [1, .38], succes: [1, 0], etape: [.5, .1], victoire: [.45, .15], decollage: [.55, 0], atterrissage: [.55, 0] };
 function bruitage(nom, secours) {
   if (!etat.son) return;
   if (ui.mediaAbsent.has("son-" + nom)) { if (secours) secours(); return; }
-  const a = new Audio(`audio/sons/${nom}.mp3`); a.volume = .55;
+  const a = new Audio(`audio/sons/${nom}.mp3`); a.volume = (RÉGLAGE_SONS[nom] || [.55])[0];
+  if ((RÉGLAGE_SONS[nom] || [])[1]) a.addEventListener("loadedmetadata", () => { a.currentTime = RÉGLAGE_SONS[nom][1]; }, { once: true });
   a.addEventListener("error", () => { ui.mediaAbsent.add("son-" + nom); if (secours) secours(); });
   a.play().catch(() => {});
 }
@@ -4320,8 +4323,8 @@ function carteEtape({ etiquette, titre, n = 0, total = 0, nom, photo, initiale =
   p.querySelector(".ep-rejouer").addEventListener("click", jouer);
   p.addEventListener("click", (ev) => { if (ev.target === p) fermer(); });
   p.addEventListener("keydown", (ev) => { if (ev.key === "Escape") fermer(); });
-  son.arrivee();
-  setTimeout(jouer, 500);
+  bruitage("etape", son.arrivee); // petit jingle de début d'étape
+  setTimeout(jouer, 1500);
   setTimeout(() => p.querySelector(".ep-ok")?.focus({ preventScroll: true }), 80);
 }
 // Le guide tiré au sort apparaît et parle (indices, encouragements)
@@ -4391,7 +4394,7 @@ function traiterFile() {
 function succesPop({ sur, titre, texte, ic }, fin) {
   const p = document.createElement("div"); p.className = "succes-pop"; p.setAttribute("role", "status");
   p.innerHTML = `${medaille(ic)}<div><small>${esc(sur)}</small><strong>${esc(titre)}</strong><span>${esc(texte)}</span></div>`;
-  document.body.appendChild(p); son.etincelles();
+  document.body.appendChild(p); bruitage("succes", son.etincelles);
   setTimeout(() => confettis({ couleurs: ["#f5b82e", "#14a3a0", "#2f5bd3", "#ef5b3c", "#ffffff"], nombre: 50, origine: centreEl(p) }), 250);
   let ferme = false; const fermer = () => { if (ferme) return; ferme = true; p.classList.add("sort"); setTimeout(() => { p.remove(); fin(); }, 400); };
   p.addEventListener("click", fermer); setTimeout(fermer, 3600);
@@ -4432,7 +4435,7 @@ function victoireEscale(e, { miles, rapide }, suite) {
       <div class="vp-progres"><span><i style="width:${(tampons - 1) / NB * 100}%"></i></span>${tampons === NB ? "Tous les chiffres sont réunis : direction le coffre !" : `Encore ${NB - tampons} escale${NB - tampons > 1 ? "s" : ""} avant le coffre`}</div>
       <button class="btn or vp-ok">${tampons === NB ? "Vers le coffre" : "Continuer le voyage"} ✈</button>
     </div>`;
-  document.body.appendChild(p);
+  document.body.appendChild(p); bruitage("victoire"); // fanfare de victoire
   requestAnimationFrame(() => requestAnimationFrame(() => { const i = p.querySelector(".vp-progres i"); if (i) i.style.width = tampons / NB * 100 + "%"; }));
   for (let k = 0; k < n; k++) setTimeout(() => { if (p.isConnected) son.bon ? son.bon() : son.clic(); }, 750 + k * 450);
   setTimeout(() => { if (p.isConnected) { confettis({ couleurs: [...e.drapeau, "#f5b82e"], nombre: 110, origine: centreEl(p.querySelector(".vp-etoiles")) }); son.etincelles(); } }, 800 + n * 450);
