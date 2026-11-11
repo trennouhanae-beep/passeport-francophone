@@ -2322,9 +2322,10 @@ function themeEcran() {
     if (!ui.mediaAbsent.has("musique-" + id)) return id;
   }
   if (ec === "escale") return etat.escaleActive;
-  if (ec === "cheznous") return "cheznous";
-  if (ec === "coffre") return etat.coffreOuvert ? "bilan" : "coffre";
-  if (ec === "bilan") return "bilan";
+  // Chez nous, le coffre et le bilan prennent aussi une musique enregistrée (plus de mélodie synthétisée)
+  if (ec === "cheznous") return ui.mediaAbsent.has("musique-accueil") ? "cheznous" : "accueil";
+  if (ec === "coffre") return ui.mediaAbsent.has("musique-voyage") ? (etat.coffreOuvert ? "bilan" : "coffre") : "voyage";
+  if (ec === "bilan") return ui.mediaAbsent.has("musique-voyage") ? "bilan" : "voyage";
   // Accueil, consignes et préparation de l'équipage : l'ambiance du salon d'embarquement
   if (["accueil", "capitaine", "equipage", "guide"].includes(ec)) return ui.mediaAbsent.has("musique-accueil") ? "carte" : "accueil";
   if (["carte", "carnet"].includes(ec)) return "carte";
@@ -3436,7 +3437,7 @@ const OUTILS_MISSION = [
   ["attestation", "Le bilan et l'attestation", "Terminer le voyage"],
 ];
 // Tuiles de la mission dont l'image est animée (videos/mission/)
-const MISSION_ANIMEES = [];
+const MISSION_ANIMEES = ["sujet", "fiche", "canevas", "micro"];
 function ecranMission() {
   const t = etat.sujetTire;
   const p = etat.preparation;
@@ -3818,7 +3819,12 @@ function afficher() {
 
 /* Bruitages enregistrés (audio/sons/, générés avec Higgsfield) ; sinon le son synthétisé */
 // Volume et départ (en secondes) de chaque bruitage enregistré : les sons générés n'ont pas tous le même niveau
-const RÉGLAGE_SONS = { ouverture: [.7, 0], transition: [1, .38], succes: [1, 0], etape: [.5, .1], victoire: [.45, .15], decollage: [.55, 0], atterrissage: [.55, 0] };
+const RÉGLAGE_SONS = { juste: [.5, .15], faux: [.45, .08], alerte: [.45, .12], arrivee: [.5, .15], tampon: [.55, .18], coffre: [.55, .2], clic: [.3, .4], radio: [.5, .1], cadran: [1, .35], photo: [.9, .12], fanfare: [.45, .15],
+  ouverture: [.7, 0], transition: [1, .38], succes: [1, 0], etape: [.5, .1], victoire: [.45, .15], decollage: [.55, 0], atterrissage: [.55, 0] };
+// Les bruitages synthétisés (« bips ») sont remplacés par de vrais sons enregistrés ; le synthétiseur reste en secours
+const SONS_ENREGISTRES = { juste: "juste", faux: "faux", alerte: "alerte", arrivee: "arrivee", tampon: "tampon", coffre: "coffre", clic: "clic", radio: "radio", cadran: "cadran", photo: "photo", fanfare: "victoire" };
+function brancherSonsEnregistres() { for (const [cle, fichier] of Object.entries(SONS_ENREGISTRES)) { const synth = son[cle]; if (typeof synth === "function") son[cle] = () => bruitage(fichier, synth); } }
+brancherSonsEnregistres();
 function bruitage(nom, secours) {
   if (!etat.son) return;
   if (ui.mediaAbsent.has("son-" + nom)) { if (secours) secours(); return; }
