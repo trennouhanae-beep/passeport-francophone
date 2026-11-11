@@ -2805,7 +2805,7 @@ const CONSIGNES = [
   ["La langue du voyage", "Du décollage à l'atterrissage, on échange en français !", "langue"],
 ];
 // Tuiles de l'affiche dont l'image est animée (vidéo courte en boucle, sans son, dans videos/consignes/)
-const CONSIGNES_ANIMEES = []; // vidéos en cours de régénération dans le style jeu vidéo
+const CONSIGNES_ANIMEES = ["mission", "equipage", "escale"];
 function afficheHTML() {
   const ouverte = ui.affiche === "ouverte";
   return `<div class="colonne"><section class="affiche-zone" aria-label="Consignes de vol">
