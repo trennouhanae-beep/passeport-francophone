@@ -90,3 +90,21 @@ Depuis le 10 novembre 2026 : `afi.jpg` (Togo), `jocelyne.jpg` (Sainte-Lucie), `f
 
 ### Consignes et mission (images/consignes/, images/mission/)
 Modèle *GPT Image 2.6*, qualité moyenne, 1:1. Style : affiche de voyage peinte à la gouache, texture de pinceau, palette turquoise, corail, safran, émeraude, cobalt. Le même groupe de trois étudiants (une étudiante noire aux tresses, un étudiant maghrébin barbu, une étudiante asiatique à lunettes) revient sur chaque image : c'est le groupe qui voyage. Image de référence : `images/consignes/mission.jpg`. Pas de texte dans les images.
+
+## Direction artistique « jeu vidéo » (11 novembre 2026)
+
+Toutes les images du jeu passent progressivement au même style : illustration 2D de jeu d'aventure, contours nets, aplats de couleur et ombres franches, palette cobalt, turquoise, corail, safran, émeraude. Le même groupe de trois étudiants (une étudiante noire aux tresses, un étudiant maghrébin barbu, une étudiante asiatique à lunettes) est le héros du voyage : il apparaît sur les consignes, la mission et l'arrivée dans chaque escale.
+
+Modèle : *GPT Image 2.6*, qualité moyenne (0,5 crédit l'image), avec l'image des consignes « Votre mission » comme référence de style. Pas de texte dans les images ; pas de monuments étrangers à la francophonie.
+
+| Écran | Images | État |
+|---|---|---|
+| Affiche des consignes | 6 (`images/consignes/`) + 6 vidéos | fait |
+| Boîte à outils de la mission | 6 (`images/mission/`) + 4 vidéos | fait (2 vidéos à générer) |
+| Couverture, Chez nous, coffre | 3 | fait |
+| En-têtes des escales | 9 (`images/escales/`) | Sénégal fait, 8 à faire |
+| Contacts | 9 (`images/contacts/`) | Moussa fait, 8 à faire |
+| Guides | 4 (`images/guides/`) | Awa fait, 3 à faire |
+| Albums | 28 (`images/album/`) | à faire |
+
+Les anciennes vidéos aquarelle (couverture, Chez nous, coffre, escales) sont retirées au fur et à mesure : l'image fixe du nouveau style s'affiche à leur place.
