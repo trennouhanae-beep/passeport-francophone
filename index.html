@@ -1345,6 +1345,8 @@ main.livret { border-radius: 8px 20px 20px 8px; }
 /* Annonce de la vidéo */
 .annonce-video { background: linear-gradient(160deg, rgba(29, 58, 122, .82), rgba(20, 163, 160, .66)); text-shadow: 0 1px 3px rgba(8, 20, 46, .5); }
 .annonce-video .etiquette { color: #ffd27a; }
+/* Les anciennes vidéos aquarelle des escales sont ravivées pour s'accorder aux couleurs du jeu (les images, elles, sont déjà étalonnées) */
+video.fond-media, video.hublot-media { filter: saturate(1.5) contrast(1.1) brightness(1.04); }
 /* Carte d'étape : à chaque nouvelle étape, l'hôtesse ou le guide apparaît et parle */
 .etape-pop { position: fixed; inset: 0; z-index: 95; display: grid; place-items: center; padding: 16px; background: rgba(11, 24, 48, .55); backdrop-filter: blur(3px); animation: fondu .3s ease both; }
 .etape-pop.sort { animation: fondu .3s ease reverse both; }
