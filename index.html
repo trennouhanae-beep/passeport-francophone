@@ -1361,6 +1361,64 @@ main.livret { border-radius: 8px 20px 20px 8px; }
 .ep-carte .rangee { justify-content: center; padding: 0 22px; }
 @media (max-width: 520px) { .ep-corps { grid-template-columns: 1fr; justify-items: center; text-align: center; } .ep-bulle::before { left: 50%; top: -9px; transform: translateX(-50%) rotate(135deg); } }
 @media (prefers-reduced-motion: reduce) { .ep-carte, .etape-pop.parle .ep-portrait img, .etape-pop.parle .ep-voix b, .etape-pop.parle .ep-portrait > i { animation: none !important; } .ep-texte span { opacity: 1; } }
+/* =====================================================================
+   COUCHE DE JEU : écran de victoire d'escale (étoiles), succès, grades
+   ===================================================================== */
+.victoire-pop { position: fixed; inset: 0; z-index: 96; display: grid; place-items: center; padding: 16px; background: radial-gradient(circle at 50% 35%, rgba(47, 91, 211, .55), rgba(8, 20, 46, .82)); backdrop-filter: blur(3px); animation: fondu .3s ease both; overflow: auto; }
+.victoire-pop.sort { animation: fondu .3s ease reverse both; }
+.vp-carte { --c: var(--cobalt); position: relative; width: min(520px, 100%); display: grid; gap: 14px; justify-items: center; text-align: center; padding: 26px 22px 22px; border-radius: 26px; background: var(--page); color: var(--encre);
+  box-shadow: 0 0 0 4px #fff, 0 0 0 8px var(--c), 0 40px 80px -30px rgba(8, 20, 46, .9); animation: ep-entre .6s cubic-bezier(.2, 1.5, .4, 1) both; }
+.vp-rayons { position: absolute; inset: -40%; z-index: -1; background: repeating-conic-gradient(from 0deg, rgba(255, 210, 122, .16) 0 10deg, transparent 10deg 20deg); animation: vp-tourne 24s linear infinite; pointer-events: none; border-radius: 50%; }
+@keyframes vp-tourne { to { transform: rotate(360deg); } }
+.vp-ruban { margin-top: -44px; padding: 8px 26px; border-radius: 999px; background: linear-gradient(180deg, #ffd56b, #f5b82e); color: #14283d; font-family: var(--f-titre); font-weight: 700; font-size: clamp(1.1rem, 4vw, 1.5rem); letter-spacing: .06em; text-transform: uppercase; box-shadow: 0 6px 0 #c98d12, 0 14px 22px -8px rgba(8, 20, 46, .6); }
+.vp-pays { display: flex; align-items: center; gap: 10px; font-family: var(--f-titre); font-size: 1.5rem; font-weight: 700; }
+.vp-pays .drapeau-mini { width: 42px; height: 28px; border-radius: 4px; box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--trait); }
+.vp-etoiles { display: flex; gap: 10px; align-items: flex-end; }
+.vp-etoile { width: clamp(54px, 15vw, 74px); aspect-ratio: 1; }
+.vp-etoile:nth-child(2) { width: clamp(66px, 19vw, 92px); margin-bottom: 8px; }
+.vp-etoile path { fill: var(--papier-2); stroke: var(--trait); stroke-width: 1.5; }
+.vp-etoile.gagnee path { fill: #f5b82e; stroke: #c98d12; }
+.vp-etoile.gagnee { animation: vp-etoile .6s cubic-bezier(.2, 1.9, .4, 1) both; animation-delay: calc(.7s + var(--i) * .45s); filter: drop-shadow(0 6px 10px rgba(245, 184, 46, .55)); }
+@keyframes vp-etoile { from { transform: scale(0) rotate(-140deg); opacity: 0; } to { transform: none; opacity: 1; } }
+.vp-criteres { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: .95rem; text-align: left; }
+.vp-criteres li { display: flex; gap: 8px; align-items: center; color: var(--encre-douce); }
+.vp-criteres li.ok { color: var(--encre); font-weight: 700; }
+.vp-criteres i { flex: none; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: .8rem; background: var(--papier-2); color: var(--encre-douce); }
+.vp-criteres li.ok i { background: var(--emeraude); color: #fff; }
+.vp-gains { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.vp-gain { display: grid; gap: 2px; justify-items: center; min-width: 108px; padding: 10px 14px; border-radius: 14px; background: var(--papier); border: 1px solid var(--trait); animation: monter .5s ease both; animation-delay: calc(1.9s + var(--i) * .15s); }
+.vp-gain b { font-family: var(--f-code); font-size: 1.7rem; line-height: 1; color: var(--cobalt); }
+.vp-gain small { font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; color: var(--encre-douce); }
+.vp-progres { width: 100%; display: grid; gap: 4px; font-size: .85rem; color: var(--encre-douce); }
+.vp-progres span { height: 10px; border-radius: 999px; background: var(--papier-2); overflow: hidden; }
+.vp-progres i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--turquoise), var(--cobalt)); transition: width 1s cubic-bezier(.3, 1.2, .5, 1) 1.6s; }
+/* Succès et grades : une médaille qui tombe au centre de l'écran, puis disparaît */
+.succes-pop { position: fixed; z-index: 94; left: 50%; top: 18%; transform: translateX(-50%); width: min(400px, calc(100vw - 32px)); display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; padding: 14px 18px 14px 14px; border-radius: 20px;
+  background: linear-gradient(135deg, var(--cuir), var(--cuir-2)); color: #fff; box-shadow: 0 0 0 3px #ffd27a, 0 26px 50px -20px rgba(8, 20, 46, .85); animation: succes-entre .7s cubic-bezier(.2, 1.6, .4, 1) both; cursor: pointer; overflow: hidden; }
+.succes-pop.sort { animation: succes-sort .4s ease-in both; }
+.succes-pop::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, .35) 50%, transparent 65%); transform: translateX(-100%); animation: brevet-reflet 1.2s ease .5s both; pointer-events: none; }
+@keyframes succes-entre { from { opacity: 0; transform: translate(-50%, -80px) scale(.7) rotate(-4deg); } to { opacity: 1; transform: translateX(-50%); } }
+@keyframes succes-sort { to { opacity: 0; transform: translate(-50%, -40px) scale(.9); } }
+.succes-pop small { display: block; font-family: var(--f-code); font-size: .7rem; letter-spacing: .18em; text-transform: uppercase; color: #ffd27a; }
+.succes-pop strong { display: block; font-family: var(--f-titre); font-size: 1.3rem; line-height: 1.15; }
+.succes-pop span { font-size: .9rem; opacity: .9; }
+.medaille { flex: none; width: 62px; height: 62px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, #fff0b8, #f5b82e 55%, #c98d12); box-shadow: 0 0 0 3px rgba(255, 255, 255, .5) inset, 0 6px 12px -4px rgba(0, 0, 0, .5); color: #14283d; }
+.medaille svg { width: 32px; height: 32px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.succes-pop .medaille { animation: popup-icone 1.2s ease-in-out .4s 2; }
+/* L'étagère des succès, sur la page du passeport et au bilan */
+.succes-grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 12px; }
+.succes-case { display: grid; gap: 6px; justify-items: center; text-align: center; padding: 12px 8px; border-radius: 14px; border: 1px solid var(--trait); background: var(--papier); font-size: .82rem; line-height: 1.25; }
+.succes-case strong { font-size: .88rem; }
+.succes-case span { color: var(--encre-douce); }
+.succes-case.verrou .medaille { background: var(--papier-2); box-shadow: 0 0 0 2px var(--trait) inset; color: var(--encre-douce); opacity: .7; }
+.succes-case.verrou strong { color: var(--encre-douce); }
+.succes-case .medaille { width: 52px; height: 52px; } .succes-case .medaille svg { width: 26px; height: 26px; }
+.grade-ligne { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.grade-ligne .vp-progres { flex: 1 1 220px; }
+.vv-etoiles { display: inline-flex; gap: 1px; color: #f5b82e; font-size: .9rem; letter-spacing: 1px; }
+.vv-etoiles i { font-style: normal; color: var(--trait); }
+.miles small { white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .vp-rayons, .vp-etoile.gagnee, .vp-gain, .succes-pop, .succes-pop::after { animation: none !important; } }
 </style>
 </head>
 <body>
@@ -1815,6 +1873,7 @@ function etatInitial() {
     alertes: [],           // alertes du temps déjà montrées (15, 10, 5, 1 min)
     capitaine: [],         // annonces de l'hôtesse déjà entendues
     etapes: [],            // étapes du jeu déjà annoncées par la carte d'étape
+    badges: [],            // succès débloqués (pop-up de jeu)
   };
 }
 function charger() {
@@ -2982,12 +3041,13 @@ function ecranCarte() {
             <span class="vv-drapeau" aria-hidden="true"><svg viewBox="0 0 60 40" preserveAspectRatio="xMidYMid slice">${DRAPEAUX[e.id] || ""}</svg></span>
             <span class="vv-infos"><strong>${esc(e.nom)}</strong><span>${esc(e.region)}</span><span class="vv-contact">${photoContact(e, "mini")}<span>${esc(e.contact)}</span></span></span>
           </span>
-          <span class="vv-pied"><span class="vv-etat">${s.tamponne ? "Entrée validée" : "À visiter"}</span>
+          <span class="vv-pied"><span class="vv-etat">${s.tamponne ? `Entrée validée <span class="vv-etoiles" aria-label="${etoilesEscale(e)} étoiles sur 3">${[0, 1, 2].map((k) => (k < etoilesEscale(e) ? "★" : "<i>★</i>")).join("")}</span>` : "À visiter"}</span>
             ${s.tamponne ? tamponHTML(e) : `<span class="vv-emplacement" aria-hidden="true">Tampon</span>`}</span>
         </button>`;
       }).join("")}
     </div>
     ${serrureCode(n)}
+    ${etagereSucces()}
     ${etat.chezNous.tamponne ? "" : `<p class="doux petit">Vous n'avez pas encore le tampon « Chez nous ». <button class="lien" data-action="aller" data-ecran="cheznous">Retourner à l'escale 0</button></p>`}`;
 }
 // Le code du coffre : une serrure à 6 crans. Un chiffre nouvellement gagné s'enclenche avec un « clic ».
@@ -3577,7 +3637,7 @@ function afficherBarre() {
       <button data-action="aller" data-ecran="coffre" aria-current="${actif("coffre")}">Coffre</button>
       ${etat.coffreOuvert ? `<button data-action="aller" data-ecran="mission" aria-current="${actif("mission")}">Mission</button>` : ""}
       ${etat.finJeu ? `<button data-action="aller" data-ecran="bilan" aria-current="${actif("bilan")}">Bilan</button>` : ""}
-    </nav><span class="miles" id="miles" title="Miles de voyage gagnés par l'équipe">${PICTO_AVION}<b>${fmtMiles(etat.miles)}</b><small>miles</small></span><span class="chrono" id="chrono" role="timer"></span>` : `<span style="margin-left:auto"></span>`}
+    </nav><span class="miles" id="miles" title="Miles de voyage gagnés par l'équipe, et votre grade">${PICTO_AVION}<b>${fmtMiles(etat.miles)}</b><small>${esc(GRADES[gradeDe(etat.miles || 0)][1])}</small></span><span class="chrono" id="chrono" role="timer"></span>` : `<span style="margin-left:auto"></span>`}
     <button class="icone-btn" data-action="son" aria-pressed="${etat.son}" title="Bruitages">${etat.son ? "Son : oui" : "Son : non"}</button>
     <button class="icone-btn" data-action="musique" aria-pressed="${etat.musique}" title="Musique d'ambiance de chaque escale">${etat.musique ? "♪ Musique : oui" : "♪ Musique : non"}</button>`;
   majChrono();
@@ -3636,6 +3696,7 @@ function afficher() {
   document.querySelectorAll(".carte-cadre").forEach((c) => { if (c.scrollWidth > c.clientWidth) c.scrollLeft = (c.scrollWidth - c.clientWidth) * 0.5; });
   if (ui.transit) animerAvion();
   annoncerEtape();
+  verifierSucces();
 }
 
 /* Bruitages enregistrés (audio/sons/, générés avec Higgsfield) ; sinon le son synthétisé */
@@ -3938,7 +3999,10 @@ function bulleMiles(n, origine, mot) {
   setTimeout(() => b.remove(), 1700);
 }
 function gagnerMiles(n, origine, mot) {
+  const avant = gradeDe(etat.miles || 0);
   etat.miles = (etat.miles || 0) + n; sauver();
+  const apres = gradeDe(etat.miles);
+  if (apres > avant) celebrer((fin) => { succesPop({ sur: "Nouveau grade", titre: GRADES[apres][1], texte: fmtMiles(etat.miles) + " miles au compteur", ic: "avion" }, fin); const m = document.querySelector("#miles small"); if (m) m.textContent = GRADES[apres][1]; });
   bulleMiles(n, origine, mot);
   setTimeout(() => {
     const m = document.getElementById("miles"); if (!m) return;
@@ -4185,6 +4249,101 @@ function annoncerEtape() {
     if (E.qui === "hotesse") carteEtape({ ...commun, nom: "Votre hôtesse", photo: "images/hotesse-portrait.jpg", initiale: "H", couleur: "var(--turquoise)", texte: E.texte, audio: `audio/hotesse/etape-${E.id}.wav`, genre: "f", bouton: "Compris !" });
     else carteEtape({ ...commun, nom: g.nom + " · " + g.metier, photo: DOSSIER_PORTRAITS + g.photo, initiale: g.initiale, couleur: g.couleur, texte: E.texte(g), genre: VOIX_GUIDES[g.id] || "f" });
   }, 650);
+}
+/* =====================================================================
+   COUCHE DE JEU · étoiles, succès et grades
+   ===================================================================== */
+const ICONES_JEU = {
+  etoile: '<path d="M12 3l2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 16.9 6.6 19.8l1.1-6.1L3.2 9.4l6.1-.8z"/>',
+  eclair: '<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/>',
+  cle: '<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3M14 9l2 2"/>',
+  micro: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/>',
+  livre: '<path d="M3 5.5C5.5 4.5 9 4.5 12 6.5c3-2 6.5-2 9-1V19c-2.5-1-6-1-9 1-3-2-6.5-2-9-1z"/><path d="M12 6.5V20"/>',
+  drapeau: '<path d="M5 21V4M5 4h12l-2 4 2 4H5"/>',
+  boussole: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11z"/>',
+  avion: '<path d="M12 3l1.6 6.5L21 12.5v2l-7.400-1.300L13 19l2.400 2v1.5L12 21.5 8.6 22.5V21L11 19l-.6-5.800L3 14.5v-2l7.400-3z"/>',
+};
+const medaille = (ic) => `<span class="medaille" aria-hidden="true"><svg viewBox="0 0 24 24">${ICONES_JEU[ic] || ICONES_JEU.etoile}</svg></span>`;
+// Les étoiles d'une escale : 1 pour le tampon, 1 pour le quiz réussi du premier coup, 1 sans l'indice du guide
+function etoilesEscale(e) {
+  const x = etat.escales[e.id]; if (!x.tamponne) return 0;
+  return 1 + (x.essais.every((n) => n === 1) ? 1 : 0) + (x.indiceVu ? 0 : 1);
+}
+const totalEtoiles = () => ESCALES.reduce((t, e) => t + etoilesEscale(e), 0);
+const GRADES = [[0, "Passager"], [700, "Voyageur"], [2000, "Explorateur"], [3800, "Globe-trotter"], [5500, "Ambassadeur"]];
+const gradeDe = (miles) => GRADES.reduce((k, [seuil], i) => (miles >= seuil ? i : k), 0);
+const SUCCES = [
+  { id: "premier", nom: "Premier tampon", desc: "Réussir une première escale", ic: "drapeau", si: () => nbTampons() >= 1 },
+  { id: "sansfaute", nom: "Sans faute", desc: "Un quiz réussi du premier coup", ic: "etoile", si: () => ESCALES.some((e) => etat.escales[e.id].tamponne && etat.escales[e.id].essais.every((n) => n === 1)) },
+  { id: "eclair", nom: "Escale éclair", desc: "Une escale en moins de 4 minutes", ic: "eclair", si: () => ESCALES.some((e) => { const x = etat.escales[e.id]; return x.tamponne && x.debut && x.fin && x.fin - x.debut < 4 * 60 * 1000; }) },
+  { id: "autonomes", nom: "Sans filet", desc: "Trois escales sans indice", ic: "boussole", si: () => ESCALES.filter((e) => etat.escales[e.id].tamponne && !etat.escales[e.id].indiceVu).length >= 3 },
+  { id: "polyglotte", nom: "Polyglotte", desc: "Quinze mots de lexique appris", ic: "livre", si: () => ESCALES.reduce((t, e) => t + etat.escales[e.id].lexique.length, 0) >= 15 },
+  { id: "mi", nom: "Mi-parcours", desc: "Cinq tampons dans le passeport", ic: "avion", si: () => nbTampons() >= 5 },
+  { id: "tour", nom: "Tour du monde", desc: "Tous les tampons réunis", ic: "globe", si: () => nbTampons() === NB },
+  { id: "serrurier", nom: "Serrurier", desc: "Le coffre ouvert au premier essai", ic: "cle", si: () => etat.coffreOuvert && etat.coffreEssais === 1 },
+  { id: "orateur", nom: "Orateur", desc: "L'exposé enregistré", ic: "micro", si: () => Boolean(etat.expose && etat.expose.enregistre) },
+];
+// File d'attente : une célébration à la fois, jamais par-dessus une autre fenêtre du jeu
+const fileJeu = []; let fileOccupee = false;
+function celebrer(fn) { fileJeu.push(fn); traiterFile(); }
+function traiterFile() {
+  if (fileOccupee || !fileJeu.length) return;
+  if (ui.transit || ui.victoireAttendue || document.querySelector(".victoire-pop, .etape-pop, .capitaine-pop, .succes-pop, .embarquement")) { setTimeout(traiterFile, 900); return; }
+  fileOccupee = true; fileJeu.shift()(() => { fileOccupee = false; setTimeout(traiterFile, 350); });
+}
+function succesPop({ sur, titre, texte, ic }, fin) {
+  const p = document.createElement("div"); p.className = "succes-pop"; p.setAttribute("role", "status");
+  p.innerHTML = `${medaille(ic)}<div><small>${esc(sur)}</small><strong>${esc(titre)}</strong><span>${esc(texte)}</span></div>`;
+  document.body.appendChild(p); son.etincelles();
+  setTimeout(() => confettis({ couleurs: ["#f5b82e", "#14a3a0", "#2f5bd3", "#ef5b3c", "#ffffff"], nombre: 50, origine: centreEl(p) }), 250);
+  let ferme = false; const fermer = () => { if (ferme) return; ferme = true; p.classList.add("sort"); setTimeout(() => { p.remove(); fin(); }, 400); };
+  p.addEventListener("click", fermer); setTimeout(fermer, 3600);
+}
+function verifierSucces() {
+  if (!etat.debutJeu || ui.intro) return;
+  const acquis = etat.badges || [], nouveaux = SUCCES.filter((x) => !acquis.includes(x.id) && x.si());
+  if (!nouveaux.length) return;
+  etat.badges = [...acquis, ...nouveaux.map((x) => x.id)]; sauver();
+  nouveaux.forEach((x) => celebrer((fin) => succesPop({ sur: "Succès débloqué", titre: x.nom, texte: x.desc, ic: x.ic }, fin)));
+}
+function etagereSucces() {
+  const acquis = etat.badges || [], m = etat.miles || 0, g = gradeDe(m), suivant = GRADES[g + 1];
+  const part = suivant ? Math.min(100, (m - GRADES[g][0]) / (suivant[0] - GRADES[g][0]) * 100) : 100;
+  return `<section class="page" aria-label="Grade et succès">
+      <div class="grade-ligne"><div><span class="etiquette">Votre grade</span><h2 style="margin:0">${esc(GRADES[g][1])}</h2></div>
+        <div class="vp-progres"><span><i style="width:${part.toFixed(0)}%;transition:none"></i></span>${suivant ? `Encore ${fmtMiles(suivant[0] - m)} miles pour devenir ${esc(suivant[1])}` : "Grade maximal atteint !"} · ${totalEtoiles()} étoile${totalEtoiles() > 1 ? "s" : ""} sur ${NB * 3}</div></div>
+      <span class="etiquette">Succès · ${acquis.length} sur ${SUCCES.length}</span>
+      <div class="succes-grille">${SUCCES.map((x) => { const ok = acquis.includes(x.id); return `<div class="succes-case${ok ? "" : " verrou"}">${medaille(ok ? x.ic : "cle")}<strong>${esc(x.nom)}</strong><span>${esc(x.desc)}</span></div>`; }).join("")}</div>
+    </section>`;
+}
+// Écran de victoire d'une escale : ruban, étoiles qui tombent une à une, gains, progression
+function victoireEscale(e, { miles, rapide }, suite) {
+  const x = etat.escales[e.id], n = etoilesEscale(e), tampons = nbTampons();
+  const criteres = [["Escale réussie : tampon obtenu", true], ["Quiz réussi du premier coup", x.essais.every((k) => k === 1)], ["Sans l'indice du guide", !x.indiceVu]];
+  const chemin = ICONES_JEU.etoile;
+  const p = document.createElement("div"); p.className = "victoire-pop"; p.setAttribute("role", "dialog"); p.setAttribute("aria-modal", "true"); p.setAttribute("aria-label", "Escale réussie : " + e.nom);
+  p.innerHTML = `<div class="vp-carte" style="--c:${e.teinte || e.couleur}"><span class="vp-rayons" aria-hidden="true"></span>
+      <div class="vp-ruban">Escale réussie !</div>
+      <div class="vp-pays">${drapeauMini(e)}<span>${esc(e.nom)}</span></div>
+      <div class="vp-etoiles" role="img" aria-label="${n} étoile${n > 1 ? "s" : ""} sur 3">${[0, 1, 2].map((k) => `<svg class="vp-etoile${k < n ? " gagnee" : ""}" style="--i:${k}" viewBox="0 0 24 24">${chemin}</svg>`).join("")}</div>
+      <ul class="vp-criteres">${criteres.map(([t, ok]) => `<li class="${ok ? "ok" : ""}"><i>${ok ? "✓" : "–"}</i>${esc(t)}</li>`).join("")}</ul>
+      <div class="vp-gains">
+        <div class="vp-gain" style="--i:0"><b>${e.chiffre}</b><small>Chiffre du code</small></div>
+        <div class="vp-gain" style="--i:1"><b>+${miles}</b><small>Miles${rapide ? " · rapidité" : ""}</small></div>
+        <div class="vp-gain" style="--i:2"><b>${tampons}/${NB}</b><small>Tampons</small></div>
+      </div>
+      <div class="vp-progres"><span><i style="width:${(tampons - 1) / NB * 100}%"></i></span>${tampons === NB ? "Tous les chiffres sont réunis : direction le coffre !" : `Encore ${NB - tampons} escale${NB - tampons > 1 ? "s" : ""} avant le coffre`}</div>
+      <button class="btn or vp-ok">${tampons === NB ? "Vers le coffre" : "Continuer le voyage"} ✈</button>
+    </div>`;
+  document.body.appendChild(p);
+  requestAnimationFrame(() => requestAnimationFrame(() => { const i = p.querySelector(".vp-progres i"); if (i) i.style.width = tampons / NB * 100 + "%"; }));
+  for (let k = 0; k < n; k++) setTimeout(() => { if (p.isConnected) son.bon ? son.bon() : son.clic(); }, 750 + k * 450);
+  setTimeout(() => { if (p.isConnected) { confettis({ couleurs: [...e.drapeau, "#f5b82e"], nombre: 110, origine: centreEl(p.querySelector(".vp-etoiles")) }); son.etincelles(); } }, 800 + n * 450);
+  let ferme = false; const fermer = () => { if (ferme) return; ferme = true; p.classList.add("sort"); setTimeout(() => { p.remove(); verifierSucces(); celebrer((fin) => { suite(); fin(); }); }, 320); };
+  p.querySelector(".vp-ok").addEventListener("click", fermer);
+  p.addEventListener("keydown", (ev) => { if (ev.key === "Escape") fermer(); });
+  setTimeout(() => p.querySelector(".vp-ok")?.focus({ preventScroll: true }), 80);
 }
 let voixCapitaine = null;
 function capitaineParle(cle, { force = false } = {}) {
@@ -4617,6 +4776,7 @@ const actions = {
   tamponner() {
     const e = escaleParId(etat.escaleActive);
     if (!toutJuste(e) || !lexiqueFini(e) || !chezToiRempli(e)) return;
+    ui.victoireAttendue = true; // les succès attendent la fin de l'écran de victoire
     ui.tamponAnime = e.id; son.tampon();
     majEscale(e.id, { tamponne: true, fin: Date.now() });
     annoncer(`Tampon obtenu. Chiffre gagné : ${e.chiffre}`);
@@ -4624,12 +4784,12 @@ const actions = {
     setTimeout(() => { confettis({ couleurs: [...e.drapeau, "#d99a2b"], nombre: 90, origine: centreDe(".tampon.anime") }); son.etincelles(); }, 550);
     // Récompense de l'escale : 200 miles, et un bonus si l'escale a été bouclée en moins de 6 minutes
     const s = etat.escales[e.id], rapide = s.debut && s.fin - s.debut < 6 * 60 * 1000;
-    setTimeout(() => {
-      gagnerMiles(rapide ? 300 : 200, centreDe(".tampon.anime"), rapide ? "Bonus rapidité !" : "Escale réussie !");
-      popup({ titre: `Tampon ${PREP[e.id] ? PREP[e.id][0] : e.nom} obtenu !`, texte: `Chiffre gagné : ${e.chiffre} · ${nbTampons()}/${NB} tampons${rapide ? " · bonus rapidité" : ""}`, icone: drapeauMini(e), duree: 5000 });
-    }, 900);
-    if (nbTampons() === NB) setTimeout(() => capitaineParle("coffre"), 2600);
-    else setTimeout(() => { if (etat.ecran === "escale" && etat.escaleActive === e.id && !ui.transit) carteEmbarquement(e); }, 3600);
+    setTimeout(() => gagnerMiles(rapide ? 300 : 200, centreDe(".tampon.anime"), rapide ? "Bonus rapidité !" : "Escale réussie !"), 900);
+    // Écran de victoire (étoiles, gains), puis l'hôtesse annonce le coffre ou la carte d'embarquement propose la suite
+    setTimeout(() => { ui.victoireAttendue = false; victoireEscale(e, { miles: rapide ? 300 : 200, rapide }, () => {
+      if (nbTampons() === NB) capitaineParle("coffre");
+      else if (etat.ecran === "escale" && etat.escaleActive === e.id && !ui.transit) carteEmbarquement(e);
+    }); }, 2000);
   },
   "valider-coffre"() {
     const code = [...document.querySelectorAll("[data-chiffre]")].map((x) => x.value).join("");
