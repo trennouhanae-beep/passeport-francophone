@@ -1531,6 +1531,39 @@ video.fond-media, video.hublot-media { filter: saturate(1.5) contrast(1.1) brigh
   body.imprime-grille .grille-ecran { position: absolute; inset: 0; background: none; padding: 0; }
   body.imprime-grille .grille-actions { display: none !important; }
 }
+/* Les activités de l'escale : des cartes de mission */
+.page.mission { position: relative; border-left: 5px solid var(--cobalt); }
+.page.mission.faite { border-left-color: var(--emeraude); }
+.mission-tete { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; align-items: center; }
+.mission-tete h2 { margin: 0; font-size: clamp(1.25rem, 3vw, 1.6rem); }
+.mission-sur { font-family: var(--f-code); font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; color: var(--turquoise); }
+.mission-obj { margin: 2px 0 0; color: var(--encre-douce); font-size: .93rem; }
+.mission-num { width: 50px; height: 50px; border-radius: 14px; display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 1.3rem;
+  background: linear-gradient(135deg, var(--cobalt), var(--turquoise)); box-shadow: 0 4px 0 #14306e, 0 10px 18px -8px rgba(16, 34, 77, .6); transform: rotate(-4deg); }
+.mission-num svg { width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.mission-num.fait { background: linear-gradient(135deg, #2e9e4f, #1f9d55); box-shadow: 0 4px 0 #146b39, 0 10px 18px -8px rgba(20, 107, 57, .6); }
+.mission-gain { align-self: start; white-space: nowrap; padding: 5px 11px; border-radius: 999px; font-size: .78rem; font-weight: 700; color: #14283d; background: linear-gradient(180deg, #ffe08a, #f5b82e); box-shadow: 0 2px 0 #c98d12; }
+.mission-tampon { border-left-color: var(--safran); }
+@media (max-width: 560px) { .mission-tete { grid-template-columns: auto minmax(0, 1fr); } .mission-gain { grid-column: 1 / -1; justify-self: start; } }
+/* Le parcours de l'escale */
+.parcours { list-style: none; margin: 0; padding: 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); counter-reset: none; }
+.parcours li { position: relative; display: grid; justify-items: center; gap: 6px; text-align: center; font-size: .78rem; color: var(--encre-douce); }
+.parcours li::before { content: ""; position: absolute; top: 15px; right: 50%; width: 100%; height: 4px; background: var(--trait); z-index: 0; }
+.parcours li:first-child::before { display: none; }
+.parcours li.ok::before { background: var(--emeraude); }
+.pc-pt { position: relative; z-index: 1; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; background: var(--carte); border: 3px solid var(--trait); color: var(--encre-douce); }
+.parcours li.ok .pc-pt { background: var(--emeraude); border-color: var(--emeraude); color: #fff; }
+.parcours li.ici .pc-pt { border-color: var(--cobalt); color: var(--cobalt); box-shadow: 0 0 0 5px color-mix(in srgb, var(--cobalt) 18%, transparent); animation: respirer 1.8s ease-in-out infinite; }
+.parcours li.ok .pc-nom, .parcours li.ici .pc-nom { color: var(--encre); font-weight: 700; }
+/* Le lexique en tuiles de jeu */
+.lexique .tuile { border-radius: 12px; border-width: 2px; box-shadow: 0 3px 0 var(--trait); transition: transform .1s, box-shadow .1s; }
+.lexique .tuile:hover:not(.trouve) { transform: translateY(-2px); box-shadow: 0 5px 0 var(--trait); }
+.lexique .tuile.mot { background: color-mix(in srgb, var(--cobalt) 8%, var(--carte)); border-color: color-mix(in srgb, var(--cobalt) 35%, var(--trait)); }
+.lexique .tuile[aria-pressed="true"] { border-color: var(--cobalt); background: color-mix(in srgb, var(--cobalt) 18%, var(--carte)); box-shadow: 0 3px 0 var(--cobalt); }
+.lexique .tuile.trouve { box-shadow: 0 3px 0 #146b39; }
+/* Le document */
+.para { border-radius: 12px; }
+.para .n { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: color-mix(in srgb, var(--cobalt) 10%, var(--carte)); color: var(--cobalt); font-size: .85rem; }
 </style>
 </head>
 <body>
@@ -1550,7 +1583,7 @@ const REGLAGES = {
   CODE_ENSEIGNANTE: "classedefle2026", // code de l'espace enseignante
   DUREE_JEU_MIN: 65, // 9 escales de 6 minutes + la préparation et le coffre
   PREPARATION_MIN: 4,
-  PRESENTATION_MIN: 2,
+  PRESENTATION_MIN: 3, // exposé universitaire : problématique, analyse et ouverture
   // Dernière mission : adresse où les étudiants déposent leur enregistrement (dossier Google Drive, Padlet, Moodle, formulaire…).
   // Laisser vide pour cacher le bouton « Déposer ».
   LIEN_DEPOT: "https://digipad.app/p/1969325/81d79e72d91fd8",
@@ -1649,7 +1682,7 @@ const REGLES = [
   "Lisez le document, discutez, puis répondez ensemble.",
   "Une réponse fausse ? Relisez et réessayez : il n'y a aucune pénalité.",
   "Vous avez droit à un indice par escale : votre guide vous le donne. Il vous aide à répondre aux questions du quiz ; il ne contient pas le chiffre du code, qui se gagne en réussissant l'escale.",
-  "Avant de quitter une escale, répondez à la question « Et chez toi ? » dans le carnet.",
+  "Avant de quitter une escale, répondez à la question « Et chez vous ? » dans le carnet.",
 ];
 
 // Escale 0 : « votre culture est votre première escale » (écran d'accueil du prototype)
@@ -1704,6 +1737,7 @@ const ESCALES = [
       { q: "Quand va-t-on à la cabane à sucre ?", options: ["Au printemps", "En hiver", "En été"], correcte: 0, paragraphe: 2 },
       { q: "Qu'est-ce que le « temps des sucres » ?", options: ["La fête nationale", "La récolte de la sève des érables", "Un dessert au sirop"], correcte: 1, paragraphe: 2 },
       { q: "Que célèbre-t-on le 24 juin ?", options: ["Le Carnaval de Québec", "La fin de l'hiver", "La Fête nationale du Québec"], correcte: 2, paragraphe: 3 },
+      { q: "D'après le premier paragraphe, que révèle la situation du français au Québec ?", options: ["L'anglais y est interdit", "Le français y a un statut particulier au sein d'un pays bilingue", "Le Canada n'a qu'une seule langue officielle"], correcte: 1, paragraphe: 1 },
     ],
     lexique: [
       ["la cabane à sucre", "le lieu où l'on partage un repas copieux au temps des sucres"],
@@ -1711,7 +1745,7 @@ const ESCALES = [
       ["Bonhomme", "le personnage célèbre du Carnaval de Québec"],
     ],
     indice: "Les réponses se trouvent dans les deuxième et troisième paragraphes.",
-    chezToi: "Quelle fête ou quel moment de l'année rassemble ta famille autour d'un repas ?",
+    chezToi: "Dans votre communauté, quel moment de l'année réunit la famille autour d'un repas ? Que révèle-t-il de vos valeurs ?",
   },
   {
     id: "senegal", code: "SN", nom: "Sénégal", region: "Afrique de l'Ouest", couleur: "#00853f", drapeau: ["#00853f", "#fdef42", "#e31b23"], voix: "fr-FR",
@@ -1727,6 +1761,7 @@ const ESCALES = [
       { q: "Que signifie le mot « teranga » ?", options: ["La fête", "L'hospitalité", "La pêche"], correcte: 1, paragraphe: 2 },
       { q: "Comment mange-t-on souvent le thiéboudiène ?", options: ["Autour d'un grand plat commun", "Seul, à table", "Debout, dans la rue"], correcte: 0, paragraphe: 2 },
       { q: "À quelle fête correspond la Tabaski ?", options: ["La fête de l'indépendance", "Le Nouvel An", "L'Aïd el-Kébir"], correcte: 2, paragraphe: 3 },
+      { q: "Quelle valeur relie la teranga et le repas pris autour d'un grand plat commun ?", options: ["Le partage", "La compétition", "La discrétion"], correcte: 0, paragraphe: 2 },
     ],
     lexique: [
       ["le wolof", "la langue la plus parlée au quotidien"],
@@ -1734,7 +1769,7 @@ const ESCALES = [
       ["la teranga", "l'hospitalité : on offre le meilleur à l'invité"],
     ],
     indice: "Cherchez dans le deuxième paragraphe, puis dans le dernier.",
-    chezToi: "Comment accueille-t-on un invité dans ta communauté ? Que lui sert-on ?",
+    chezToi: "Comment accueille-t-on un invité dans votre communauté ? En quoi est-ce proche de la teranga, ou différent ?",
   },
   {
     // Escale reprise du Genially (Yasmine, guide à Fès) : contenu validé par l'enseignante (novembre 2026), carte de Yasmine comprise
@@ -1751,6 +1786,7 @@ const ESCALES = [
       { q: "Quelles sont les langues officielles du Maroc ?", options: ["L'arabe et l'amazighe", "L'arabe et le français", "La darija et le français"], correcte: 0, paragraphe: 1 },
       { q: "Que sert-on à l'invité pour l'accueillir ?", options: ["Un jus d'orange", "Un thé à la menthe", "Un café au lait"], correcte: 1, paragraphe: 2 },
       { q: "Quel jour mange-t-on souvent le couscous en famille ?", options: ["Le lundi", "Le samedi", "Le vendredi"], correcte: 2, paragraphe: 2 },
+      { q: "Que peut-on déduire de la place du français au Maroc ?", options: ["C'est la seule langue de l'école", "Il a disparu du pays", "Il n'est pas officiel, mais reste une langue d'usage important"], correcte: 2, paragraphe: 1 },
     ],
     lexique: [
       ["la darija", "l'arabe marocain, parlé au quotidien"],
@@ -1758,7 +1794,7 @@ const ESCALES = [
       ["le tajine", "un plat mijoté dans un récipient en terre au couvercle pointu"],
     ],
     indice: "La langue est dans le premier paragraphe, l'accueil et le couscous dans le deuxième.",
-    chezToi: "Quel lieu de ta ville ou de ta région est important pour faire les courses ou se retrouver ?",
+    chezToi: "Quel lieu de votre ville joue le rôle de lieu d'échange et de rencontre, comme le souk ? Pourquoi ?",
   },
   {
     id: "martinique", code: "MQ", nom: "Martinique", region: "Caraïbes", couleur: "#1e1e1e", teinte: "#c8233f", drapeau: ["#e4002b", "#00a651", "#1e1e1e"], voix: "fr-FR",
@@ -1774,6 +1810,7 @@ const ESCALES = [
       { q: "Que fait-on le mercredi des Cendres ?", options: ["On mange des accras", "On brûle Vaval", "On plante des fleurs"], correcte: 1, paragraphe: 2 },
       { q: "D'où vient le colombo ?", options: ["De l'héritage indien", "De la cuisine française", "De la cuisine caribéenne"], correcte: 0, paragraphe: 3 },
       { q: "Qu'est-ce que le madras ?", options: ["Une danse", "Un plat épicé", "Un tissu à carreaux colorés"], correcte: 2, paragraphe: 3 },
+      { q: "Qu'est-ce que la cuisine martiniquaise révèle de l'histoire de l'île ?", options: ["Le métissage de plusieurs héritages", "Une influence uniquement européenne", "Aucun lien avec l'histoire"], correcte: 0, paragraphe: 3 },
     ],
     lexique: [
       ["Vaval", "le roi du carnaval, brûlé le mercredi des Cendres"],
@@ -1781,7 +1818,7 @@ const ESCALES = [
       ["le créole martiniquais", "la langue parlée avec le français sur l'île"],
     ],
     indice: "Le carnaval est dans le deuxième paragraphe, la cuisine et le costume dans le troisième.",
-    chezToi: "Quelle fête de ta communauté se vit dans la rue, avec de la musique et des costumes ?",
+    chezToi: "Quelle fête de votre communauté se vit dans l'espace public ? Quel héritage historique ou culturel exprime-t-elle ?",
   },
   {
     id: "madagascar", code: "MG", nom: "Madagascar", region: "Océan Indien", couleur: "#e2352b", drapeau: ["#ffffff", "#fc3d32", "#007e3a"], voix: "fr-FR",
@@ -1797,6 +1834,7 @@ const ESCALES = [
       { q: "Que signifie « mora mora » ?", options: ["Doucement, doucement", "Bonjour à tous", "Merci beaucoup"], correcte: 0, paragraphe: 1 },
       { q: "Qu'est-ce que le famadihana ?", options: ["Un marché du dimanche", "Une danse de mariage", "Une cérémonie familiale en l'honneur des ancêtres"], correcte: 2, paragraphe: 2 },
       { q: "Quel aliment est au cœur de chaque repas ?", options: ["Le pain", "Le riz", "La semoule"], correcte: 1, paragraphe: 3 },
+      { q: "Que montre le famadihana sur la société malgache ?", options: ["Le goût pour les fêtes de rue", "L'importance du lien entre les vivants et les ancêtres", "L'influence de la cuisine française"], correcte: 1, paragraphe: 2 },
     ],
     lexique: [
       ["le romazava", "un bouillon de viande et de brèdes"],
@@ -1804,7 +1842,7 @@ const ESCALES = [
       ["le malgache", "une langue officielle, avec le français"],
     ],
     indice: "Chaque réponse se trouve dans un paragraphe différent, dans l'ordre.",
-    chezToi: "Quelle place les grands-parents et les ancêtres occupent-ils dans ta communauté ?",
+    chezToi: "Quelle place les aînés et les ancêtres occupent-ils dans votre communauté ? Comment ce lien se manifeste-t-il ?",
   },
   {
     id: "reunion", code: "RE", nom: "La Réunion", region: "Océan Indien", couleur: "#b06f00", drapeau: ["#003f87", "#ffd100", "#e4002b"], voix: "fr-FR",
@@ -1820,6 +1858,7 @@ const ESCALES = [
       { q: "Que célèbre-t-on le 20 décembre ?", options: ["La fête du volcan", "L'abolition de l'esclavage", "Le Nouvel An créole"], correcte: 1, paragraphe: 2 },
       { q: "Qu'est-ce que le maloya ?", options: ["Une musique et une danse", "Un plat épicé", "Un sommet du volcan"], correcte: 0, paragraphe: 2 },
       { q: "Avec quoi sert-on le cari ?", options: ["Avec du pain", "Avec des frites", "Avec du riz et des légumineuses (haricots, lentilles)"], correcte: 2, paragraphe: 3 },
+      { q: "Pourquoi le maloya joue-t-il un rôle dans la mémoire de l'île ?", options: ["Il vient d'Europe", "Il n'est joué qu'au Nouvel An", "Il est hérité des esclaves et porte leur histoire"], correcte: 2, paragraphe: 2 },
     ],
     lexique: [
       ["le Piton de la Fournaise", "le volcan de l'île"],
@@ -1827,7 +1866,7 @@ const ESCALES = [
       ["le cari", "de la viande ou du poisson cuits avec des épices"],
     ],
     indice: "La fête et la musique sont dans le deuxième paragraphe, le cari dans le dernier.",
-    chezToi: "Quelle musique traditionnelle de ta communauté raconte son histoire ?",
+    chezToi: "Quelle musique ou quel art de votre communauté porte la mémoire de son histoire ? Expliquez.",
   },
   {
     // Escales ajoutées en novembre 2026 (Togo et Comores ; Sainte-Lucie a été retirée) : contenu à faire valider par l'enseignante
@@ -1844,6 +1883,7 @@ const ESCALES = [
       { q: "Quelles sont les deux langues nationales du Togo ?", options: ["Le français et l'éwé", "L'éwé et le kabiyè", "Le kabiyè et le wolof"], correcte: 1, paragraphe: 1 },
       { q: "Que vendent les « Nana Benz » ?", options: ["Le pagne, un tissu coloré", "Des épices", "Des ignames"], correcte: 0, paragraphe: 2 },
       { q: "Que sont les Evala ?", options: ["Un plat de fête", "Un marché de nuit", "Des luttes traditionnelles"], correcte: 2, paragraphe: 3 },
+      { q: "Que suggère la réussite des « Nana Benz » ?", options: ["Le rôle économique important des femmes commerçantes", "Que le pagne est réservé aux hommes", "Que le commerce est interdit à Lomé"], correcte: 0, paragraphe: 2 },
     ],
     lexique: [
       ["le pagne", "un tissu de coton aux motifs colorés"],
@@ -1851,7 +1891,7 @@ const ESCALES = [
       ["les Evala", "des luttes traditionnelles pour entrer dans l'âge adulte"],
     ],
     indice: "Chaque réponse se trouve dans un paragraphe différent, dans l'ordre.",
-    chezToi: "Dans ta communauté, quelle fête ou quelle épreuve marque le passage à l'âge adulte ?",
+    chezToi: "Dans votre communauté, quel rite ou quelle épreuve marque le passage à l'âge adulte ? Que symbolise-t-il ?",
   },
   {
     id: "comores", code: "KM", nom: "Comores", region: "Océan Indien", couleur: "#557a12", drapeau: ["#ffd100", "#ef3340", "#003da5"], voix: "fr-FR",
@@ -1867,6 +1907,7 @@ const ESCALES = [
       { q: "Pourquoi appelle-t-on les Comores les « îles aux parfums » ?", options: ["On y fabrique des bougies", "On y cultive l'ylang-ylang, la vanille et le girofle", "Il y a beaucoup de marchés"], correcte: 1, paragraphe: 1 },
       { q: "Qu'est-ce que le « grand mariage » ?", options: ["Un plat de fête", "Une danse traditionnelle", "La fête la plus importante d'une vie"], correcte: 2, paragraphe: 2 },
       { q: "Qu'est-ce que le mataba ?", options: ["Des feuilles de manioc cuites dans du lait de coco", "Un gâteau à la vanille", "Du poisson grillé"], correcte: 0, paragraphe: 3 },
+      { q: "Que montre le « grand mariage » sur la société de la Grande Comore ?", options: ["Le mariage y est une affaire discrète et privée", "Le mariage engage toute la communauté et donne un statut social", "Seuls les jeunes y participent"], correcte: 1, paragraphe: 2 },
     ],
     lexique: [
       ["l'ylang-ylang", "une fleur jaune utilisée en parfumerie"],
@@ -1874,7 +1915,7 @@ const ESCALES = [
       ["le mataba", "des feuilles de manioc cuites dans du lait de coco"],
     ],
     indice: "Chaque réponse se trouve dans un paragraphe différent, dans l'ordre.",
-    chezToi: "Quelle fête de famille est la plus importante dans ta communauté ? Qui est invité ?",
+    chezToi: "Quelle célébration familiale engage toute la communauté chez vous ? Quel rôle social joue-t-elle ?",
   },
 ];
 const CODE_COFFRE = ESCALES.map((e) => e.chiffre).join("");
@@ -1892,30 +1933,31 @@ const COLONNES_CARNET = [
 ];
 
 const SUJETS = [
-  "Quelles traditions ou fêtes rassemblent les gens dans une communauté francophone découverte pendant le voyage et dans la vôtre ?",
-  "Quel rôle la gastronomie joue-t-elle dans l'identité d'une communauté francophone découverte pendant le voyage et de la vôtre ?",
-  "Comment accueille-t-on un invité dans une communauté francophone découverte pendant le voyage et dans la vôtre ?",
-  "Quelle place la famille et les ancêtres occupent-ils dans une communauté francophone découverte pendant le voyage et dans la vôtre ?",
+  "Dans quelle mesure les fêtes et les traditions renforcent-elles le lien social, dans une communauté francophone découverte pendant le voyage et dans la vôtre ?",
+  "En quoi la gastronomie exprime-t-elle l'identité et l'histoire d'une communauté francophone découverte pendant le voyage, et de la vôtre ?",
+  "Que révèlent les règles de l'hospitalité sur les valeurs d'une communauté francophone découverte pendant le voyage, et de la vôtre ?",
+  "Comment le lien entre les générations (famille, aînés, ancêtres) se manifeste-t-il dans une communauté francophone découverte pendant le voyage et dans la vôtre ?",
 ];
 const SUJET_VERS_CHEZ_NOUS = ["fete", "plat", "accueil", "famille"];
 
 const CANEVAS = [
-  ["Introduction", "15 s", "Le sujet et les deux communautés comparées", 15],
-  ["La communauté francophone", "35 s", "Une pratique précise découverte pendant le voyage", 35],
-  ["Ma communauté", "35 s", "Une pratique comparable", 35],
-  ["Comparaison", "25 s", "Une ressemblance, une différence, et ce qui les explique", 25],
-  ["Conclusion", "10 s", "Ce que cette comparaison m'a appris", 10],
+  ["Introduction", "20 s", "Le sujet, la problématique et les deux communautés comparées", 20],
+  ["La communauté francophone", "45 s", "Une pratique précise découverte pendant le voyage, avec des exemples", 45],
+  ["Ma communauté", "45 s", "Une pratique comparable, décrite avec la même précision", 45],
+  ["Comparaison et analyse", "50 s", "Une ressemblance, une différence, ce qui les explique ; nuancer, éviter les généralisations", 50],
+  ["Conclusion", "20 s", "La réponse à la problématique et une ouverture", 20],
 ];
 
-const OUTILS = ["comme…", "de même que…", "tout comme…", "alors que…", "tandis que…", "contrairement à…", "à la différence de…", "plus / moins / aussi… que…", "en revanche…", "cela s'explique par…", "ce qui m'a surpris(e), c'est que…"];
+const OUTILS = ["certes…, mais…", "néanmoins…", "pourtant…", "dans la mesure où…", "il convient de nuancer…", "si l'on compare…, on constate que…", "comme…", "de même que…", "tout comme…", "alors que…", "tandis que…", "contrairement à…", "à la différence de…", "plus / moins / aussi… que…", "en revanche…", "cela s'explique par…", "ce qui m'a surpris(e), c'est que…"];
 
 const AUTO_EVAL = [
-  "J'ai présenté le sujet et les deux communautés dans l'introduction.",
-  "J'ai décrit une pratique précise de la communauté francophone.",
+  "J'ai présenté le sujet, une problématique et les deux communautés dans l'introduction.",
+  "J'ai décrit une pratique précise de la communauté francophone, avec des informations exactes.",
   "J'ai décrit une pratique comparable de ma communauté.",
-  "J'ai donné une ressemblance ET une différence, avec une explication.",
-  "J'ai utilisé au moins trois expressions de la boîte à outils.",
-  "J'ai tenu dans les 2 minutes et j'ai conclu.",
+  "J'ai donné une ressemblance ET une différence, et je les ai expliquées.",
+  "J'ai nuancé mon propos et évité les généralisations.",
+  "J'ai utilisé au moins trois connecteurs de comparaison ou de nuance.",
+  "J'ai tenu dans les 3 minutes et ma conclusion répond à la problématique.",
 ];
 
 const TEXTE_FIN = `À l'intérieur, une clé USB. Grâce aux informations qu'elle contient, la police retrouve Raoul, sain et sauf, à l'aéroport de Dakar. Il vous remercie : « Vous avez voyagé dans ${NB_LETTRES} communautés francophones. Il vous reste une dernière mission : raconter ce que vous avez découvert, et le comparer avec votre propre communauté. »`;
@@ -1942,7 +1984,7 @@ function etatInitial() {
     guide: null,
     chezNous: { fete: "", plat: "", accueil: "", famille: "", tamponne: false },
     debutJeu: null,
-    escales: Object.fromEntries(ESCALES.map((e) => [e.id, { reponses: [null, null, null], essais: [0, 0, 0], indiceVu: false, lexique: [], lexiqueEssais: 0, ecoute: 0, tamponne: false, debut: null, fin: null, lieux: [], lieuxEssais: 0 }])),
+    escales: Object.fromEntries(ESCALES.map((e) => [e.id, { reponses: e.questions.map(() => null), essais: e.questions.map(() => 0), indiceVu: false, lexique: [], lexiqueEssais: 0, ecoute: 0, tamponne: false, debut: null, fin: null, lieux: [], lieuxEssais: 0 }])),
     carnet: Object.fromEntries(ESCALES.map((e) => [e.id, { fete: "", plat: "", pratique: "", mots: "", chezMoi: "" }])),
     coffreOuvert: false, coffreEssais: 0,
     sujetTire: null,
@@ -2857,7 +2899,7 @@ const CONSIGNES = [
   ["L'équipage", "Voyagez à 3 ou 4. Chacun reçoit un rôle : lecteur, navigateur, gardien du temps, secrétaire.", "equipage"],
   ["À chaque escale", "Lisez le document à voix haute, discutez en groupe, puis répondez ensemble aux questions.", "escale"],
   ["Une erreur ?", "Aucune pénalité : relisez et réessayez. Votre guide vous offre un indice par escale.", "erreur"],
-  ["Le carnet de voyage", "Notez vos découvertes et répondez à « Et chez toi ? » : elles nourriront votre exposé comparatif final.", "carnet"],
+  ["Le carnet de voyage", "Notez vos découvertes et répondez à « Et chez vous ? » : elles nourriront votre exposé comparatif final.", "carnet"],
   ["La langue du voyage", "Du décollage à l'atterrissage, on échange en français !", "langue"],
 ];
 // Tuiles de l'affiche dont l'image est animée (vidéo courte en boucle, sans son, dans videos/consignes/)
@@ -3063,7 +3105,7 @@ function ecranGuide() {
   return `<div class="colonne">
     ${filAriane(2)}
     <section class="salle-guides" aria-label="Choix du guide">
-      <h2 class="bandeau-cuir">Choisis ton guide</h2>
+      <h2 class="bandeau-cuir">Choisissez votre guide</h2>
       <p class="salle-texte">Votre guide vous accompagne pendant tout le voyage. À chaque escale, il ou elle peut vous donner un indice, un seul, pour vous aider à répondre aux questions.</p>
       <div class="cartes-guides" role="group" aria-label="Les guides possibles">
         ${GUIDES.map((x, i) => `<div class="carte-guide${t && t.vise === i ? " vise" : ""}${fini && g.id === x.id ? " choisi" : ""}${fini && g.id !== x.id ? " ecarte" : ""}" style="--g:${x.couleur}">
@@ -3142,7 +3184,7 @@ function ecranCarte() {
         <div style="display:grid; gap:4px"><span class="etiquette">Passeport de l'équipe</span><h2>${esc(etat.equipe.nom || "Votre équipe")}</h2></div>
         <span class="doux">${n} tampon${n > 1 ? "s" : ""} sur ${NB}</span>
       </div>
-      <h3 class="titre-carte">Choisis ta destination</h3>
+      <h3 class="titre-carte">Choisissez votre destination</h3>
       ${ui.mediaAbsent.has("carte-liege") ? carteVol({ interactive: true }) : carteLiege()}
       <p class="doux">Cliquez sur une punaise pour voir le pays en photo, puis envolez-vous. Une punaise verte marque une escale déjà visitée. L'ordre de jeu est libre, mais le code du coffre suit l'ordre des visas.</p>
     </section>
@@ -3286,6 +3328,21 @@ function seriePop(n, bonus) {
   p.innerHTML = `${FLAMME}<span>Série de ${n} !</span><small>+${bonus} miles</small>`;
   document.body.appendChild(p); setTimeout(() => p.remove(), 2400);
 }
+/* En-tête de mission : pastille numérotée, titre, objectif et récompense, comme une quête de jeu vidéo */
+const ICONES_MISSION = {
+  lire: '<path d="M3 5.5C5.5 4.5 9 4.5 12 6.5c3-2 6.5-2 9-1V19c-2.5-1-6-1-9 1-3-2-6.5-2-9-1z"/><path d="M12 6.5V20"/>',
+  quiz: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .8-1 1.5v.7M12 17h.01"/>',
+  mots: '<rect x="3" y="5" width="8" height="6" rx="1.5"/><rect x="13" y="13" width="8" height="6" rx="1.5"/><path d="M11 8h3a2 2 0 0 1 2 2v3"/>',
+  chez: '<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+  tampon: '<path d="M9 3h6l-1 6h3a2 2 0 0 1 2 2v3H5v-3a2 2 0 0 1 2-2h3z"/><path d="M4 18h16v3H4z"/>',
+};
+function missionTete(n, ic, titre, objectif, recompense, fait) {
+  return `<div class="mission-tete">
+      <span class="mission-num${fait ? " fait" : ""}" aria-hidden="true">${fait ? "✓" : `<svg viewBox="0 0 24 24">${ICONES_MISSION[ic]}</svg>`}</span>
+      <div><span class="mission-sur">Mission ${n}${fait ? " · accomplie" : ""}</span><h2>${titre}</h2><p class="mission-obj">${objectif}</p></div>
+      ${recompense ? `<span class="mission-gain">${recompense}</span>` : ""}
+    </div>`;
+}
 function ecranEscale() {
   const e = escaleParId(etat.escaleActive);
   if (!e) return ecranCarte();
@@ -3296,7 +3353,7 @@ function ecranEscale() {
   const pret = toutJuste(e) && lexiqueFini(e) && chezToiRempli(e);
 
   const carte = CARTES_PAYS[e.id];
-  const etapes = [["Document", true], ...(carte ? [[`Carte ${lieuxExplores(e)}/${carte.lieux.length}`, carteDebloquee(e)]] : []), ["Quiz", toutJuste(e)], ["Lexique", lexiqueFini(e)], ["Et chez toi ?", chezToiRempli(e)], ["Tampon", s.tamponne]];
+  const etapes = [["Document", true], ...(carte ? [[`Carte ${lieuxExplores(e)}/${carte.lieux.length}`, carteDebloquee(e)]] : []), ["Quiz", toutJuste(e)], ["Lexique", lexiqueFini(e)], ["Et chez vous ?", chezToiRempli(e)], ["Tampon", s.tamponne]];
 
   // La question en cours (la première pas encore réussie) a son chrono de 20 secondes
   const enCours = e.questions.findIndex((_, i) => !questionJuste(e, i));
@@ -3334,9 +3391,9 @@ function ecranEscale() {
       ${tamponHTML(e, { grand: true, anime: ui.tamponAnime === e.id })}
       <p>Chiffre gagné : <strong style="font-family: var(--f-code); font-size: 1.3rem">${e.chiffre}</strong></p>
       <div class="rangee" style="justify-content:center">${prochaineEscaleBouton(e)}</div>
-    </section>` : `<section class="page">
-      <h2>Le tampon</h2>
-      ${[["Les trois réponses du quiz sont justes", toutJuste(e)], ["Le lexique est complet", lexiqueFini(e)], ["« Et chez toi ? » est rempli", chezToiRempli(e)]].map(([t, ok], k) =>
+    </section>` : `<section class="page mission mission-tampon">
+      ${missionTete(5, "tampon", "Le tampon", "Remplissez les trois objectifs pour obtenir le tampon et le chiffre du code.", "+200 · +300 si rapide", false)}
+      ${[[`Les ${e.questions.length} réponses du quiz sont justes`, toutJuste(e)], ["Le lexique est complet", lexiqueFini(e)], ["« Et chez vous ? » est rempli", chezToiRempli(e)]].map(([t, ok], k) =>
         `<div class="condition${ok ? " ok" : ""}" id="cond-${k}"><span class="puce">${ok ? "✓" : ""}</span>${t}</div>`).join("")}
       <div><button class="btn or" data-action="tamponner" id="btn-tampon" ${pret ? "" : "disabled"}>Obtenir le tampon</button></div>
     </section>`;
@@ -3352,31 +3409,29 @@ function ecranEscale() {
       ${embleme(e.id, e.couleur)}
     </section>
     ${equipageEscaleHTML(e)}
-    <div class="etapes" aria-label="Progression de l'escale">${etapes.map(([t, ok]) => `<span class="${ok ? "ok" : ""}">${ok ? "✓ " : ""}${t}</span>`).join("")}</div>
-    <section class="page">
-      <div class="rangee" style="justify-content:space-between"><span class="etiquette">Le document · le lecteur lit à voix haute</span>
-        ${ttsOk ? `<button class="btn second" data-action="lire" id="btn-lire">${ui.lecture ? "Arrêter la lecture" : "Écouter le document"}</button>` : ""}</div>
+    <ol class="parcours" aria-label="Progression de l'escale">${etapes.map(([t, ok], k) => `<li class="${ok ? "ok" : ""}${!ok && etapes.slice(0, k).every((x) => x[1]) ? " ici" : ""}"><span class="pc-pt" aria-hidden="true">${ok ? "✓" : k + 1}</span><span class="pc-nom">${t}</span></li>`).join("")}</ol>
+    <section class="page mission">
+      ${missionTete(1, "lire", "Le document", "Le lecteur lit le texte à voix haute ; l'équipe repère les informations clés.", "", false)}
+      ${ttsOk ? `<div class="rangee"><button class="btn second" data-action="lire" id="btn-lire">${ui.lecture ? "Arrêter la lecture" : "Écouter le document"}</button></div>` : ""}
       <div class="document">
         ${e.document.map((p, k) => `<div class="para${parasSurlignes.has(k + 1) ? " surligne" : ""}" data-n="${k + 1}" id="para-${k + 1}"><span class="n">§${k + 1}</span><p>${esc(p)}</p></div>`).join("")}
       </div>
     </section>
     ${cartePaysHTML(e)}
-    <section class="page quiz-k">
-      <span class="etiquette">Épreuve 1 · le quiz · discutez, puis répondez ensemble</span>
+    <section class="page quiz-k mission${toutJuste(e) ? " faite" : ""}">
+      ${missionTete(2, "quiz", "Le quiz", `${e.questions.length} questions, dont une d'interprétation : discutez, puis répondez ensemble.`, "+100 par réponse · +50 si rapide", toutJuste(e))}
       ${carteDebloquee(e) ? questions : `<div class="quiz-verrou"><span aria-hidden="true">🔒</span><p><strong>Quiz verrouillé.</strong> Explorez encore ${carte.seuil - lieuxExplores(e)} lieu${carte.seuil - lieuxExplores(e) > 1 ? "x" : ""} sur la carte de Yasmine pour l'ouvrir.</p>
         <button class="btn second" data-action="voir-carte-pays">Aller à la carte</button></div>`}
       <div>${s.indiceVu ? `<p class="doux petit">Indice pour les questions du quiz : il vous dit où chercher dans le document. Le chiffre du code se gagne en réussissant l'escale.</p>${bulleGuide(e.indice)}` : `<button class="btn second" data-action="indice">Demander à ${esc(guideActuel()?.nom || "votre guide")} un indice pour les questions (un seul par escale)</button>`}</div>
     </section>
-    <section class="page">
-      <span class="etiquette">Épreuve 2 · le lexique du contact</span>
-      <h2>Associez chaque mot à sa définition</h2>
+    <section class="page mission${lexiqueFini(e) ? " faite" : ""}">
+      ${missionTete(3, "mots", "Le lexique", "Associez chaque mot culturel à sa définition : sélectionnez un mot, puis sa définition.", "+30 par paire", lexiqueFini(e))}
       ${lexique}
     </section>
-    <section class="page">
-      <span class="etiquette">Épreuve 3 · interculturel</span>
-      <h2>Et chez toi ?</h2>
+    <section class="page mission${chezToiRempli(e) ? " faite" : ""}">
+      ${missionTete(4, "chez", "Et chez vous ?", "Comparez avec votre propre communauté : décrivez, puis expliquez.", "Prépare l'exposé final", chezToiRempli(e))}
       <div class="champ"><label for="cheztoi">${esc(e.chezToi)}</label>
-        <textarea id="cheztoi" data-carnet="${e.id}" data-col="chezMoi" placeholder="Chez moi, … Comme au ${esc(e.nom)}, … / Alors qu'au ${esc(e.nom)}, …">${esc(etat.carnet[e.id].chezMoi)}</textarea></div>
+        <textarea id="cheztoi" data-carnet="${e.id}" data-col="chezMoi" placeholder="Chez nous, … Comme ${esc((PREP[e.id] || ["", "à " + e.nom])[1])}, … / Alors que ${esc((PREP[e.id] || ["", "à " + e.nom])[1])}, … Cela s'explique par…">${esc(etat.carnet[e.id].chezMoi)}</textarea></div>
       <details id="details-carnet" ${ui.detailsOuvert ? "open" : ""}>
         <summary>Le carnet de cette escale (secrétaire)</summary>
         <div class="carnet-mini">
@@ -3465,7 +3520,7 @@ function ecranCoffre() {
 const OUTILS_MISSION = [
   ["sujet", "Le sujet", "Choisir ou tirer au sort"],
   ["fiche", "La fiche de préparation", "Vos notes côte à côte, et les connecteurs"],
-  ["canevas", "Le canevas", "Cinq parties en 2 minutes"],
+  ["canevas", "Le canevas", "Cinq parties en 3 minutes"],
   ["micro", "S'enregistrer", "Présenter l'exposé au micro"],
   ["autoeval", "S'auto-évaluer", "Réécouter et cocher les critères"],
   ["attestation", "Le bilan et l'attestation", "Terminer le voyage"],
@@ -3482,7 +3537,7 @@ function ecranMission() {
         ${COLONNES_CARNET.filter((c) => c.id !== "chezMoi").map((c) => `<p><strong>${esc(c.nom)} :</strong> ${esc(etat.carnet[ec.id][c.id]) || "<span class='doux'>…</span>"}</p>`).join("")}</div>
       <div style="border-top: 4px solid var(--or)"><h3>Chez nous · votre carnet</h3>
         ${cleCN ? `<p><strong>${esc(CHEZ_NOUS.find((c) => c.id === cleCN).q)} :</strong> ${esc(etat.chezNous[cleCN]) || "<span class='doux'>…</span>"}</p>` : ""}
-        <p><strong>Votre réponse à « Et chez toi ? » :</strong> ${esc(etat.carnet[ec.id].chezMoi) || "<span class='doux'>…</span>"}</p></div>
+        <p><strong>Votre réponse à « Et chez vous ? » :</strong> ${esc(etat.carnet[ec.id].chezMoi) || "<span class='doux'>…</span>"}</p></div>
     </div>` : `<p class="doux">Choisissez la communauté francophone à comparer : vos notes s'afficheront côte à côte.</p>`;
   // La boîte à outils : six tuiles numérotées ; un clic ouvre l'outil, les autres restent rangés
   const sel = ui.missionOutil || 0;
@@ -3528,7 +3583,7 @@ function ecranMission() {
       ${suite(1)}
     </section>
     <section ${panneau(2)}>
-      <h2>3. Canevas (2 minutes)</h2>
+      <h2>3. Canevas (${REGLAGES.PRESENTATION_MIN} minutes)</h2>
       <div class="tableau"><table>
         <thead><tr><th>Partie</th><th>Durée</th><th>Contenu</th></tr></thead>
         <tbody>${CANEVAS.map(([pa, d, c], k) => `<tr id="canevas-${k}"><td><strong>${esc(pa)}</strong></td><td class="num">${d}</td><td>${esc(c)}</td></tr>`).join("")}</tbody>
@@ -3742,11 +3797,11 @@ function ecranEnseignante() {
       <p class="petit">Guide : ${g ? esc(g.nom) : "—"} · Décollage : ${etat.debutJeu ? new Date(etat.debutJeu).toLocaleTimeString("fr-FR") : "pas encore"} · Tampons : ${nbTampons()}/${NB} · « Chez nous » : ${chezNousRemplis()}/4 · Essais au coffre : ${etat.coffreEssais} · Coffre : ${etat.coffreOuvert ? "ouvert" : "fermé"} · Auto-évaluation : ${etat.autoEval.length}/${AUTO_EVAL.length} · Exposé enregistré dans le jeu : ${etat.expose && etat.expose.enregistre ? `oui (${mmss(etat.expose.duree)}${etat.expose.nb > 1 ? `, ${etat.expose.nb} essais` : ""})` : "non"}${etat.classe ? " · Classe : " + esc(etat.classe) : ""}</p>
       <div id="statut-envoi">${texteStatutEnvoi()}</div>
       <div class="tableau"><table>
-        <thead><tr><th>Escale</th><th>Tampon</th><th>Q1</th><th>Q2</th><th>Q3</th><th>Lexique (erreurs)</th><th>Indice</th><th>Écoute</th><th>Durée</th><th>Et chez toi ?</th></tr></thead>
+        <thead><tr><th>Escale</th><th>Tampon</th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Lexique (erreurs)</th><th>Indice</th><th>Écoute</th><th>Durée</th><th>Et chez vous ?</th></tr></thead>
         <tbody>${ESCALES.map((e) => {
           const s = etat.escales[e.id];
           return `<tr><td><strong>${esc(e.nom)}</strong></td><td>${s.tamponne ? "Oui" : "Non"}</td>
-            ${s.essais.map((n) => `<td class="num">${n}</td>`).join("")}
+            ${e.questions.map((_, k) => `<td class="num">${s.essais[k] || 0}</td>`).join("")}
             <td class="num">${s.lexique.length}/3 (${s.lexiqueEssais})</td>
             <td>${s.indiceVu ? "Utilisé" : "—"}</td><td class="num">${s.ecoute || 0}</td><td class="num">${duree(s)}</td><td>${esc(etat.carnet[e.id].chezMoi) || "—"}</td></tr>`;
         }).join("")}</tbody>
@@ -4342,7 +4397,7 @@ const ETAPES_JEU = [
   { id: "cheznous", titre: "Chez nous", si: () => Boolean(etat.debutJeu), texte: (g) => `Bonjour ! Je suis ${g.nom}, ${g.metier}, et je voyage avec vous. Avant de décoller, parlez-moi de chez vous : votre culture est notre première escale.` },
   { id: "carte", titre: "Les escales", si: () => Boolean(etat.debutJeu), texte: () => `Voici la carte du monde francophone. ${NB_LETTRES.charAt(0).toUpperCase() + NB_LETTRES.slice(1)} escales nous attendent. Choisissez la première, et envolons-nous !` },
   { id: "coffre", titre: "Le coffre", si: () => nbTampons() === NB && !etat.coffreOuvert, texte: () => "Nous avons tous les chiffres ! Entrez-les dans l'ordre des escales du passeport, et le coffre s'ouvrira." },
-  { id: "mission", titre: "La dernière mission", si: () => etat.coffreOuvert, texte: () => "Voici votre dernière mission : un exposé oral de deux minutes. Ouvrez la boîte à outils, et suivez les six outils dans l'ordre. Je compte sur vous !" },
+  { id: "mission", titre: "La dernière mission", si: () => etat.coffreOuvert, texte: () => "Voici votre dernière mission : un exposé oral de trois minutes, avec une problématique. Ouvrez la boîte à outils, et suivez les six outils dans l'ordre. Je compte sur vous !" },
 ];
 let voixEtape = null, minuterieEtape = null;
 function direAvecVoix(texte, genre, fin) {
@@ -4689,11 +4744,11 @@ function majRegistre() {
 const GRILLE = [
   ["Réalisation de la tâche", "Compare une pratique précise d'une communauté francophone et une pratique de sa propre communauté, sur le sujet tiré.", 4],
   ["Contenu culturel", "Informations exactes et précises, issues du voyage ; évite les généralisations et les stéréotypes.", 4],
-  ["Comparaison et explication", "Au moins une ressemblance et une différence, et une explication (histoire, climat, religion, valeurs…).", 4],
-  ["Organisation du discours", "Introduction, développement en parties, conclusion ; connecteurs de comparaison variés (au moins trois).", 3],
+  ["Comparaison et analyse", "Au moins une ressemblance et une différence, expliquées (histoire, géographie, religion, valeurs…) et nuancées.", 4],
+  ["Organisation du discours", "Introduction avec problématique, développement en parties, conclusion qui y répond ; connecteurs de comparaison et de nuance variés (au moins trois).", 3],
   ["Lexique", "Vocabulaire culturel du voyage réemployé, précis et adapté (mots du lexique des escales).", 2],
   ["Correction grammaticale", "Phrases complexes maîtrisées (comparatif, subordonnées) ; les erreurs ne gênent pas la compréhension.", 2],
-  ["Prononciation et fluidité", "Débit naturel, pauses à bon escient, intonation claire ; tient les 2 minutes.", 1],
+  ["Prononciation et fluidité", "Débit naturel, pauses à bon escient, intonation claire ; tient les 3 minutes.", 1],
 ];
 function grilleHTML() {
   const total = GRILLE.reduce((t, x) => t + x[2], 0);
@@ -4701,7 +4756,7 @@ function grilleHTML() {
       <div class="rangee grille-actions"><button class="btn or" data-action="grille-imprimer">Imprimer</button><button class="btn second" data-action="grille-fermer">Fermer</button></div>
       <span class="etiquette">Le Passeport francophone · dernière mission</span>
       <h2>Grille d'évaluation de l'exposé comparatif</h2>
-      <p class="petit">Production orale en continu, 2 minutes, niveau B1-B2 du CECRL. Équipe : ………………… Étudiant(e) : ………………… Sujet : …………………</p>
+      <p class="petit">Production orale en continu, 3 minutes, niveau B1-B2 du CECRL. Équipe : ………………… Étudiant(e) : ………………… Sujet : …………………</p>
       <table class="grille-table"><thead><tr><th>Critère</th><th>Ce qui est attendu</th><th>Points</th><th>Note</th></tr></thead>
         <tbody>${GRILLE.map(([c, d, p]) => `<tr><td><strong>${esc(c)}</strong></td><td>${esc(d)}</td><td class="num">/${p}</td><td></td></tr>`).join("")}
         <tr class="total"><td colspan="2"><strong>Total</strong></td><td class="num">/${total}</td><td></td></tr></tbody></table>
@@ -4950,7 +5005,7 @@ const actions = {
     const s = etat.escales[e.id];
     if (questionJuste(e, i)) return;
     const reponses = [...s.reponses]; reponses[i] = o;
-    const essais = [...s.essais]; essais[i] += 1;
+    const essais = e.questions.map((_, k) => s.essais[k] || 0); essais[i] += 1;
     ui.erreurs[e.id] = { ...(ui.erreurs[e.id] || {}) };
     const bon = o === e.questions[i].correcte;
     if (bon) delete ui.erreurs[e.id][i]; else ui.erreurs[e.id][i] = o;
