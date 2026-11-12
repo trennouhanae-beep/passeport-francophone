@@ -1508,6 +1508,29 @@ video.fond-media, video.hublot-media { filter: saturate(1.5) contrast(1.1) brigh
 .volet-avion { position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; fill: #ffd27a; transform: translate(-50%, -50%) rotate(90deg); animation: volet-avion 1.2s ease-in-out forwards; opacity: .9; }
 @keyframes volet-passe { 0% { transform: rotate(-4deg) translateX(110%); } 30%, 62% { transform: rotate(-4deg) translateX(0); } 100% { transform: rotate(-4deg) translateX(-110%); } }
 @keyframes volet-avion { 0% { margin-left: -42vw; } 100% { margin-left: 42vw; } }
+/* Rôles de l'escale (rotation) */
+.equipage-escale { display: grid; gap: 6px; padding: 10px 14px; border-radius: 12px; background: color-mix(in srgb, var(--turquoise) 9%, var(--carte)); border: 1px solid color-mix(in srgb, var(--turquoise) 30%, var(--trait)); }
+.ee-liste { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .92rem; }
+.ee-role { display: inline-flex; gap: 6px; align-items: baseline; }
+.ee-role b { color: var(--cuir-2); }
+.ee-role b::after { content: " :"; }
+/* Débriefing */
+.debrief textarea { min-height: 70px; }
+/* Grille d'évaluation */
+.grille-ecran { position: fixed; inset: 0; z-index: 110; overflow: auto; padding: 24px 16px; background: rgba(8, 20, 46, .6); display: grid; place-items: start center; }
+.grille-feuille { width: min(860px, 100%); display: grid; gap: 12px; padding: clamp(18px, 4vw, 34px); background: #fff; color: #14283d; border-radius: 12px; }
+.grille-actions { justify-content: flex-end; }
+.grille-table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.grille-table th, .grille-table td { border: 1px solid #c9d6e2; padding: 8px 10px; text-align: left; vertical-align: top; }
+.grille-table th { background: #eef3f7; }
+.grille-table td:last-child { width: 70px; }
+.grille-table tr.total td { background: #eef3f7; }
+@media print {
+  body.imprime-grille * { visibility: hidden !important; }
+  body.imprime-grille .grille-feuille, body.imprime-grille .grille-feuille * { visibility: visible !important; }
+  body.imprime-grille .grille-ecran { position: absolute; inset: 0; background: none; padding: 0; }
+  body.imprime-grille .grille-actions { display: none !important; }
+}
 </style>
 </head>
 <body>
@@ -1621,7 +1644,7 @@ const GUIDES = [
 ];
 
 const REGLES = [
-  "Jouez en équipe de 3 ou 4, avec un rôle chacun : lecteur, navigateur, gardien du temps, secrétaire.",
+  "Jouez en équipe de 3 ou 4, avec un rôle chacun : lecteur, navigateur, gardien du temps, secrétaire. Les rôles tournent à chaque escale : chacun lira, manipulera, gérera le temps et prendra des notes.",
   "Le français est la seule langue du passeport.",
   "Lisez le document, discutez, puis répondez ensemble.",
   "Une réponse fausse ? Relisez et réessayez : il n'y a aucune pénalité.",
@@ -1936,6 +1959,7 @@ function etatInitial() {
     etapes: [],            // étapes du jeu déjà annoncées par la carte d'étape
     badges: [],            // succès débloqués (pop-up de jeu)
     serie: 0,              // bonnes réponses du premier coup à la suite (quiz)
+    debrief: { surprise: "", cliche: "", retenu: "" }, // débriefing interculturel, au bilan
     serieMax: 0,
   };
 }
@@ -1947,7 +1971,7 @@ function charger() {
     const base = etatInitial();
     const escales = { ...base.escales };
     for (const k of Object.keys(escales)) escales[k] = { ...escales[k], ...(lu.escales || {})[k] };
-    return { ...base, ...lu, equipe: { ...base.equipe, ...lu.equipe }, chezNous: { ...base.chezNous, ...lu.chezNous }, escales, carnet: { ...base.carnet, ...lu.carnet }, preparation: { ...base.preparation, ...lu.preparation } };
+    return { ...base, ...lu, equipe: { ...base.equipe, ...lu.equipe }, chezNous: { ...base.chezNous, ...lu.chezNous }, escales, carnet: { ...base.carnet, ...lu.carnet }, preparation: { ...base.preparation, ...lu.preparation }, debrief: { ...base.debrief, ...(lu.debrief || {}) } };
   } catch (e) { return null; }
 }
 let etat = charger() || etatInitial();
@@ -2393,6 +2417,25 @@ function nbTampons() { return ESCALES.filter((e) => etat.escales[e.id].tamponne)
 function membresInscrits() { return etat.equipe.membres.map((m) => m.trim()).filter(Boolean); }
 function rolesTires() { return Object.keys(etat.equipe.roles).length > 0; }
 function rolesDuMembre(i) { return etat.equipe.roles[i] || []; }
+/* Les rôles tournent à chaque escale : le lecteur d'une escale devient navigateur à la suivante, etc.
+   Ainsi chaque étudiant lit à voix haute, manipule, gère le temps et prend des notes au cours du voyage. */
+function rangEscale(e) {
+  const s = etat.escales[e.id]; if (!s || !s.debut) return ESCALES.filter((x) => etat.escales[x.id].debut).length;
+  return ESCALES.filter((x) => etat.escales[x.id].debut && etat.escales[x.id].debut < s.debut).length;
+}
+function rolesEscale(e) {
+  const idx = etat.equipe.membres.map((m, i) => (m.trim() ? i : -1)).filter((i) => i >= 0 && rolesDuMembre(i).length);
+  if (idx.length < 2) return [];
+  const k = rangEscale(e) % idx.length;
+  return idx.map((i, j) => ({ nom: etat.equipe.membres[i].trim(), roles: rolesDuMembre(idx[(j + k) % idx.length]) }));
+}
+function equipageEscaleHTML(e) {
+  const l = rolesEscale(e); if (!l.length) return "";
+  return `<div class="equipage-escale" aria-label="Les rôles pour cette escale">
+      <span class="etiquette">Rôles de cette escale · ils tournent à chaque pays</span>
+      <div class="ee-liste">${l.map((x) => `<span class="ee-role"><b>${esc(x.nom)}</b>${x.roles.map((r) => esc(ROLES.find((y) => y.id === r)?.nom || r)).join(" + ")}</span>`).join("")}</div>
+    </div>`;
+}
 function chezNousRemplis() { return CHEZ_NOUS.filter((c) => (etat.chezNous[c.id] || "").trim()).length; }
 function melanger(t) { const a = [...t]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
@@ -2420,6 +2463,7 @@ function aller(ecran, extra = {}) {
 }
 
 function carnetEnTexte() {
+  const deb = DEBRIEF.filter(([id]) => (etat.debrief[id] || "").trim()).map(([id, q]) => `- ${q}\n  ${etat.debrief[id].trim()}`);
   const l = [`# Carnet de voyage · ${etat.equipe.nom || "Équipe"}`, ""];
   if (membresInscrits().length) l.push("Voyageurs : " + membresInscrits().join(", "), "");
   l.push("## Chez nous (escale 0)");
@@ -2436,6 +2480,7 @@ function carnetEnTexte() {
     if (p.escale) l.push(`- **Communauté comparée** : ${escaleParId(p.escale).nom}`);
     l.push(`- **Ressemblance** : ${p.ressemblance || "…"}`, `- **Différence** : ${p.difference || "…"}`, `- **Explication** : ${p.explication || "…"}`);
   }
+  if (deb.length) l.push("", "## Débriefing", ...deb);
   return l.join("\n");
 }
 async function copier(texte, message) {
@@ -3306,6 +3351,7 @@ function ecranEscale() {
       <p class="accroche">${esc(e.accroche)}</p></div>
       ${embleme(e.id, e.couleur)}
     </section>
+    ${equipageEscaleHTML(e)}
     <div class="etapes" aria-label="Progression de l'escale">${etapes.map(([t, ok]) => `<span class="${ok ? "ok" : ""}">${ok ? "✓ " : ""}${t}</span>`).join("")}</div>
     <section class="page">
       <div class="rangee" style="justify-content:space-between"><span class="etiquette">Le document · le lecteur lit à voix haute</span>
@@ -3507,6 +3553,12 @@ function ecranMission() {
 }
 
 // Fin / bilan : ce que l'équipe a accompli, pensé comme un retour, pas comme une note.
+// Débriefing interculturel : surprise, stéréotype interrogé, apprentissage transférable
+const DEBRIEF = [
+  ["surprise", "Qu'est-ce qui vous a le plus surpris pendant le voyage ? Pourquoi ?", "Ce qui m'a surpris, c'est que…"],
+  ["cliche", "Quelle idée toute faite aviez-vous sur l'une de ces communautés ? Le voyage l'a-t-il confirmée ou nuancée ?", "Avant, je pensais que… Maintenant, je sais que…"],
+  ["retenu", "Qu'allez-vous retenir pour mieux comprendre une personne d'une autre culture ?", "La prochaine fois, je…"],
+];
 function ecranBilan() {
   if (!etat.coffreOuvert) return ecranCoffre();
   const g = guideActuel();
@@ -3547,6 +3599,13 @@ function ecranBilan() {
       ${AUTO_EVAL.some((_, i) => !etat.autoEval.includes(i)) ? `<div><p class="petit"><strong>Pour la prochaine fois :</strong></p>
         <ul class="regles">${AUTO_EVAL.filter((_, i) => !etat.autoEval.includes(i)).map((a) => `<li>${esc(a)}</li>`).join("")}</ul></div>`
         : `<p>Tous les critères de l'auto-évaluation sont réussis. Bravo !</p>`}
+    </section>
+    <section class="page debrief">
+      <span class="etiquette">Débriefing · à discuter en équipe, puis à noter</span>
+      <h2>Ce que le voyage a changé</h2>
+      <p class="doux">Trois questions pour prendre du recul sur ce que vous avez découvert. Vos réponses s'ajoutent au carnet de voyage.</p>
+      ${DEBRIEF.map(([id, q, aide]) => `<div class="champ"><label for="debrief-${id}">${esc(q)}</label>
+        <textarea id="debrief-${id}" data-debrief="${id}" placeholder="${esc(aide)}">${esc(etat.debrief[id] || "")}</textarea></div>`).join("")}
     </section>
     <section class="page">
       <h2>Garder une trace</h2>
@@ -3668,6 +3727,7 @@ function ecranEnseignante() {
   return `<section class="page">
       <span class="etiquette">Espace enseignante</span>
       <h2>Tableau des équipes</h2>
+      <div class="rangee"><button class="btn second" data-action="grille">📋 Grille d'évaluation de l'exposé (à imprimer)</button></div>
       <div class="rangee"><button class="btn or" data-action="podium">🏆 Afficher le podium (à projeter)</button>
         <span class="doux petit">Plein écran, comme à la fin d'un quiz en classe : les trois premières équipes montent sur le podium. Mis à jour toutes les 15 secondes.</span></div>
       <div id="tableau-classe">${tableauClasseHTML()}</div>
@@ -4625,6 +4685,30 @@ function majRegistre() {
   if (!etat.debutJeu) return;
   try { const r = lireRegistre().filter((x) => x.id !== etat.partieId); r.unshift(resumeEquipe()); localStorage.setItem(CLE_REGISTRE, JSON.stringify(r.slice(0, 300))); } catch (e) {}
 }
+/* Grille d'évaluation de l'exposé comparatif (production orale en continu, B1-B2 du CECRL) */
+const GRILLE = [
+  ["Réalisation de la tâche", "Compare une pratique précise d'une communauté francophone et une pratique de sa propre communauté, sur le sujet tiré.", 4],
+  ["Contenu culturel", "Informations exactes et précises, issues du voyage ; évite les généralisations et les stéréotypes.", 4],
+  ["Comparaison et explication", "Au moins une ressemblance et une différence, et une explication (histoire, climat, religion, valeurs…).", 4],
+  ["Organisation du discours", "Introduction, développement en parties, conclusion ; connecteurs de comparaison variés (au moins trois).", 3],
+  ["Lexique", "Vocabulaire culturel du voyage réemployé, précis et adapté (mots du lexique des escales).", 2],
+  ["Correction grammaticale", "Phrases complexes maîtrisées (comparatif, subordonnées) ; les erreurs ne gênent pas la compréhension.", 2],
+  ["Prononciation et fluidité", "Débit naturel, pauses à bon escient, intonation claire ; tient les 2 minutes.", 1],
+];
+function grilleHTML() {
+  const total = GRILLE.reduce((t, x) => t + x[2], 0);
+  return `<div class="grille-ecran" role="dialog" aria-label="Grille d'évaluation"><div class="grille-feuille">
+      <div class="rangee grille-actions"><button class="btn or" data-action="grille-imprimer">Imprimer</button><button class="btn second" data-action="grille-fermer">Fermer</button></div>
+      <span class="etiquette">Le Passeport francophone · dernière mission</span>
+      <h2>Grille d'évaluation de l'exposé comparatif</h2>
+      <p class="petit">Production orale en continu, 2 minutes, niveau B1-B2 du CECRL. Équipe : ………………… Étudiant(e) : ………………… Sujet : …………………</p>
+      <table class="grille-table"><thead><tr><th>Critère</th><th>Ce qui est attendu</th><th>Points</th><th>Note</th></tr></thead>
+        <tbody>${GRILLE.map(([c, d, p]) => `<tr><td><strong>${esc(c)}</strong></td><td>${esc(d)}</td><td class="num">/${p}</td><td></td></tr>`).join("")}
+        <tr class="total"><td colspan="2"><strong>Total</strong></td><td class="num">/${total}</td><td></td></tr></tbody></table>
+      <p class="petit"><strong>Commentaire :</strong> ………………………………………………………………………………………………………………………………………</p>
+      <p class="doux petit">Repères : l'auto-évaluation des étudiants (6 critères) suit les mêmes attentes ; comparez-la avec cette grille lors du retour individuel.</p>
+    </div></div>`;
+}
 function podiumHTML() {
   const l = lignesClasse().slice().sort((a, b) => (b.miles || 0) - (a.miles || 0) || (b.tampons - a.tampons));
   const top = l.slice(0, 3), reste = l.slice(3, 12);
@@ -5034,6 +5118,9 @@ const actions = {
     etat = etatInitial(); etat.son = sonPref; etat.musique = musiquePref; etat.ecran = "enseignante";
     sauver(); afficher();
   },
+  grille() { document.querySelector(".grille-ecran")?.remove(); document.body.insertAdjacentHTML("beforeend", grilleHTML()); },
+  "grille-fermer"() { document.querySelector(".grille-ecran")?.remove(); document.body.classList.remove("imprime-grille"); },
+  "grille-imprimer"() { document.body.classList.add("imprime-grille"); window.print(); setTimeout(() => document.body.classList.remove("imprime-grille"), 800); },
   async podium() { if (supabaseActif) await chargerClasse(); ouvrirPodium(); },
   async "podium-maj"() { if (supabaseActif) await chargerClasse(); ouvrirPodium(); },
   "podium-fermer"() { clearInterval(podiumMinuterie); if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); document.querySelector(".podium-ecran")?.remove(); },
@@ -5066,6 +5153,7 @@ document.addEventListener("keydown", (ev) => {
 
 // Saisies : mise à jour de l'état sans tout redessiner (pour garder le curseur)
 document.addEventListener("input", (ev) => {
+  if (ev.target.dataset && ev.target.dataset.debrief) { etat.debrief = { ...etat.debrief, [ev.target.dataset.debrief]: ev.target.value }; sauver(); return; }
   const t = ev.target;
   if (t.dataset.equipe === "nom" || t.dataset.membre !== undefined) {
     const equipe = { ...etat.equipe, membres: [...etat.equipe.membres] };
