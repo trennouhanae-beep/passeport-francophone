@@ -1498,6 +1498,9 @@ video.fond-media, video.hublot-media { filter: saturate(1.5) contrast(1.1) brigh
 .podium-ligne .num { font-family: var(--f-code); }
 .podium-vide { text-align: center; opacity: .85; align-self: center; }
 @media (prefers-reduced-motion: reduce) { .marche, .podium-ligne, .serie-pop, .chrono-q .barre i { animation: none !important; } }
+/* Les pages ne s'élargissent jamais au-delà de l'écran (tableaux de l'espace enseignant sur tablette) */
+main { grid-template-columns: minmax(0, 1fr); }
+.tableau { max-width: 100%; overflow-x: auto; }
 /* Volet de transition entre les parties */
 .volet { position: fixed; inset: 0; z-index: 97; pointer-events: none; display: grid; place-items: center; overflow: hidden; contain: strict; clip-path: inset(0); }
 .volet-bande { --c: var(--cobalt); position: relative; width: 140vw; display: grid; justify-items: center; gap: 4px; padding: clamp(18px, 4vh, 34px) 0; color: #fff; text-align: center;
@@ -1581,7 +1584,7 @@ const REGLAGES = {
   SUPABASE_URL: "https://prffovnmuzybksnaqvdt.supabase.co", // projet Supabase « passeport-francophone »
   SUPABASE_CLE: "sb_publishable_NQopBI2H0Yp0twirEaJ6oQ_bZsqxjJp", // clé publique « publishable », JAMAIS la clé secrète
   CODE_ENSEIGNANTE: "classedefle2026", // code de l'espace enseignante
-  DUREE_JEU_MIN: 65, // 9 escales de 6 minutes + la préparation et le coffre
+  DUREE_JEU_MIN: 65, // 8 escales de 6 minutes, « Chez nous », la préparation et le coffre
   PREPARATION_MIN: 4,
   PRESENTATION_MIN: 3, // exposé universitaire : problématique, analyse et ouverture
   // Dernière mission : adresse où les étudiants déposent leur enregistrement (dossier Google Drive, Padlet, Moodle, formulaire…).
@@ -3261,7 +3264,7 @@ const ALBUMS = {
     ["album/senegal-teranga", "La teranga : on offre le meilleur à l'invité"], ["album/senegal-tabaski", "Les habits neufs de la Tabaski"]],
   maroc: [["escales/maroc", "Une ruelle de la médina de Fès"], ["album/maroc-the", "Le thé à la menthe, servi très sucré"],
     ["album/maroc-souk", "Le souk : épices, tapis et babouches"], ["album/maroc-tajine", "Le tajine et son couvercle pointu"]],
-  martinique: [["album/martinique-carnaval", "Les défilés du carnaval"], ["album/martinique-vaval", "Vaval, le roi du carnaval"],
+  martinique: [["album/martinique-carnaval", "Les défilés du carnaval"], ["escales/martinique", "Les rues en fête jusqu'au mercredi des Cendres, quand on brûle Vaval"],
     ["album/martinique-accras", "Les accras et le colombo"], ["album/martinique-madras", "Le madras, un tissu à carreaux colorés"]],
   madagascar: [["escales/madagascar", "Les rizières des Hautes Terres"], ["album/madagascar-romazava", "Le romazava, servi avec du riz"],
     ["album/madagascar-bredes", "Les brèdes, des feuilles vertes, au marché"], ["album/madagascar-moramora", "« Mora mora » : on prend le temps"]],
