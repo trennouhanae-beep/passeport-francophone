@@ -1567,6 +1567,18 @@ main { grid-template-columns: minmax(0, 1fr); }
 /* Le document */
 .para { border-radius: 12px; }
 .para .n { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: color-mix(in srgb, var(--cobalt) 10%, var(--carte)); color: var(--cobalt); font-size: .85rem; }
+/* Format écran : sur un grand écran, le jeu s'étire en largeur ; les paragraphes gardent une ligne confortable */
+@media (min-width: 1100px) {
+  main { max-width: min(1440px, 94vw); }
+  main.livret { max-width: min(1380px, 94vw); }
+  .colonne { max-width: min(1040px, 100%); }
+  .document .para p, .page > p, .mission-obj { max-width: 78ch; }
+  .entete-escale { min-height: 260px; }
+  .affiche { width: min(1100px, 100%); }
+  .carte-liege-wrap, .carte-cadre { max-width: 100%; }
+}
+/* En plein écran : la barre reste en haut, le reste du jeu occupe tout l'espace */
+body.plein-ecran main.livret { margin-top: 14px; }
 </style>
 </head>
 <body>
@@ -3863,6 +3875,7 @@ function afficherBarre() {
       ${etat.finJeu ? `<button data-action="aller" data-ecran="bilan" aria-current="${actif("bilan")}">Bilan</button>` : ""}
     </nav><span class="miles" id="miles" title="Miles de voyage gagnés par l'équipe, et votre grade">${PICTO_AVION}<b>${fmtMiles(etat.miles)}</b><small>${esc(GRADES[gradeDe(etat.miles || 0)][1])}</small></span><span class="chrono" id="chrono" role="timer"></span>` : `<span style="margin-left:auto"></span>`}
     <button class="icone-btn" data-action="son" aria-pressed="${etat.son}" title="Bruitages">${etat.son ? "Son : oui" : "Son : non"}</button>
+    <button class="icone-btn" data-action="plein-ecran" aria-pressed="${Boolean(document.fullscreenElement)}" title="Afficher le jeu sur tout l'écran">${document.fullscreenElement ? "⤡ Quitter le plein écran" : "⤢ Plein écran"}</button>
     <button class="icone-btn" data-action="musique" aria-pressed="${etat.musique}" title="Musique d'ambiance de chaque escale">${etat.musique ? "♪ Musique : oui" : "♪ Musique : non"}</button>`;
   majChrono();
 }
@@ -3875,6 +3888,7 @@ function majChrono() {
   // Barre du temps restant sous le chrono
   el.style.setProperty("--reste", etat.finJeu ? 0 : Math.max(0, r) / (REGLAGES.DUREE_JEU_MIN * 60));
 }
+document.addEventListener("fullscreenchange", () => { document.body.classList.toggle("plein-ecran", Boolean(document.fullscreenElement)); afficherBarre(); });
 function afficher() {
   const ecrans = { accueil: ecranAccueil, capitaine: ecranCapitaine, equipage: ecranEquipage, guide: ecranGuide, cheznous: ecranChezNous, carte: ecranCarte, escale: ecranEscale, carnet: ecranCarnet, coffre: ecranCoffre, mission: ecranMission, bilan: ecranBilan, enseignante: ecranEnseignante };
   const fn = ui.transit ? ecranTransit : ecrans[etat.ecran] || ecranAccueil;
@@ -4468,7 +4482,9 @@ function guideParle(texte, { etiquette = "Votre guide vous parle", titre = null,
 }
 // À chaque nouvelle étape du jeu : une carte d'étape, une seule fois par partie
 function annoncerEtape() {
-  if (ui.transit || ui.intro || document.querySelector(".etape-pop, .capitaine-pop")) return;
+  if (ui.transit || ui.intro) return;
+  // Une autre fenêtre est encore ouverte (ou en train de se fermer) : on réessaie un peu plus tard au lieu de sauter l'annonce
+  if (document.querySelector(".etape-pop:not(.sort), .capitaine-pop:not(.sort), .victoire-pop, .embarquement")) { clearTimeout(ui.attenteEtape); ui.attenteEtape = setTimeout(annoncerEtape, 1200); return; }
   const k = ETAPES_JEU.findIndex((x) => x.id === etat.ecran); if (k < 0) return;
   const E = ETAPES_JEU[k], vues = etat.etapes || [];
   if (vues.includes(E.id) || (E.si && !E.si())) return;
@@ -4859,6 +4875,11 @@ const actions = {
   },
   "apres-bienvenue"() { const suite = ui.suiteOuverture; ui.ouverture = false; ui.suiteOuverture = null; if (suite) suite(); else aller("capitaine"); },
   aller(b) { aller(b.dataset.ecran); },
+  "plein-ecran"() {
+    const d = document.documentElement;
+    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+    else (d.requestFullscreen || d.webkitRequestFullscreen)?.call(d)?.catch?.(() => {});
+  },
   son() { etat.son = !etat.son; sauver(); afficherBarre(); son.clic(); },
   musique() { etat.musique = !etat.musique; sauver(); afficherBarre(); musique.pour(themeEcran()); },
   "tirer-roles"() {
