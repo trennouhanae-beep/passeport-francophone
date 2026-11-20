@@ -1579,6 +1579,13 @@ main { grid-template-columns: minmax(0, 1fr); }
 }
 /* En plein écran : la barre reste en haut, le reste du jeu occupe tout l'espace */
 body.plein-ecran main.livret { margin-top: 14px; }
+/* Mode diapositives (Genially) */
+.hors-partie { text-align: center; justify-items: center; padding-block: clamp(30px, 6vw, 60px); }
+.hp-icone { width: 74px; height: 74px; border-radius: 50%; display: grid; place-items: center; font-size: 2rem; color: #fff; background: linear-gradient(135deg, var(--turquoise), var(--cobalt)); box-shadow: 0 10px 22px -10px rgba(16, 34, 77, .6); }
+.hors-partie p { max-width: 52ch; }
+.hp-fleche { font-size: 2.4rem; color: var(--cobalt); animation: hp-fleche 1.2s ease-in-out infinite; }
+@keyframes hp-fleche { 50% { transform: translateX(10px); } }
+body.mode-diapo main.livret { margin-top: 10px; }
 </style>
 </head>
 <body>
@@ -2496,9 +2503,55 @@ function equipageEscaleHTML(e) {
 function chezNousRemplis() { return CHEZ_NOUS.filter((c) => (etat.chezNous[c.id] || "").trim()).length; }
 function melanger(t) { const a = [...t]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
+const PARTIES = {
+  accueil: { titre: "L'embarquement", ecrans: ["accueil"] },
+  preparation: { titre: "La préparation", ecrans: ["capitaine", "equipage", "guide"] },
+  cheznous: { titre: "Chez nous", ecrans: ["cheznous"], requis: () => Boolean(etat.debutJeu), avant: "La préparation (équipage, guide, décollage)" },
+  escales: { titre: "Les escales", ecrans: ["carte", "escale", "carnet"], requis: () => Boolean(etat.debutJeu), avant: "La préparation (équipage, guide, décollage)" },
+  coffre: { titre: "Le coffre", ecrans: ["coffre"], requis: () => nbTampons() === NB, avant: "Les escales (tous les tampons)" },
+  mission: { titre: "La dernière mission", ecrans: ["mission"], requis: () => etat.coffreOuvert, avant: "Le coffre" },
+  bilan: { titre: "Le bilan", ecrans: ["bilan"], requis: () => etat.coffreOuvert, avant: "La dernière mission" },
+};
+const PARTIE = (() => { try { const p = new URLSearchParams(location.search).get("partie"); return PARTIES[p] ? p : null; } catch (e) { return null; } })();
+// L'écran demandé (ou le vol en cours) appartient-il à la partie de cette diapositive ?
+function dansLaPartie() {
+  if (!PARTIE) return true;
+  const P = PARTIES[PARTIE];
+  if (ui.transit) return PARTIE === "escales" || (PARTIE === "cheznous" && ui.transit.vers === "cheznous");
+  return P.ecrans.includes(etat.ecran);
+}
+// Écran affiché quand la partie de la diapositive est finie, ou pas encore ouverte
+function ecranHorsPartie() {
+  const P = PARTIES[PARTIE], pret = !P.requis || P.requis();
+  return `<div class="colonne"><section class="page hors-partie">
+      <span class="hp-icone" aria-hidden="true">${pret ? "✓" : "🔒"}</span>
+      <span class="etiquette">Diapositive · ${esc(P.titre)}</span>
+      ${pret ? `<h2>Partie terminée, bravo !</h2>
+        <p>Votre progression est enregistrée. <strong>Passez à la diapositive suivante</strong> de la présentation pour continuer le voyage.</p>
+        <p class="hp-fleche" aria-hidden="true">▶</p>
+        <div class="rangee" style="justify-content:center"><button class="btn second" data-action="rester-partie">Revenir à cette partie</button></div>`
+      : `<h2>Cette partie n'est pas encore ouverte</h2>
+        <p>Terminez d'abord : <strong>${esc(P.avant)}</strong>. Revenez à la diapositive précédente, puis revenez ici.</p>
+        <div class="rangee" style="justify-content:center"><button class="btn second" data-action="rester-partie">Vérifier à nouveau</button></div>`}
+    </section></div>`;
+}
+// À l'ouverture d'une diapositive : on se place sur le premier écran de sa partie (si elle est ouverte)
+function entrerDansLaPartie() {
+  if (!PARTIE) return;
+  const P = PARTIES[PARTIE];
+  ui.intro = PARTIE === "accueil" && !etat.introVue && !etat.debutJeu && ui.intro;
+  if (P.requis && !P.requis()) return;
+  if (!P.ecrans.includes(etat.ecran)) {
+    let ec = P.ecrans[0];
+    if (PARTIE === "preparation") ec = !equipageComplet() ? (etat.ecran === "capitaine" ? "capitaine" : etat.equipe.nom ? "equipage" : "capitaine") : "guide";
+    if (PARTIE === "escales") ec = "carte";
+    etat.ecran = ec;
+  }
+}
 /* Transition entre deux parties du jeu : un volet aux couleurs du passeport balaie l'écran
    et annonce la page où l'on arrive (comme un écran de niveau dans un jeu vidéo). */
 function voletTransition() {
+  if (!dansLaPartie()) return;
   if (matchMedia("(prefers-reduced-motion: reduce)").matches || ["accueil", "enseignante"].includes(etat.ecran) || ui.transit) return;
   const f = folioEcran(); if (!f.titre) return;
   document.querySelector(".volet")?.remove();
@@ -3868,11 +3921,9 @@ function afficherBarre() {
   document.getElementById("barre").innerHTML = `
     <button class="marque" data-action="couverture" title="Revenir à la couverture du passeport">Passeport francophone</button>
     ${enJeu ? `<nav class="nav" aria-label="Navigation du jeu">
-      <button data-action="aller" data-ecran="carte" aria-current="${actif("carte")}">Passeport</button>
-      <button data-action="aller" data-ecran="carnet" aria-current="${actif("carnet")}">Carnet</button>
-      <button data-action="aller" data-ecran="coffre" aria-current="${actif("coffre")}">Coffre</button>
-      ${etat.coffreOuvert ? `<button data-action="aller" data-ecran="mission" aria-current="${actif("mission")}">Mission</button>` : ""}
-      ${etat.finJeu ? `<button data-action="aller" data-ecran="bilan" aria-current="${actif("bilan")}">Bilan</button>` : ""}
+      ${[["carte", "Passeport", true], ["carnet", "Carnet", true], ["coffre", "Coffre", true], ["mission", "Mission", etat.coffreOuvert], ["bilan", "Bilan", etat.finJeu]]
+        .filter(([ec, , ok]) => ok && (!PARTIE || PARTIES[PARTIE].ecrans.includes(ec)))
+        .map(([ec, nom]) => `<button data-action="aller" data-ecran="${ec}" aria-current="${actif(ec)}">${nom}</button>`).join("")}
     </nav><span class="miles" id="miles" title="Miles de voyage gagnés par l'équipe, et votre grade">${PICTO_AVION}<b>${fmtMiles(etat.miles)}</b><small>${esc(GRADES[gradeDe(etat.miles || 0)][1])}</small></span><span class="chrono" id="chrono" role="timer"></span>` : `<span style="margin-left:auto"></span>`}
     <button class="icone-btn" data-action="son" aria-pressed="${etat.son}" title="Bruitages">${etat.son ? "Son : oui" : "Son : non"}</button>
     <button class="icone-btn" data-action="plein-ecran" aria-pressed="${Boolean(document.fullscreenElement)}" title="Afficher le jeu sur tout l'écran">${document.fullscreenElement ? "⤡ Quitter le plein écran" : "⤢ Plein écran"}</button>
@@ -3891,7 +3942,8 @@ function majChrono() {
 document.addEventListener("fullscreenchange", () => { document.body.classList.toggle("plein-ecran", Boolean(document.fullscreenElement)); afficherBarre(); });
 function afficher() {
   const ecrans = { accueil: ecranAccueil, capitaine: ecranCapitaine, equipage: ecranEquipage, guide: ecranGuide, cheznous: ecranChezNous, carte: ecranCarte, escale: ecranEscale, carnet: ecranCarnet, coffre: ecranCoffre, mission: ecranMission, bilan: ecranBilan, enseignante: ecranEnseignante };
-  const fn = ui.transit ? ecranTransit : ecrans[etat.ecran] || ecranAccueil;
+  const fn = !dansLaPartie() ? ecranHorsPartie : ui.transit ? ecranTransit : ecrans[etat.ecran] || ecranAccueil;
+  document.body.classList.toggle("mode-diapo", Boolean(PARTIE));
   const app = document.getElementById("app");
   // On garde les vidéos et images déjà chargées d'un affichage à l'autre (sinon elles repartiraient de zéro à chaque clic)
   const garde = new Map([...app.querySelectorAll("[data-media]")].map((n) => [n.dataset.media, n]));
@@ -4482,7 +4534,7 @@ function guideParle(texte, { etiquette = "Votre guide vous parle", titre = null,
 }
 // À chaque nouvelle étape du jeu : une carte d'étape, une seule fois par partie
 function annoncerEtape() {
-  if (ui.transit || ui.intro) return;
+  if (ui.transit || ui.intro || !dansLaPartie()) return;
   // Une autre fenêtre est encore ouverte (ou en train de se fermer) : on réessaie un peu plus tard au lieu de sauter l'annonce
   if (document.querySelector(".etape-pop:not(.sort), .capitaine-pop:not(.sort), .victoire-pop, .embarquement")) { clearTimeout(ui.attenteEtape); ui.attenteEtape = setTimeout(annoncerEtape, 1200); return; }
   const k = ETAPES_JEU.findIndex((x) => x.id === etat.ecran); if (k < 0) return;
@@ -4875,6 +4927,7 @@ const actions = {
   },
   "apres-bienvenue"() { const suite = ui.suiteOuverture; ui.ouverture = false; ui.suiteOuverture = null; if (suite) suite(); else aller("capitaine"); },
   aller(b) { aller(b.dataset.ecran); },
+  "rester-partie"() { entrerDansLaPartie(); ui.transit = null; afficher(); },
   "plein-ecran"() {
     const d = document.documentElement;
     if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
@@ -5324,11 +5377,26 @@ setInterval(() => {
 }, 500);
 
 if (ttsOk) speechSynthesis.onvoiceschanged = () => {};
+window.addEventListener("storage", (ev) => {
+  if (ev.key !== CLE_SAUVEGARDE || !ev.newValue) return;
+  const lu = charger(); if (!lu) return;
+  const actif = document.activeElement && /TEXTAREA|INPUT/.test(document.activeElement.tagName);
+  etat = { ...lu, ecran: etat.ecran, escaleActive: etat.escaleActive };
+  if (PARTIE) entrerDansLaPartie();
+  if (!actif && !ui.transit) afficher(); else afficherBarre();
+});
+// Quand la diapositive redevient visible : on se remet à jour et sur sa partie
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden || !PARTIE) return;
+  const lu = charger(); if (lu) etat = lu;
+  entrerDansLaPartie(); if (!ui.transit) afficher();
+});
 if (etat.ecran === "escale" && !escaleParId(etat.escaleActive)) etat.ecran = "carte";
 // Première visite sur ce poste : la vidéo d'introduction se joue d'abord (sauf si le poste demande moins d'animations)
 // À chaque ouverture, le passeport s'ouvre sur sa couverture, même si une partie est en cours
-if (etat.debutJeu && etat.ecran !== "accueil" && etat.ecran !== "enseignante") { ui.ecranRepris = etat.ecran; etat.ecran = "accueil"; }
-if (etat.ecran === "accueil" && !etat.introVue && !etat.debutJeu && !matchMedia("(prefers-reduced-motion: reduce)").matches) ui.intro = true;
+if (!PARTIE && etat.debutJeu && etat.ecran !== "accueil" && etat.ecran !== "enseignante") { ui.ecranRepris = etat.ecran; etat.ecran = "accueil"; }
+if ((!PARTIE || PARTIE === "accueil") && etat.ecran === "accueil" && !etat.introVue && !etat.debutJeu && !matchMedia("(prefers-reduced-motion: reduce)").matches) ui.intro = true;
+entrerDansLaPartie();
 afficher();
 </script>
 </body>
