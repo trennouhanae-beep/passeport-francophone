@@ -1586,10 +1586,61 @@ body.plein-ecran main.livret { margin-top: 14px; }
 .hp-fleche { font-size: 2.4rem; color: var(--cobalt); animation: hp-fleche 1.2s ease-in-out infinite; }
 @keyframes hp-fleche { 50% { transform: translateX(10px); } }
 body.mode-diapo main.livret { margin-top: 10px; }
+/* ===== Barre de parcours (8 escales + code du coffre) ===== */
+.parcours { border-top: 1px solid rgba(255, 255, 255, .14); padding: 6px max(16px, env(safe-area-inset-right, 0px)) 7px max(16px, env(safe-area-inset-left, 0px)); }
+.parcours[hidden] { display: none; }
+.parcours-in { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+.pc-titre { font-family: var(--f-code); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; opacity: .8; white-space: nowrap; }
+.pc-etapes { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1 1 auto; }
+.pc-etapes ol { list-style: none; margin: 0; padding: 0; display: flex; align-items: flex-start; flex: 1; min-width: 0; }
+.pc-etapes li { flex: 1; position: relative; display: grid; justify-items: center; gap: 2px; min-width: 0; }
+.pc-etapes li + li::before { content: ""; position: absolute; top: 10px; right: calc(50% + 12px); width: calc(100% - 24px); height: 2px; background: rgba(255, 255, 255, .22); }
+.pc-etapes li.fait + li::before, .pc-etapes li.fait + li.fait::before { background: var(--or-clair); }
+.pc-rond { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: .72rem; font-weight: 700; border: 2px solid rgba(255, 255, 255, .4); color: rgba(255, 255, 255, .75); background: transparent; }
+.pc-etapes li.fait .pc-rond { background: var(--or-clair); border-color: var(--or-clair); color: var(--nuit); }
+.pc-etapes li.ici .pc-rond { border-color: var(--or-clair); color: #fff; box-shadow: 0 0 0 3px rgba(255, 200, 87, .3); }
+.pc-nom { color: #f3f8fc; font-size: .66rem; line-height: 1.1; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.pc-etapes li.ici .pc-nom { opacity: 1; font-weight: 700; color: var(--or-clair); }
+.pc-code { display: flex; align-items: center; gap: 10px; }
+.pc-cases { display: flex; gap: 4px; }
+.pc-cases b { width: 20px; height: 26px; display: grid; place-items: center; border-radius: 5px; background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .3); font-family: var(--f-code); font-size: .9rem; color: var(--or-clair); }
+.pc-cases b.vide::after { content: ""; width: 8px; height: 2px; background: rgba(255, 255, 255, .45); align-self: end; margin-bottom: 6px; }
+@media (max-width: 720px) {
+  .pc-nom, .pc-etapes .pc-titre { display: none; }
+  .parcours-in { gap: 10px; }
+  .pc-code .pc-titre { font-size: .6rem; }
+  .pc-cases b { width: 16px; height: 22px; font-size: .8rem; }
+}
+body.imprime-brevet .parcours { display: none !important; }
+
+/* ===== Notifications sobres pour un public étudiant ===== */
+#popups { top: calc(var(--haut-barre, 70px) + 12px + env(safe-area-inset-top, 0px)); left: auto; right: 16px; transform: none; width: min(380px, calc(100vw - 32px)); }
+.popup, .succes-pop { position: relative; inset: auto; transform: none; width: auto; pointer-events: auto; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px;
+  padding: 12px 14px; border-radius: 10px; background: var(--carte); color: var(--encre); border: 1px solid var(--trait); border-left: 4px solid var(--or);
+  box-shadow: 0 12px 28px -14px rgba(11, 24, 48, .45); animation: notif-entre .28s ease-out both; cursor: default; overflow: visible; }
+.succes-pop { grid-template-columns: auto 1fr; border-left-color: var(--safran); cursor: pointer; }
+.succes-pop::after { content: none; }
+.popup.sort, .succes-pop.sort { animation: notif-sort .25s ease-in both; }
+.popup strong, .succes-pop strong { display: block; font-family: var(--f-texte); font-size: 1rem; font-weight: 700; line-height: 1.25; color: var(--encre); }
+.popup span, .succes-pop span { font-size: .88rem; color: var(--encre-douce); opacity: 1; }
+.succes-pop small { font-size: .66rem; letter-spacing: .12em; color: var(--encre-douce); }
+.popup-icone { width: 34px; height: 34px; background: color-mix(in srgb, var(--or) 12%, transparent); color: var(--or); font-size: 1.1rem; animation: none; }
+.popup-icone svg { width: 20px; height: 20px; }
+.succes-pop .medaille { animation: none; width: 38px; height: 38px; }
+.popup-x { color: var(--encre-douce); }
+.popup.ton-urgent { background: var(--carte); color: var(--encre); border-left-color: var(--corail); }
+.popup.ton-urgent strong { color: var(--encre); }
+.popup.ton-urgent .popup-icone { background: color-mix(in srgb, var(--corail) 14%, transparent); color: var(--corail); animation: none; }
+.serie-pop { bottom: 28px; padding: 8px 16px 8px 12px; border-radius: 10px; background: var(--nuit); color: #fff; font-family: var(--f-texte); font-size: .95rem; box-shadow: 0 10px 24px -12px rgba(11, 24, 48, .7); animation: notif-entre .28s ease-out both; }
+.serie-pop svg { width: 18px; height: 18px; animation: none; }
+.bulle-miles em { font-family: var(--f-texte); font-size: 1rem; }
+@keyframes notif-entre { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+@keyframes notif-sort { to { opacity: 0; transform: translateX(16px); } }
+@media (max-width: 600px) { #popups { right: 50%; transform: translateX(50%); } }
 </style>
 </head>
 <body>
-<header class="barre"><div class="barre-in" id="barre"></div></header>
+<header class="barre"><div class="barre-in" id="barre"></div><div class="parcours" id="parcours" hidden></div></header>
 <main id="app"></main>
 <div id="annonce" class="sr" aria-live="polite"></div>
 <footer id="pied"></footer>
@@ -3276,7 +3327,6 @@ function ecranCarte() {
       }).join("")}
     </div>
     ${serrureCode(n)}
-    ${etagereSucces()}
     ${etat.chezNous.tamponne ? "" : `<p class="doux petit">Vous n'avez pas encore le tampon « Chez nous ». <button class="lien" data-action="aller" data-ecran="cheznous">Retourner à l'escale 0</button></p>`}`;
 }
 // Le code du coffre : une serrure à 6 crans. Un chiffre nouvellement gagné s'enclenche avec un « clic ».
@@ -3395,7 +3445,7 @@ setInterval(() => document.querySelectorAll(".chrono-q:not(.fini)").forEach((c) 
 function seriePop(n, bonus) {
   document.querySelector(".serie-pop")?.remove();
   const p = document.createElement("div"); p.className = "serie-pop"; p.setAttribute("role", "status");
-  p.innerHTML = `${FLAMME}<span>Série de ${n} !</span><small>+${bonus} miles</small>`;
+  p.innerHTML = `${FLAMME}<span>${n} bonnes réponses d'affilée</span><small>+${bonus} miles</small>`;
   document.body.appendChild(p); setTimeout(() => p.remove(), 2400);
 }
 /* En-tête de mission : pastille numérotée, titre, objectif et récompense, comme une quête de jeu vidéo */
@@ -3930,7 +3980,32 @@ function afficherBarre() {
     <button class="icone-btn" data-action="son" aria-pressed="${etat.son}" title="Bruitages">${etat.son ? "Son : oui" : "Son : non"}</button>
     <button class="icone-btn" data-action="plein-ecran" aria-pressed="${Boolean(document.fullscreenElement)}" title="Afficher le jeu sur tout l'écran">${document.fullscreenElement ? "⤡ Quitter le plein écran" : "⤢ Plein écran"}</button>
     <button class="icone-btn" data-action="musique" aria-pressed="${etat.musique}" title="Musique d'ambiance de chaque escale">${etat.musique ? "♪ Musique : oui" : "♪ Musique : non"}</button>`;
-  majChrono();
+  majChrono(); majParcours();
+}
+// Barre de parcours : les 8 escales (faite, en cours, à faire) et les cases du code du coffre
+function majParcours() {
+  const el = document.getElementById("parcours"); if (!el) return;
+  const visible = Boolean(etat.debutJeu) && !ui.intro && !["enseignante", "accueil"].includes(etat.ecran);
+  el.hidden = !visible;
+  if (visible) {
+    const enCours = ui.transit ? ui.transit.vers : etat.ecran === "escale" ? etat.escaleActive : null;
+    const n = nbTampons();
+    el.innerHTML = `<div class="parcours-in">
+      <div class="pc-etapes" role="group" aria-label="Parcours : ${n} escale${n > 1 ? "s" : ""} réussie${n > 1 ? "s" : ""} sur ${NB}">
+        <span class="pc-titre">Parcours · ${n}/${NB}</span>
+        <ol>${ESCALES.map((e, i) => {
+          const fait = etat.escales[e.id].tamponne, ici = e.id === enCours;
+          return `<li class="${fait ? "fait" : ""}${ici ? " ici" : ""}" title="${esc(e.nom)} : ${fait ? "tampon obtenu" : ici ? "escale en cours" : "à visiter"}"><span class="pc-rond">${fait ? "✓" : i + 1}</span><span class="pc-nom">${esc(e.nom)}</span></li>`;
+        }).join("")}</ol>
+      </div>
+      <div class="pc-code" role="group" aria-label="Code du coffre : ${n} chiffre${n > 1 ? "s" : ""} sur ${NB}">
+        <span class="pc-titre">Code du coffre</span>
+        <span class="pc-cases">${ESCALES.map((e) => (etat.escales[e.id].tamponne ? `<b>${e.chiffre}</b>` : '<b class="vide"></b>')).join("")}</span>
+      </div>
+    </div>`;
+  }
+  const h = document.querySelector("header.barre");
+  if (h) document.documentElement.style.setProperty("--haut-barre", h.offsetHeight + "px");
 }
 function majChrono() {
   majSablier(); verifierAlertes();
@@ -3964,6 +4039,7 @@ function afficher() {
     app.style.setProperty("--bord-pays", `linear-gradient(180deg, ${cs.join(", ")})`);
   } else { app.style.removeProperty("--fond-pays"); app.style.removeProperty("--bord-pays"); }
   app.innerHTML = (ouvert ? decorLivret() : "") + fn();
+  majParcours();
   app.querySelectorAll("[data-media]").forEach((n) => {
     const o = garde.get(n.dataset.media); if (!o) return;
     n.replaceWith(o);
@@ -4288,7 +4364,7 @@ function popup({ titre, texte = "", icone = "", ton = "or", duree = 4200 }) {
   setTimeout(fermer, duree);
   return p;
 }
-const ENCOURAGEMENTS = ["Bravo !", "Excellent !", "Bien vu !", "Exactement !", "Parfait !", "Bien joué !", "Super, équipage !"];
+const ENCOURAGEMENTS = ["Bonne réponse", "Exact", "Bien vu", "Correct", "Juste"];
 const fmtMiles = (n) => Number(n || 0).toLocaleString("fr-FR");
 // « +100 miles » qui s'envole depuis le bouton cliqué jusqu'au compteur de la barre
 function bulleMiles(n, origine, mot) {
@@ -4376,7 +4452,7 @@ function majVolSuivant(s) {
   }
   if (r <= 0 && !vus.has(id + ":0")) {
     vus.add(id + ":0"); annonceCabine("dernier-appel");
-    popup({ titre: "Dernier appel !", texte: "L'avion pour votre prochaine escale va décoller. Terminez vite et rejoignez la porte d'embarquement.", icone: PICTO_AVION, ton: "urgent", duree: 7000 });
+    popup({ titre: "Dernier appel", texte: "Le temps conseillé pour cette escale est écoulé. Terminez l'activité en cours, puis passez à l'escale suivante.", icone: PICTO_AVION, ton: "urgent", duree: 7000 });
   }
 }
 // Prochaine escale proposée : la suivante dans l'ordre du passeport qui n'a pas encore son tampon
@@ -4423,7 +4499,7 @@ function verifierAlertes() {
   for (const m of ALERTES_TEMPS) {
     if (r <= m * 60 && r > m * 60 - 30 && !vues.includes(m)) {
       etat.alertes = [...vues, m]; sauver(); son.alerte();
-      popup({ titre: m === 1 ? "Plus qu'une minute !" : `Plus que ${m} minutes !`, texte: m <= 5 ? "Dépêchez-vous : l'avion va bientôt décoller !" : "Gardez un œil sur le sablier, équipage.", icone: SABLIER_SVG, ton: m <= 5 ? "urgent" : "or", duree: 5500 });
+      popup({ titre: m === 1 ? "Il reste 1 minute de jeu" : `Il reste ${m} minutes de jeu`, texte: m <= 5 ? "Terminez l'escale en cours et passez au coffre." : "Gardez du temps pour ouvrir le coffre.", icone: SABLIER_SVG, ton: m <= 5 ? "urgent" : "or", duree: 5500 });
       return;
     }
   }
@@ -4585,7 +4661,7 @@ const SUCCES = [
   { id: "mi", nom: "Mi-parcours", desc: "Cinq tampons dans le passeport", ic: "avion", si: () => nbTampons() >= 5 },
   { id: "tour", nom: "Tour du monde", desc: "Tous les tampons réunis", ic: "globe", si: () => nbTampons() === NB },
   { id: "serrurier", nom: "Serrurier", desc: "Le coffre ouvert au premier essai", ic: "cle", si: () => etat.coffreOuvert && etat.coffreEssais === 1 },
-  { id: "serie5", nom: "En feu !", desc: "Cinq bonnes réponses du premier coup à la suite", ic: "eclair", si: () => (etat.serieMax || 0) >= 5 },
+  { id: "serie5", nom: "Série parfaite", desc: "Cinq bonnes réponses du premier coup à la suite", ic: "eclair", si: () => (etat.serieMax || 0) >= 5 },
   { id: "orateur", nom: "Orateur", desc: "L'exposé enregistré", ic: "micro", si: () => Boolean(etat.expose && etat.expose.enregistre) },
 ];
 // File d'attente : une célébration à la fois, jamais par-dessus une autre fenêtre du jeu
@@ -4599,8 +4675,7 @@ function traiterFile() {
 function succesPop({ sur, titre, texte, ic }, fin) {
   const p = document.createElement("div"); p.className = "succes-pop"; p.setAttribute("role", "status");
   p.innerHTML = `${medaille(ic)}<div><small>${esc(sur)}</small><strong>${esc(titre)}</strong><span>${esc(texte)}</span></div>`;
-  document.body.appendChild(p); bruitage("succes", son.etincelles);
-  setTimeout(() => confettis({ couleurs: ["#f5b82e", "#14a3a0", "#2f5bd3", "#ef5b3c", "#ffffff"], nombre: 50, origine: centreEl(p) }), 250);
+  couchePopups().appendChild(p); bruitage("succes", son.etincelles);
   let ferme = false; const fermer = () => { if (ferme) return; ferme = true; p.classList.add("sort"); setTimeout(() => { p.remove(); fin(); }, 400); };
   p.addEventListener("click", fermer); setTimeout(fermer, 3600);
 }
@@ -5071,7 +5146,7 @@ const actions = {
       gagnerMiles(premier ? C.miles : C.miles / 2, origine, ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)]);
       confettis({ couleurs: ["#c1272d", "#006233", "#d99a2b"], nombre: 26, origine });
       document.querySelector(`.poi[data-id="${l.id}"]`)?.classList.add("vient");
-      if (vus.length + 1 === C.seuil) setTimeout(() => popup({ titre: "Quiz débloqué !", texte: "Vous connaissez assez le Maroc : place aux questions de Yasmine.", icone: drapeauMini(e), duree: 5000 }), 700);
+      if (vus.length + 1 === C.seuil) setTimeout(() => popup({ titre: "Quiz disponible", texte: "Vous connaissez assez le Maroc : place aux questions de Yasmine.", icone: drapeauMini(e), duree: 5000 }), 700);
       annoncer(`Lieu exploré : ${l.nom}`);
     } else {
       son.faux(); ui.lieuErreur = { lieu: l.id, o }; (ui.lieuxRates ||= new Set()).add(l.id);
@@ -5100,7 +5175,7 @@ const actions = {
       // Bonus de rapidité (chrono de 20 s) et série de bonnes réponses du premier coup
       const t0 = ui.chronoQ && ui.chronoQ[e.id + ":" + i], rapide = essais[i] === 1 && t0 && Date.now() - t0 < CHRONO_Q * 1000;
       const base = essais[i] === 1 ? 100 : 50, bonusR = rapide ? 50 : 0;
-      gagnerMiles(base + bonusR, origine, rapide ? "Rapide ! +50" : ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)]);
+      gagnerMiles(base + bonusR, origine, rapide ? "Réponse rapide · +50" : ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)]);
       confettis({ couleurs: [...e.drapeau, "#d99a2b", "#f0c35a"], nombre: 28, origine });
       if (essais[i] === 1) {
         etat.serie = (etat.serie || 0) + 1; etat.serieMax = Math.max(etat.serieMax || 0, etat.serie); sauver();
@@ -5163,7 +5238,7 @@ const actions = {
     if (nbTampons() < NB) return;
     if (code.length < NB) { ui.coffreMsg = `Il faut ${NB_LETTRES} chiffres, un par escale.`; son.faux(); afficher(); return; }
     if (code === CODE_COFFRE) { ui.coffreMsg = null; son.coffre(); ui.coffreAnime = true; maj({ coffreOuvert: true, coffreEssais: etat.coffreEssais + 1 }); setTimeout(() => confettis({ nombre: 160, origine: centreDe(".serrure") }), 300);
-      setTimeout(() => { gagnerMiles(500, centreDe(".serrure"), "Coffre ouvert !"); popup({ titre: "Le coffre s'ouvre !", texte: "Il vous reste une dernière mission avant votre attestation.", icone: PICTO_AVION, duree: 5500 }); }, 900); }
+      setTimeout(() => { gagnerMiles(500, centreDe(".serrure"), "Coffre ouvert"); popup({ titre: "Coffre ouvert", texte: "Dernière étape : la mission comparative, avant l'attestation.", icone: PICTO_AVION, duree: 5500 }); }, 900); }
     else {
       son.faux();
       ui.coffreMsg = nbTampons() < NB
@@ -5192,7 +5267,7 @@ const actions = {
       c.toBlob((blob) => {
         const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `attestation-passeport-francophone-${nom || "equipe"}.png`;
         document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-        popup({ titre: "Attestation téléchargée !", texte: "Retrouvez l'image dans le dossier Téléchargements.", icone: PICTO_AVION });
+        popup({ titre: "Attestation téléchargée", texte: "Retrouvez l'image dans le dossier Téléchargements.", icone: PICTO_AVION });
       }, "image/png");
     } catch (e) { popup({ titre: "Téléchargement impossible", texte: "Utilisez « Imprimer cette attestation » à la place.", ton: "urgent" }); }
     b.disabled = false; b.textContent = t;
