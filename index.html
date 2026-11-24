@@ -2382,6 +2382,8 @@ const musique = {
 // Quel thème pour quel écran ? Silence pendant la mission (préparation et enregistrement de l'exposé).
 function themeEcran() {
   // Pendant le vol (et l'album feuilleté à bord) : la musique de voyage
+  // Vol vers le Maroc : sa propre musique (« Whispers of the Medina »)
+  if (ui.transit && ui.transit.vers === "maroc" && !ui.mediaAbsent.has("musique-vol-maroc")) return "vol-maroc";
   if (ui.transit) return !ui.mediaAbsent.has("musique-voyage") ? "voyage" : ui.transit.vers === "cheznous" ? "cheznous" : ui.transit.vers;
   const ec = etat.ecran;
   // Sur la carte d'un pays, la fiche ouverte joue la musique de son lieu (sinon celle du pays)
@@ -4221,7 +4223,9 @@ function cartePaysHTML(e) {
    MUSIQUE D'AMBIANCE ENREGISTRÉE · un morceau par pays (ElevenLabs Music via Higgsfield)
    Si le fichier manque, la musique générée (THEMES) prend le relais.
    ===================================================================== */
-const PISTES = ["quebec", "senegal", "maroc", "martinique", "madagascar", "reunion", "togo", "comores", "carte", "voyage", "accueil"];
+const PISTES = ["quebec", "senegal", "maroc", "martinique", "madagascar", "reunion", "togo", "comores", "carte", "voyage", "accueil", "vol-maroc"];
+// Pistes qui ne sont pas au format mp3
+const EXT_PISTES = { "vol-maroc": "m4a" };
 const VOLUME_PISTE = 0.32;
 const piste = { el: null, id: null };
 function volumePiste() { return musique.attenue ? VOLUME_PISTE * 0.22 : VOLUME_PISTE; }
@@ -4240,7 +4244,7 @@ function pisteJouer(id) {
   if (ancien) fondreAudio(ancien, 0, 700, () => ancien.pause());
   piste.id = id; piste.el = null;
   if (!id) return;
-  const el = new Audio(`audio/musique/${id}.mp3`);
+  const el = new Audio(`audio/musique/${id}.${EXT_PISTES[id] || "mp3"}`);
   el.loop = true; el.volume = 0; el.preload = "auto";
   el.addEventListener("error", () => { ui.mediaAbsent.add("musique-" + id); if (piste.id === id) { piste.id = null; piste.el = null; musique.pour(themeEcran()); } });
   piste.el = el;
