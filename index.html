@@ -1751,6 +1751,73 @@ body.imprime-brevet .parcours { display: none !important; }
 .pz-piece.sel { box-shadow: inset 0 0 0 3px var(--or-clair), 0 0 0 2px var(--or-clair); transform: scale(.94); }
 .pz-legende { margin: 0; text-align: center; font-family: var(--f-titre); font-style: italic; color: rgba(243, 248, 252, .85); }
 @media (prefers-reduced-motion: reduce) { .memo-dos, .memo-face { transition: none; } }
+/* ===== Fin d'escale : le dossier d'enquête ===== */
+.dossier-pop { background: rgba(6, 14, 30, .72); backdrop-filter: blur(4px); }
+.dossier { position: relative; width: min(600px, 100%); max-height: calc(100vh - 32px); overflow: auto; display: grid; gap: 16px; padding: 0 22px 22px; border-radius: 18px;
+  background: linear-gradient(160deg, var(--nuit), var(--nuit-2)); color: #f3f8fc; border: 1px solid rgba(255, 200, 87, .5); box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .8); animation: dossier-entre .5s cubic-bezier(.2, .9, .3, 1) both; }
+.dos-bandeau { display: flex; justify-content: space-between; gap: 10px; margin: 0 -22px; padding: 9px 22px; background: linear-gradient(90deg, var(--c), color-mix(in srgb, var(--c) 55%, #000));
+  font-family: var(--f-code); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: #fff; border-radius: 17px 17px 0 0; }
+.dos-tete { display: flex; align-items: center; gap: 16px; }
+.dos-sur { margin: 0; font-family: var(--f-code); font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; color: var(--or-clair); }
+.dossier h2 { margin: 2px 0; font-family: var(--f-titre); font-size: clamp(1.6rem, 4vw, 2.1rem); color: #fff; display: flex; align-items: center; gap: 10px; }
+.dossier h2 .drapeau-mini { width: 34px; height: 23px; }
+.dos-contact { margin: 0; display: flex; align-items: center; gap: 8px; font-size: .9rem; color: rgba(243, 248, 252, .85); }
+.dos-contact .photo-contact { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 2px solid var(--or-clair); }
+.dos-etiquette { display: block; font-family: var(--f-code); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: rgba(255, 200, 87, .9); }
+.dos-code { display: grid; justify-items: center; gap: 8px; padding: 14px; border-radius: 12px; background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .1); }
+.dos-cases { display: flex; gap: 6px; }
+.dos-cases b { width: 34px; height: 44px; display: grid; place-items: center; border-radius: 7px; font-family: var(--f-code); font-size: 1.35rem; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .22); color: rgba(255, 200, 87, .75); }
+.dos-cases b.nouveau { background: var(--or-clair); border-color: var(--or-clair); color: var(--nuit); box-shadow: 0 0 0 4px rgba(255, 200, 87, .25), 0 0 22px rgba(255, 200, 87, .55); animation: chiffre-entre .7s cubic-bezier(.2, 1.6, .4, 1) .45s both; }
+.dos-chiffre { font-size: .92rem; color: rgba(243, 248, 252, .85); }
+.dos-chiffre strong { font-family: var(--f-code); color: var(--or-clair); font-size: 1.1rem; }
+.dos-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.dos-bloc { display: grid; gap: 10px; align-content: start; padding: 14px; border-radius: 12px; background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .1); }
+.dos-etoiles { display: flex; gap: 6px; }
+.dos-etoiles svg { width: 30px; height: 30px; fill: rgba(255, 255, 255, .14); }
+.dos-etoiles svg.gagnee { fill: var(--or-clair); filter: drop-shadow(0 0 6px rgba(255, 200, 87, .6)); animation: etoile-entre .45s cubic-bezier(.2, 1.6, .4, 1) calc(.9s + var(--i) * .35s) both; }
+.dos-criteres { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: .88rem; }
+.dos-criteres li { display: flex; gap: 8px; align-items: center; color: rgba(243, 248, 252, .55); }
+.dos-criteres li.ok { color: #f3f8fc; }
+.dos-criteres i { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: .75rem; font-weight: 700; background: rgba(255, 255, 255, .1); }
+.dos-criteres li.ok i { background: var(--turquoise); color: #fff; }
+.dos-mots { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.dos-mots li { padding: 4px 10px; border-radius: 999px; background: rgba(255, 200, 87, .14); border: 1px solid rgba(255, 200, 87, .4); color: var(--or-clair); font-family: var(--f-titre); font-style: italic; }
+.dos-gains { display: flex; gap: 14px; flex-wrap: wrap; font-size: .85rem; color: rgba(243, 248, 252, .8); }
+.dos-gains b { font-family: var(--f-code); color: #fff; font-size: 1.05rem; }
+.dos-progres { display: grid; gap: 6px; }
+.dos-progres span { display: block; height: 6px; border-radius: 999px; background: rgba(255, 255, 255, .12); overflow: hidden; }
+.dos-progres i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--turquoise), var(--or-clair)); transition: width 1s cubic-bezier(.3, 1.2, .5, 1) 1.2s; }
+.dos-progres small { text-align: center; color: rgba(243, 248, 252, .75); }
+.dossier .vp-ok { justify-self: center; }
+@keyframes dossier-entre { from { opacity: 0; transform: translateY(24px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes chiffre-entre { from { transform: scale(.2) rotate(-20deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes etoile-entre { from { transform: scale(.2); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (max-width: 560px) { .dos-grille { grid-template-columns: minmax(0, 1fr); } .dos-cases b { width: 28px; height: 38px; font-size: 1.1rem; } .dos-bandeau span + span { display: none; } }
+@media (prefers-reduced-motion: reduce) { .dossier, .dos-cases b.nouveau, .dos-etoiles svg.gagnee { animation: none !important; } }
+/* ===== Dossier d'enquête : version claire ===== */
+.dossier-pop { background: rgba(20, 40, 74, .45); }
+.dossier { background: linear-gradient(180deg, var(--carte), var(--papier)); color: var(--encre); border: 1px solid var(--trait); box-shadow: 0 30px 60px -24px rgba(20, 40, 74, .55); }
+.dossier h2 { color: var(--encre); }
+.dos-sur, .dos-etiquette { color: #a8701a; }
+.dos-contact { color: var(--encre-douce); }
+.dos-contact .photo-contact { border-color: #e9b949; }
+.dossier .loupe { background: radial-gradient(circle at 32% 28%, #fff, rgba(255, 255, 255, .5) 38%, rgba(120, 190, 255, .18) 70%), #eef5fb; color: #a8701a; }
+.dos-code, .dos-bloc { background: var(--carte); border: 1px solid var(--trait); box-shadow: 0 4px 14px -10px rgba(20, 40, 74, .35); }
+.dos-cases b { background: var(--papier); border: 1px solid var(--trait); color: var(--encre); }
+.dos-cases b.ok { color: var(--cobalt); }
+.dos-cases b.nouveau { background: #ffd27a; border-color: #e9b949; color: #3a2606; box-shadow: 0 0 0 4px rgba(255, 200, 87, .35), 0 0 18px rgba(233, 185, 73, .5); }
+.dos-chiffre { color: var(--encre-douce); }
+.dos-chiffre strong { color: #a8701a; }
+.dos-etoiles svg { fill: var(--papier-2); stroke: var(--trait); stroke-width: 1; }
+.dos-etoiles svg.gagnee { fill: #f5b82e; stroke: #c8871a; filter: drop-shadow(0 2px 4px rgba(245, 184, 46, .45)); }
+.dos-criteres li { color: var(--encre-douce); }
+.dos-criteres li.ok { color: var(--encre); }
+.dos-criteres i { background: var(--papier-2); color: var(--encre-douce); }
+.dos-mots li { background: #fff5dc; border-color: #f0cf7e; color: #7a4f0e; }
+.dos-gains { color: var(--encre-douce); }
+.dos-gains b { color: var(--encre); }
+.dos-progres span { background: var(--papier-2); }
+.dos-progres small { color: var(--encre-douce); }
 </style>
 </head>
 <body>
@@ -4994,28 +5061,43 @@ function etagereSucces() {
     </section>`;
 }
 // Écran de victoire d'une escale : ruban, étoiles qui tombent une à une, gains, progression
+// Fin d'escale : le « dossier d'enquête » de l'escale. Le chiffre retrouvé s'inscrit dans le code du coffre,
+// le travail de l'équipe est évalué (3 critères = 3 étoiles), et les mots collectés sont rappelés pour l'exposé.
 function victoireEscale(e, { miles, rapide }, suite) {
-  const x = etat.escales[e.id], n = etoilesEscale(e), tampons = nbTampons();
-  const criteres = [["Escale réussie : tampon obtenu", true], ["Quiz réussi du premier coup", x.essais.every((k) => k === 1)], ["Sans l'indice du guide", !x.indiceVu]];
-  const chemin = ICONES_JEU.etoile;
-  const p = document.createElement("div"); p.className = "victoire-pop"; p.setAttribute("role", "dialog"); p.setAttribute("aria-modal", "true"); p.setAttribute("aria-label", "Escale réussie : " + e.nom);
-  p.innerHTML = `<div class="vp-carte" style="--c:${e.teinte || e.couleur}"><span class="vp-rayons" aria-hidden="true"></span>
-      <div class="vp-ruban">Escale réussie !</div>
-      <div class="vp-pays">${drapeauMini(e)}<span>${esc(e.nom)}</span></div>
-      <div class="vp-etoiles" role="img" aria-label="${n} étoile${n > 1 ? "s" : ""} sur 3">${[0, 1, 2].map((k) => `<svg class="vp-etoile${k < n ? " gagnee" : ""}" style="--i:${k}" viewBox="0 0 24 24">${chemin}</svg>`).join("")}</div>
-      <ul class="vp-criteres">${criteres.map(([t, ok]) => `<li class="${ok ? "ok" : ""}"><i>${ok ? "✓" : "–"}</i>${esc(t)}</li>`).join("")}</ul>
-      <div class="vp-gains">
-        <div class="vp-gain" style="--i:0"><b>${e.chiffre}</b><small>Chiffre du code</small></div>
-        <div class="vp-gain" style="--i:1"><b>+${miles}</b><small>Miles${rapide ? " · rapidité" : ""}</small></div>
-        <div class="vp-gain" style="--i:2"><b>${tampons}/${NB}</b><small>Tampons</small></div>
+  const x = etat.escales[e.id], n = etoilesEscale(e), tampons = nbTampons(), idx = ESCALES.indexOf(e);
+  const criteres = [["Tampon obtenu", true], ["Quiz réussi du premier coup", x.essais.every((k) => k === 1)], ["Sans l'indice du guide", !x.indiceVu]];
+  const verdict = n === 3 ? "Enquête exemplaire" : n === 2 ? "Belle enquête" : "Enquête réussie";
+  const etoile = ICONES_JEU.etoile;
+  const p = document.createElement("div"); p.className = "victoire-pop dossier-pop"; p.setAttribute("role", "dialog"); p.setAttribute("aria-modal", "true"); p.setAttribute("aria-label", "Escale réussie : " + e.nom);
+  p.innerHTML = `<div class="dossier" style="--c:${e.teinte || e.couleur}">
+      <div class="dos-bandeau"><span>Dossier d'enquête · escale ${idx + 1} sur ${NB}</span><span>${esc(e.code)} · ${esc(e.region)}</span></div>
+      <div class="dos-tete">
+        <span class="loupe" aria-hidden="true">${LOUPE_SVG}</span>
+        <div><p class="dos-sur">Escale réussie</p><h2>${drapeauMini(e)} ${esc(e.nom)}</h2><p class="dos-contact">${photoContact(e, "mini")}<span>${esc(e.contact)} vous confie son chiffre</span></p></div>
       </div>
-      <div class="vp-progres"><span><i style="width:${(tampons - 1) / NB * 100}%"></i></span>${tampons === NB ? "Tous les chiffres sont réunis : direction le coffre !" : `Encore ${NB - tampons} escale${NB - tampons > 1 ? "s" : ""} avant le coffre`}</div>
-      <button class="btn or vp-ok">${tampons === NB ? "Vers le coffre" : "Continuer le voyage"} ✈</button>
+      <div class="dos-code" aria-label="Code du coffre : ${tampons} chiffre${tampons > 1 ? "s" : ""} sur ${NB}">
+        <span class="dos-etiquette">Code du coffre</span>
+        <div class="dos-cases">${ESCALES.map((z, k) => { const ok = etat.escales[z.id].tamponne; return `<b class="${k === idx ? "nouveau" : ok ? "ok" : ""}">${ok ? z.chiffre : ""}</b>`; }).join("")}</div>
+        <span class="dos-chiffre">Chiffre retrouvé : <strong>${e.chiffre}</strong></span>
+      </div>
+      <div class="dos-grille">
+        <div class="dos-bloc">
+          <span class="dos-etiquette">${verdict}</span>
+          <div class="dos-etoiles" role="img" aria-label="${n} étoile${n > 1 ? "s" : ""} sur 3">${[0, 1, 2].map((k) => `<svg class="${k < n ? "gagnee" : ""}" style="--i:${k}" viewBox="0 0 24 24">${etoile}</svg>`).join("")}</div>
+          <ul class="dos-criteres">${criteres.map(([t, ok]) => `<li class="${ok ? "ok" : ""}"><i>${ok ? "✓" : "–"}</i>${esc(t)}</li>`).join("")}</ul>
+        </div>
+        <div class="dos-bloc">
+          <span class="dos-etiquette">Mots collectés pour l'exposé</span>
+          <ul class="dos-mots">${e.lexique.map(([m]) => `<li>${esc(m)}</li>`).join("")}</ul>
+          <div class="dos-gains"><span><b>+${fmtMiles(miles)}</b> miles${rapide ? " · rapidité" : ""}</span><span><b>${tampons}/${NB}</b> tampons</span></div>
+        </div>
+      </div>
+      <div class="dos-progres"><span><i style="width:${(tampons - 1) / NB * 100}%"></i></span><small>${tampons === NB ? "Tous les chiffres sont réunis : direction le coffre !" : `Encore ${NB - tampons} escale${NB - tampons > 1 ? "s" : ""} avant le coffre`}</small></div>
+      <button class="btn or vp-ok">${tampons === NB ? "Ouvrir le coffre" : "Continuer l'enquête"} ✈</button>
     </div>`;
-  document.body.appendChild(p); bruitage("victoire"); // fanfare de victoire
-  requestAnimationFrame(() => requestAnimationFrame(() => { const i = p.querySelector(".vp-progres i"); if (i) i.style.width = tampons / NB * 100 + "%"; }));
-  for (let k = 0; k < n; k++) setTimeout(() => { if (p.isConnected) son.bon ? son.bon() : son.clic(); }, 750 + k * 450);
-  setTimeout(() => { if (p.isConnected) { confettis({ couleurs: [...e.drapeau, "#f5b82e"], nombre: 110, origine: centreEl(p.querySelector(".vp-etoiles")) }); son.etincelles(); } }, 800 + n * 450);
+  document.body.appendChild(p); bruitage("victoire");
+  requestAnimationFrame(() => requestAnimationFrame(() => { const i = p.querySelector(".dos-progres i"); if (i) i.style.width = tampons / NB * 100 + "%"; }));
+  for (let k = 0; k < n; k++) setTimeout(() => { if (p.isConnected) son.bon ? son.bon() : son.clic(); }, 900 + k * 350);
   let ferme = false; const fermer = () => { if (ferme) return; ferme = true; p.classList.add("sort"); setTimeout(() => { p.remove(); verifierSucces(); celebrer((fin) => { suite(); fin(); }); }, 320); };
   p.querySelector(".vp-ok").addEventListener("click", fermer);
   p.addEventListener("keydown", (ev) => { if (ev.key === "Escape") fermer(); });
