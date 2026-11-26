@@ -831,7 +831,7 @@ main.entree .album-cn .polaroid { animation: poser .55s cubic-bezier(.2, 1.3, .4
 .bandeau-cuir::before, .bandeau-cuir::after { content: ""; position: absolute; left: 10px; right: 10px; border-top: 2px dashed rgba(255, 210, 122, .45); }
 .bandeau-cuir::before { top: 6px; } .bandeau-cuir::after { bottom: 6px; }
 .salle-texte { color: #f3f8fc; text-align: center; max-width: 62ch; margin: 0 auto; font-size: .98rem; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
-.cartes-guides { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); /* 12 guides : deux rangées de six */; gap: clamp(8px, 1.6vw, 18px); }
+.cartes-guides { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); /* 8 guides, un par pays : deux rangées de quatre */ gap: clamp(8px, 1.6vw, 18px); }
 .carte-guide { --g: #555; position: relative; display: grid; justify-items: center; align-content: start; gap: 4px; text-align: center; padding: 20px 8px 14px; border-radius: 14px; container-type: inline-size; /* dix guides : le texte suit la largeur de la carte */
   background: #ffffff; color: #14283d;
   background-image: radial-gradient(circle at 14px 14px, #14a3a0 2.5px, transparent 3px), radial-gradient(circle at calc(100% - 14px) 14px, #14a3a0 2.5px, transparent 3px),
@@ -1835,7 +1835,7 @@ const REGLAGES = {
   SUPABASE_URL: "https://prffovnmuzybksnaqvdt.supabase.co", // projet Supabase « passeport-francophone »
   SUPABASE_CLE: "sb_publishable_NQopBI2H0Yp0twirEaJ6oQ_bZsqxjJp", // clé publique « publishable », JAMAIS la clé secrète
   CODE_ENSEIGNANTE: "classedefle2026", // code de l'espace enseignante
-  DUREE_JEU_MIN: 65, // 8 escales de 6 minutes, « Chez nous », la préparation et le coffre
+  DUREE_JEU_MIN: 45, // 8 escales d'environ 5 minutes, la préparation et le coffre
   PREPARATION_MIN: 4,
   PRESENTATION_MIN: 3, // exposé universitaire : problématique, analyse et ouverture
   // Dernière mission : adresse où les étudiants déposent leur enregistrement (dossier Google Drive, Padlet, Moodle, formulaire…).
@@ -1858,7 +1858,7 @@ const ROLES = [
 
 // Compagnons de voyage : le « Companion Randomizer » du modèle Genially, adapté.
 // Le guide tiré au sort donne l'indice de chaque escale, avec sa propre voix.
-// Portraits : déposez les photos dans images/guides/ (awa.jpg, leon.jpg, mireille.jpg, teva.jpg).
+// Huit guides, un par pays : leurs portraits sont dans images/contacts/.
 // Tant qu'une photo manque, la carte affiche l'initiale du guide.
 const DOSSIER_PORTRAITS = "images/guides/";
 // Le contact de chaque escale (celui qui garde le chiffre) : portrait dans images/contacts/
@@ -1879,23 +1879,7 @@ const ICONES_GUIDES = {
   volcan: '<path d="M3 20l6-10h6l6 10z"/><path d="M9 10l1.5-2h3L15 10"/><path d="M11 6c-1-1.5 0-3 1-4M13 6c1-1 1-2.5 2.5-3"/>',
 };
 const GUIDES = [
-  { id: "aminata", nom: "Awa", metier: "la cartographe", couleur: "#00785a", initiale: "A",
-    photo: "awa.jpg", icone: "boussole",
-    devise: "Un bon voyageur lit la carte… et le texte, paragraphe par paragraphe.",
-    intro: "Awa déplie sa carte et pose le doigt sur le document :" },
-  { id: "leon", nom: "Léon", metier: "le rapporteur", couleur: "#9c4a12", initiale: "L",
-    photo: "leon.jpg", icone: "carnet",
-    devise: "Qui ? Quoi ? Quand ? Un bon rapporteur note toujours les mots-clés.",
-    intro: "Léon ouvre son carnet de rapporteur :" },
-  { id: "mireille", nom: "Mireille", metier: "la conteuse", couleur: "#7a3e9d", initiale: "M",
-    photo: "mireille.jpg", icone: "livre",
-    devise: "Chaque histoire a un début, un milieu et une fin : écoutez-la bien.",
-    intro: "Mireille baisse la voix, comme pour raconter un secret :" },
-  { id: "tahina", nom: "Teva", metier: "l'explorateur", couleur: "#1f5fa8", initiale: "T",
-    photo: "teva.jpg", icone: "sac",
-    devise: "Prenez votre temps, observez, et la piste apparaîtra.",
-    intro: "Teva pointe sa boussole vers le texte :" },
-  // Les contacts des escales peuvent aussi être tirés comme compagnon de voyage (portraits dans images/contacts/)
+  // Un guide par pays : chaque escale a son guide local (portraits dans images/contacts/)
   { id: "elodie", nom: "Élodie", metier: "la guide de Montréal", couleur: "#b3202a", initiale: "É",
     photo: "../contacts/elodie.jpg", icone: "plan",
     devise: "Prends ton temps : relis le paragraphe avant de répondre.",
@@ -2704,7 +2688,7 @@ function centreDe(sel) { const el = document.querySelector(sel); if (!el) return
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const lettre = (i) => "ABC"[i];
 const escaleParId = (id) => ESCALES.find((e) => e.id === id);
-const guideActuel = () => GUIDES.find((g) => g.id === etat.guide);
+const guideActuel = () => GUIDES.find((g) => g.id === etat.guide) || (etat.guide ? GUIDES[0] : undefined);
 function annoncer(t) { const a = document.getElementById("annonce"); if (a) { a.textContent = ""; setTimeout(() => (a.textContent = t), 30); } }
 function mmss(s) { s = Math.max(0, Math.ceil(s)); return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); }
 function resteJeu() { return etat.debutJeu ? REGLAGES.DUREE_JEU_MIN * 60 - ((etat.finJeu || Date.now()) - etat.debutJeu) / 1000 : REGLAGES.DUREE_JEU_MIN * 60; }
@@ -3187,8 +3171,9 @@ const INTRO_HOTESSE = {
   poster: "images/hotesse.jpg",
   clips: [
     // La voix est intégrée à la vidéo (un seul lecteur : les lèvres et la voix restent synchronisées)
-    { src: "videos/intro-hotesse-1-voix.mp4", st: etaler(["Bienvenue !", "Attachez vos ceintures : le Passeport francophone est verrouillé, et l'avion décolle dans " + REGLAGES.DUREE_JEU_MIN + " minutes.",
-      "Avant de partir, présentez-vous : votre culture est votre première escale.", "Ensuite, à chaque destination, lisez le document, discutez en équipe et répondez aux questions pour gagner un chiffre."], 21.5, .3) },
+    // La voix annonçait l'ancienne durée (« soixante-cinq minutes ») : ce passage est sauté à la lecture (saut).
+    { src: "videos/intro-hotesse-1-voix.mp4", saut: [4.95, 9.3], st: [[0, "Bienvenue !"], [1.3, "Attachez vos ceintures : le Passeport francophone est verrouillé."],
+      [9.3, "Avant de partir, présentez-vous : votre culture est votre première escale."], [13.6, "Ensuite, à chaque destination, lisez le document, discutez en équipe et répondez aux questions pour gagner un chiffre."]] },
     // Coupée à 6,8 s : la voix a été raccourcie, la suite de la vidéo montrait l'hôtesse parler sans son
     { src: "videos/intro-hotesse-2-voix.mp4", st: etaler(["Une erreur ? Pas de panique : le jeu vous dit pourquoi, et un indice vous aide à trouver les bonnes réponses."], 6.4, .2) },
   ],
@@ -3252,6 +3237,7 @@ function introHTML() {
 }
 function sousTitresIntro(v) {
   const I = introActuelle(), c = I.clips[ui.introClip || 0]; if (!c) return;
+  if (c.saut && v.currentTime >= c.saut[0] && v.currentTime < c.saut[1]) { v.currentTime = c.saut[1]; return; }
   const t = v.currentTime, st = document.getElementById("intro-st"), pr = document.getElementById("intro-progres");
   const ligne = [...c.st].reverse().find(([d]) => t >= d);
   if (st && ligne && st.textContent !== ligne[1]) { st.textContent = ligne[1]; st.classList.remove("apparait"); void st.offsetWidth; st.classList.add("apparait"); }
@@ -4788,7 +4774,7 @@ function majSablier() {
    affiche « Vol suivant dans… », puis une annonce de cabine invite l'équipe
    à finir et à embarquer. Rien n'est bloqué : c'est une incitation.
    ===================================================================== */
-const TEMPS_ESCALE_MIN = 6;
+const TEMPS_ESCALE_MIN = 5;
 function resteEscale(id) { const s = etat.escales[id]; return s && s.debut ? TEMPS_ESCALE_MIN * 60 - (Date.now() - s.debut) / 1000 : null; }
 let voixAnnonce = null;
 function annonceCabine(fichier) {
@@ -4902,7 +4888,7 @@ const MESSAGES_CAPITAINE = {
    L'hôtesse (voix enregistrée) présente la préparation ; ensuite le guide tiré au sort prend le relais :
    son portrait s'anime et il parle (synthèse vocale du navigateur, voix grave ou aiguë selon le guide).
    ===================================================================== */
-const VOIX_GUIDES = { aminata: "f", leon: "m", mireille: "f", tahina: "m", elodie: "f", moussa: "m", yasmine: "f", botaniste: "m", hery: "m", gardien: "m", afi: "f", fatima: "f" };
+const VOIX_GUIDES = { elodie: "f", moussa: "m", yasmine: "f", botaniste: "m", hery: "m", gardien: "m", afi: "f", fatima: "f" };
 const ETAPES_JEU = [
   { id: "capitaine", titre: "Le briefing", qui: "hotesse", texte: "Bienvenue à bord ! Lisez le message de mission et les règles du voyage. Quand tout est clair, passez à l'équipage." },
   { id: "equipage", titre: "L'équipage", qui: "hotesse", texte: "Formez votre équipage : donnez un nom à l'équipe, inscrivez vos prénoms, puis tirez les rôles au sort." },
@@ -5019,7 +5005,7 @@ const gradeDe = (miles) => GRADES.reduce((k, [seuil], i) => (miles >= seuil ? i 
 const SUCCES = [
   { id: "premier", nom: "Premier tampon", desc: "Réussir une première escale", ic: "drapeau", si: () => nbTampons() >= 1 },
   { id: "sansfaute", nom: "Sans faute", desc: "Un quiz réussi du premier coup", ic: "etoile", si: () => ESCALES.some((e) => etat.escales[e.id].tamponne && etat.escales[e.id].essais.every((n) => n === 1)) },
-  { id: "eclair", nom: "Escale éclair", desc: "Une escale en moins de 4 minutes", ic: "eclair", si: () => ESCALES.some((e) => { const x = etat.escales[e.id]; return x.tamponne && x.debut && x.fin && x.fin - x.debut < 4 * 60 * 1000; }) },
+  { id: "eclair", nom: "Escale éclair", desc: "Une escale en moins de 3 minutes", ic: "eclair", si: () => ESCALES.some((e) => { const x = etat.escales[e.id]; return x.tamponne && x.debut && x.fin && x.fin - x.debut < 3 * 60 * 1000; }) },
   { id: "autonomes", nom: "Sans filet", desc: "Trois escales sans indice", ic: "boussole", si: () => ESCALES.filter((e) => etat.escales[e.id].tamponne && !etat.escales[e.id].indiceVu).length >= 3 },
   { id: "polyglotte", nom: "Polyglotte", desc: "Quinze mots de lexique appris", ic: "livre", si: () => ESCALES.reduce((t, e) => t + etat.escales[e.id].lexique.length, 0) >= 15 },
   { id: "mi", nom: "Mi-parcours", desc: "Cinq tampons dans le passeport", ic: "avion", si: () => nbTampons() >= 5 },
@@ -5643,8 +5629,8 @@ const actions = {
     annoncer(`Tampon obtenu. Chiffre gagné : ${e.chiffre}`);
     document.querySelector(".recompense")?.scrollIntoView({ block: "center", behavior: "smooth" });
     setTimeout(() => { confettis({ couleurs: [...e.drapeau, "#d99a2b"], nombre: 90, origine: centreDe(".tampon.anime") }); son.etincelles(); }, 550);
-    // Récompense de l'escale : 200 miles, et un bonus si l'escale a été bouclée en moins de 6 minutes
-    const s = etat.escales[e.id], rapide = s.debut && s.fin - s.debut < 6 * 60 * 1000;
+    // Récompense de l'escale : 200 miles, et un bonus si l'escale a été bouclée dans le temps prévu
+    const s = etat.escales[e.id], rapide = s.debut && s.fin - s.debut < TEMPS_ESCALE_MIN * 60 * 1000;
     setTimeout(() => gagnerMiles(rapide ? 300 : 200, centreDe(".tampon.anime"), rapide ? "Bonus rapidité !" : "Escale réussie !"), 900);
     // Écran de victoire (étoiles, gains), puis l'hôtesse annonce le coffre ou la carte d'embarquement propose la suite
     setTimeout(() => { ui.victoireAttendue = false; victoireEscale(e, { miles: rapide ? 300 : 200, rapide }, () => {
