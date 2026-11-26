@@ -1864,7 +1864,7 @@ const REGLAGES = {
   SUPABASE_URL: "https://prffovnmuzybksnaqvdt.supabase.co", // projet Supabase « passeport-francophone »
   SUPABASE_CLE: "sb_publishable_NQopBI2H0Yp0twirEaJ6oQ_bZsqxjJp", // clé publique « publishable », JAMAIS la clé secrète
   // Espace enseignante : la page ne contient que l'empreinte (SHA-256) du code ; le code lui-même est vérifié par Supabase.
-  EMPREINTE_CODE: "5aeb8670020fcd2ce96868b7e5b6d783f5f70268e8dca9c7fc24cd1661ff6328",
+  EMPREINTE_CODE: "19490b20a130bd217b9704b70c80aeb7b8f72c9700aa145e2206688c07ff64a8",
   DUREE_JEU_MIN: 45, // 8 escales d'environ 5 minutes, la préparation et le coffre
   PREPARATION_MIN: 4,
   PRESENTATION_MIN: 3, // exposé universitaire : problématique, analyse et ouverture
@@ -5361,7 +5361,7 @@ function lignesClasse() {
 // Le code saisi est comparé à son empreinte ; il reste en mémoire le temps de la visite (jamais enregistré)
 async function verifierCodeEnseignante(code) {
   try {
-    const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("passeport-francophone:" + code));
+    const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(("passeport-francophone:" + code).normalize("NFC")));
     return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join("") === REGLAGES.EMPREINTE_CODE;
   } catch (e) { return false; }
 }
@@ -5934,7 +5934,7 @@ document.addEventListener("focusin", (ev) => { if (ev.target.dataset && ev.targe
 document.addEventListener("submit", (ev) => {
   ev.preventDefault();
   if (ev.target.id === "form-code") {
-    const code = document.getElementById("code-ens").value.trim();
+    const code = document.getElementById("code-ens").value.trim().normalize("NFC");
     verifierCodeEnseignante(code).then((ok) => { ui.enseignanteOk = ok; ui.enseignanteErreur = !ok; ui.codeEns = ok ? code : null; if (ok) ui.classe = null; afficher(); });
   }
   if (ev.target.id === "form-coffre") actions["valider-coffre"]();
