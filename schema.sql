@@ -114,7 +114,8 @@ revoke all on public.suivi_escales from anon, authenticated;
 
 -- 4. Tableau des équipes dans l'espace enseignante du jeu (lecture seule)
 --    Le jeu l'appelle avec le code enseignante ; sans le bon code, rien n'est renvoyé.
---    Si vous changez CODE_ENSEIGNANTE dans index.html, changez-le aussi ici.
+--    Le code n'est écrit qu'ici (dans Supabase) ; index.html ne contient que son empreinte SHA-256
+--    de « passeport-francophone:<code> » (REGLAGES.EMPREINTE_CODE). Changez les deux ensemble.
 create or replace function public.tableau_equipes(p_code text)
 returns jsonb
 language plpgsql
@@ -122,7 +123,7 @@ security definer
 set search_path = public
 as $$
 begin
-  if p_code is distinct from 'classedefle2026' then
+  if p_code is distinct from 'VOTRE_CODE_ENSEIGNANTE' then -- remplacez par votre code (jamais publié)
     raise exception 'code enseignante incorrect';
   end if;
   return coalesce((
@@ -137,7 +138,11 @@ begin
       'fin',     case when p.etat->>'finJeu' is null then null else to_timestamp((p.etat->>'finJeu')::numeric / 1000) end,
       'miles',   coalesce((p.etat->>'miles')::int, 0),
       'escales', (select coalesce(jsonb_agg(e.key), '[]'::jsonb) from jsonb_each(coalesce(p.escales, '{}'::jsonb)) e where (e.value->>'tamponne')::boolean),
-      'maj',     p.maj_le
+      'maj',     p.maj_le,
+      'detail',  jsonb_build_object(
+                   'equipe', p.etat->'equipe', 'guide', p.etat->'guide', 'escales', p.etat->'escales', 'carnet', p.etat->'carnet',
+                   'chezNous', p.etat->'chezNous', 'preparation', p.etat->'preparation', 'autoEval', p.etat->'autoEval',
+                   'debrief', p.etat->'debrief', 'sujetTire', p.etat->'sujetTire', 'expose', p.etat->'expose', 'coffreEssais', p.etat->'coffreEssais')
     ) order by p.maj_le desc)
     from public.parties p
     where p.maj_le > now() - interval '90 days'

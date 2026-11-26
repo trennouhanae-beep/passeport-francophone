@@ -1579,6 +1579,20 @@ main { grid-template-columns: minmax(0, 1fr); }
 }
 /* En plein écran : la barre reste en haut, le reste du jeu occupe tout l'espace */
 body.plein-ecran main.livret { margin-top: 14px; }
+/* Espace enseignante : réponses d'une équipe */
+.reponses-equipe { margin-top: 18px; padding: 18px; border-radius: 14px; background: #f6f9fc; border: 1px solid #d7e2ee; display: grid; gap: 10px; }
+.reponses-equipe h4 { margin: 10px 0 2px; color: var(--cobalt, #1d3a7a); }
+.re-tete { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.re-tete h3 { margin: 0; }
+.re-liste { display: grid; grid-template-columns: minmax(180px, 32%) 1fr; gap: 6px 14px; margin: 0; }
+.re-liste dt { font-weight: 600; }
+.re-liste dd { margin: 0; }
+.re-escale { background: #fff; border: 1px solid #d7e2ee; border-radius: 10px; padding: 8px 12px; }
+.re-escale summary { cursor: pointer; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.re-q { margin: 8px 0 2px; font-weight: 600; }
+.re-rep { margin: 0 0 6px; padding: 8px 12px; border-left: 3px solid var(--turquoise, #14a3a0); background: #f6fbfb; }
+.btn.petit { padding: 4px 10px; font-size: .85rem; }
+@media (max-width: 700px) { .re-liste { grid-template-columns: 1fr; } }
 /* Mode démo (?demo) */
 .demo-curseur { position: fixed; z-index: 10000; width: 30px; height: 30px; margin: -4px 0 0 -6px; pointer-events: none; transition: left .65s cubic-bezier(.3, .7, .3, 1), top .65s cubic-bezier(.3, .7, .3, 1), opacity .4s; filter: drop-shadow(0 3px 5px rgba(0, 0, 0, .35)); }
 .demo-curseur svg { width: 100%; height: 100%; fill: #fff; stroke: #10224d; stroke-width: 1.6; stroke-linejoin: round; }
@@ -1849,7 +1863,8 @@ const REGLAGES = {
   // Laisser vide pour jouer sans envoi en ligne (sauvegarde dans le navigateur seulement).
   SUPABASE_URL: "https://prffovnmuzybksnaqvdt.supabase.co", // projet Supabase « passeport-francophone »
   SUPABASE_CLE: "sb_publishable_NQopBI2H0Yp0twirEaJ6oQ_bZsqxjJp", // clé publique « publishable », JAMAIS la clé secrète
-  CODE_ENSEIGNANTE: "classedefle2026", // code de l'espace enseignante
+  // Espace enseignante : la page ne contient que l'empreinte (SHA-256) du code ; le code lui-même est vérifié par Supabase.
+  EMPREINTE_CODE: "5aeb8670020fcd2ce96868b7e5b6d783f5f70268e8dca9c7fc24cd1661ff6328",
   DUREE_JEU_MIN: 45, // 8 escales d'environ 5 minutes, la préparation et le coffre
   PREPARATION_MIN: 4,
   PRESENTATION_MIN: 3, // exposé universitaire : problématique, analyse et ouverture
@@ -5327,7 +5342,7 @@ async function chargerClasse() {
   const entetes = { "Content-Type": "application/json", apikey: REGLAGES.SUPABASE_CLE };
   if (REGLAGES.SUPABASE_CLE.startsWith("eyJ")) entetes.Authorization = "Bearer " + REGLAGES.SUPABASE_CLE;
   try {
-    const rep = await fetch(REGLAGES.SUPABASE_URL.replace(/\/$/, "") + "/rest/v1/rpc/tableau_equipes", { method: "POST", headers: entetes, body: JSON.stringify({ p_code: REGLAGES.CODE_ENSEIGNANTE }) });
+    const rep = await fetch(REGLAGES.SUPABASE_URL.replace(/\/$/, "") + "/rest/v1/rpc/tableau_equipes", { method: "POST", headers: entetes, body: JSON.stringify({ p_code: ui.codeEns || "" }) });
     if (!rep.ok) throw new Error(rep.status === 404 ? "fonction" : "http " + rep.status);
     const lignes = (await rep.json()).map((l) => ({ ...l, debut: l.debut ? Date.parse(l.debut) : null, fin: l.fin ? Date.parse(l.fin) : null, maj: l.maj ? Date.parse(l.maj) : null, enLigne: true }));
     ui.classe = { statut: "ok", lignes, quand: new Date() };
@@ -5343,6 +5358,63 @@ function lignesClasse() {
   if (ui.filtreClasse) t = t.filter((l) => (l.classe || "") === ui.filtreClasse);
   return t.sort((a, b) => (b.coffre - a.coffre) || (b.tampons - a.tampons) || (b.miles - a.miles));
 }
+// Le code saisi est comparé à son empreinte ; il reste en mémoire le temps de la visite (jamais enregistré)
+async function verifierCodeEnseignante(code) {
+  try {
+    const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("passeport-francophone:" + code));
+    return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join("") === REGLAGES.EMPREINTE_CODE;
+  } catch (e) { return false; }
+}
+// Les réponses d'une équipe, pour l'enseignante : « Chez nous », chaque escale (quiz, lexique, « Et chez vous ? »), mission et débriefing
+function reponsesEquipeHTML(l) {
+  if (!l) return "";
+  const d = l.id === etat.partieId ? etat : l.detail;
+  const vide = `<span class="doux">—</span>`;
+  const txt = (t) => (t && String(t).trim() ? esc(String(t).trim()).replace(/\n+/g, "<br>") : vide);
+  const entete = `<div class="re-tete"><h3>Réponses de l'équipe « ${esc(l.equipe || "(sans nom)")} »</h3>
+      <button class="btn second" data-action="voir-reponses" data-id="${esc(l.id)}">Fermer</button></div>`;
+  if (!d) return `<div class="reponses-equipe" id="reponses-equipe">${entete}<p class="doux">Les réponses détaillées de cette équipe ne sont disponibles qu'en ligne : cliquez sur « Actualiser ».</p></div>`;
+  const eq = d.equipe || { membres: [], roles: {} };
+  const ROLES_NOMS = { lecteur: "lecteur", navigateur: "navigateur", gardien: "gardien du temps", secretaire: "secrétaire" };
+  const membres = (eq.membres || []).map((m, i) => m && m.trim() ? `${esc(m)} <span class="doux">(${(eq.roles[i] || []).map((r) => ROLES_NOMS[r] || r).join(", ") || "—"})</span>` : "").filter(Boolean).join(" · ");
+  const g = GUIDES.find((x) => x.id === d.guide);
+  const cn = d.chezNous || {};
+  const blocs = ESCALES.map((E) => {
+    const st = (d.escales || {})[E.id]; if (!st || (!st.debut && !st.tamponne)) return "";
+    const carnet = (d.carnet || {})[E.id] || {};
+    const memeVersion = (st.essais || []).length === E.questions.length;
+    const quiz = (st.essais || []).map((n, q) => {
+      if (!n) return "";
+      const Q = memeVersion ? E.questions[q] : null, r = (st.reponses || [])[q];
+      const rep = Q && r !== null && r !== undefined ? Q.options[r] : "";
+      return `<tr><td>${Q ? esc(Q.q) : "Question " + (q + 1) + " (ancienne version)"}</td><td>${rep ? esc(rep) : vide}</td><td class="num">${n}</td><td>${n === 1 ? "✓" : ""}</td></tr>`;
+    }).join("");
+    const temps = st.debut && st.fin ? mmss((st.fin - st.debut) / 1000) : "—";
+    return `<details class="re-escale"${st.tamponne ? "" : " open"}><summary><strong>${esc(E.nom)}</strong>
+        <span class="etat-pill${st.tamponne ? " ok" : ""}">${st.tamponne ? "Tampon obtenu" : "Non terminée"}</span>
+        <span class="doux petit">Temps : ${temps} · Indice : ${st.indiceVu ? "oui" : "non"} · Écoutes : ${st.ecoute || 0} · Erreurs au lexique : ${st.lexiqueEssais || 0}</span></summary>
+      ${quiz ? `<div class="tableau"><table class="table-classe"><thead><tr><th>Question</th><th>Réponse retenue</th><th>Essais</th><th>1er coup</th></tr></thead><tbody>${quiz}</tbody></table></div>` : ""}
+      <p class="re-q">« Et chez vous ? » ${esc(E.chezToi)}</p><blockquote class="re-rep">${txt(carnet.chezMoi)}</blockquote>
+      ${[["fete", "Fête"], ["plat", "Plat"], ["pratique", "Pratique"], ["mots", "Mots nouveaux"]].filter(([k]) => carnet[k] && carnet[k].trim()).map(([k, n]) => `<p class="petit"><strong>${n} (carnet) :</strong> ${txt(carnet[k])}</p>`).join("")}
+    </details>`;
+  }).join("");
+  const prep = d.preparation || {}, deb = d.debrief || {};
+  const escPrep = ESCALES.find((e) => e.id === prep.escale);
+  return `<div class="reponses-equipe" id="reponses-equipe">${entete}
+    <p class="petit">${membres || vide}${g ? ` · Guide : ${esc(g.nom)}` : ""}</p>
+    <h4>Escale 0 · Chez nous</h4>
+    <dl class="re-liste">${CHEZ_NOUS.map((q) => `<dt>${esc(q.q)}</dt><dd>${txt(cn[q.id])}</dd>`).join("")}</dl>
+    <h4>Les escales</h4>${blocs || `<p class="doux">Aucune escale commencée.</p>`}
+    <h4>La dernière mission</h4>
+    <dl class="re-liste"><dt>Sujet</dt><dd>${d.sujetTire !== null && d.sujetTire !== undefined && SUJETS[d.sujetTire] ? esc(SUJETS[d.sujetTire]) : vide}</dd>
+      <dt>Communauté comparée</dt><dd>${escPrep ? esc(escPrep.nom) : vide}</dd>
+      <dt>Ressemblance</dt><dd>${txt(prep.ressemblance)}</dd><dt>Différence</dt><dd>${txt(prep.difference)}</dd><dt>Explication</dt><dd>${txt(prep.explication)}</dd>
+      <dt>Auto-évaluation</dt><dd>${(d.autoEval || []).length ? `<ul>${d.autoEval.map((i) => `<li>${esc(AUTO_EVAL[i] || "")}</li>`).join("")}</ul>` : vide}</dd>
+      <dt>Exposé enregistré</dt><dd>${d.expose && d.expose.enregistre ? "oui" : "non"}</dd></dl>
+    <h4>Le débriefing</h4>
+    <dl class="re-liste">${DEBRIEF.map(([k, q]) => `<dt>${esc(q)}</dt><dd>${txt(deb[k])}</dd>`).join("")}</dl>
+  </div>`;
+}
 function tableauClasseHTML() {
   const c = ui.classe || { statut: supabaseActif ? "a-charger" : "local" };
   const lignes = lignesClasse();
@@ -5357,7 +5429,7 @@ function tableauClasseHTML() {
       ${supabaseActif ? `<button class="btn second" data-action="actualiser-classe">Actualiser</button>` : ""}
       <button class="btn second" data-action="copier-classe" ${lignes.length ? "" : "disabled"}>Copier le tableau</button></div></div>
     ${lignes.length ? `<div class="tableau"><table class="table-classe">
-      <thead><tr><th>#</th><th>Équipe</th><th>Voyageurs</th><th>Classe</th><th>Tampons</th><th>Miles</th><th>Coffre</th><th>Décollage</th><th>Durée</th><th>Statut</th></tr></thead>
+      <thead><tr><th>#</th><th>Équipe</th><th>Voyageurs</th><th>Classe</th><th>Tampons</th><th>Miles</th><th>Coffre</th><th>Décollage</th><th>Durée</th><th>Statut</th><th>Réponses</th></tr></thead>
       <tbody>${lignes.map((l, i) => `<tr${l.id === etat.partieId ? ' class="ici"' : ""}>
         <td class="num">${i < 3 && l.tampons ? ["🥇", "🥈", "🥉"][i] : i + 1}</td>
         <td><strong>${esc(l.equipe || "(sans nom)")}</strong>${l.id === etat.partieId ? ` <span class="etat-pill">ce poste</span>` : ""}</td>
@@ -5368,8 +5440,9 @@ function tableauClasseHTML() {
         <td>${l.coffre ? "✓ ouvert" : "—"}</td>
         <td class="num">${l.debut ? new Date(l.debut).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "—"}<br><span class="doux petit">${l.debut ? new Date(l.debut).toLocaleDateString("fr-FR") : ""}</span></td>
         <td class="num">${duree(l)}</td>
-        <td>${l.fin ? `<span class="etat-pill ok">Mission accomplie</span>` : `<span class="etat-pill">En vol</span>`}</td></tr>`).join("")}</tbody>
-    </table></div>` : `<p class="doux">Aucune équipe n'a encore décollé${supabaseActif ? "" : " sur ce poste"}.</p>`}
+        <td>${l.fin ? `<span class="etat-pill ok">Mission accomplie</span>` : `<span class="etat-pill">En vol</span>`}</td>
+        <td><button class="btn second petit" data-action="voir-reponses" data-id="${esc(l.id)}">${ui.reponsesDe === l.id ? "Masquer" : "Voir"}</button></td></tr>`).join("")}</tbody>
+    </table></div>${ui.reponsesDe ? reponsesEquipeHTML(lignes.find((l) => l.id === ui.reponsesDe)) : ""}` : `<p class="doux">Aucune équipe n'a encore décollé${supabaseActif ? "" : " sur ce poste"}.</p>`}
     <p class="doux petit">Classement : coffre ouvert, puis nombre de tampons, puis miles. Pour séparer les groupes, donnez aux étudiants le lien avec <code>?classe=1A</code> à la fin.</p>`;
 }
 
@@ -5701,6 +5774,11 @@ const actions = {
   "imprimer-brevet"() { document.body.classList.add("imprime-brevet"); window.print(); setTimeout(() => document.body.classList.remove("imprime-brevet"), 800); },
   "ecouter-capitaine-fin"() { capitaineParle("fin", { force: true }); },
   "actualiser-classe"() { chargerClasse(); },
+  "voir-reponses"(b) {
+    ui.reponsesDe = ui.reponsesDe === b.dataset.id ? null : b.dataset.id;
+    const z = document.getElementById("tableau-classe"); if (z) z.innerHTML = tableauClasseHTML();
+    if (ui.reponsesDe) document.getElementById("reponses-equipe")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  },
   "copier-classe"() {
     const t = [["Rang", "Équipe", "Voyageurs", "Classe", "Tampons", "Escales", "Miles", "Coffre", "Décollage", "Durée", "Statut"].join("\t"),
       ...lignesClasse().map((l, i) => [i + 1, l.equipe || "", (l.membres || []).join(", "), l.classe || "", `${l.tampons}/${NB}`, (l.escales || []).map((id) => escaleParId(id)?.nom).join(", "), l.miles || 0, l.coffre ? "ouvert" : "fermé",
@@ -5856,8 +5934,8 @@ document.addEventListener("focusin", (ev) => { if (ev.target.dataset && ev.targe
 document.addEventListener("submit", (ev) => {
   ev.preventDefault();
   if (ev.target.id === "form-code") {
-    const ok = document.getElementById("code-ens").value.trim() === REGLAGES.CODE_ENSEIGNANTE;
-    ui.enseignanteOk = ok; ui.enseignanteErreur = !ok; afficher();
+    const code = document.getElementById("code-ens").value.trim();
+    verifierCodeEnseignante(code).then((ok) => { ui.enseignanteOk = ok; ui.enseignanteErreur = !ok; ui.codeEns = ok ? code : null; if (ok) ui.classe = null; afficher(); });
   }
   if (ev.target.id === "form-coffre") actions["valider-coffre"]();
 });
