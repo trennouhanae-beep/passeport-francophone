@@ -4388,8 +4388,7 @@ function afficher() {
   }
   musique.pour(themeEcran());
   afficherBarre();
-  document.getElementById("pied").innerHTML = `<span>Escape game de FLE · Prototype 2 · contenus culturels à valider</span>
-    <button class="lien" data-action="aller" data-ecran="enseignante">Espace enseignante</button>`;
+  document.getElementById("pied").innerHTML = `<button class="lien" data-action="aller" data-ecran="enseignante">Espace enseignante</button>`;
   // Sur petit écran, la carte défile : on la centre sur la zone des escales (Atlantique et océan Indien)
   document.querySelectorAll(".carte-cadre").forEach((c) => { if (c.scrollWidth > c.clientWidth) c.scrollLeft = (c.scrollWidth - c.clientWidth) * 0.5; });
   if (ui.transit) animerAvion();
