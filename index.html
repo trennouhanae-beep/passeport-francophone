@@ -1579,6 +1579,21 @@ main { grid-template-columns: minmax(0, 1fr); }
 }
 /* En plein écran : la barre reste en haut, le reste du jeu occupe tout l'espace */
 body.plein-ecran main.livret { margin-top: 14px; }
+/* Mode démo (?demo) */
+.demo-curseur { position: fixed; z-index: 10000; width: 30px; height: 30px; margin: -4px 0 0 -6px; pointer-events: none; transition: left .65s cubic-bezier(.3, .7, .3, 1), top .65s cubic-bezier(.3, .7, .3, 1), opacity .4s; filter: drop-shadow(0 3px 5px rgba(0, 0, 0, .35)); }
+.demo-curseur svg { width: 100%; height: 100%; fill: #fff; stroke: #10224d; stroke-width: 1.6; stroke-linejoin: round; }
+.demo-curseur::after { content: ""; position: absolute; left: 2px; top: 2px; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; border: 3px solid var(--or, #d99a2b); opacity: 0; }
+.demo-curseur.clic::after { animation: demo-clic .55s ease-out; }
+@keyframes demo-clic { from { transform: scale(.3); opacity: 1; } to { transform: scale(1.6); opacity: 0; } }
+.demo-bandeau { position: fixed; z-index: 9999; left: 50%; bottom: 22px; transform: translate(-50%, 140%); padding: 12px 26px; border-radius: 999px; background: rgba(16, 34, 77, .92); color: #fff; font: 700 clamp(1rem, 1.6vw, 1.35rem)/1.2 var(--titre, Georgia, serif); box-shadow: 0 14px 30px -12px rgba(0, 0, 0, .55); white-space: nowrap; pointer-events: none; transition: transform .5s cubic-bezier(.2, .8, .2, 1); }
+.demo-bandeau small { font: 500 .8em/1 var(--texte, sans-serif); opacity: .85; margin-left: .6em; }
+.demo-bandeau.montre { transform: translate(-50%, 0); }
+.demo-carton, .demo-depart { position: fixed; inset: 0; z-index: 10001; display: grid; place-items: center; text-align: center; color: #fff; background: radial-gradient(circle at 50% 40%, #2c56c9, #10224d 70%); animation: demo-fondu .7s ease both; }
+.demo-carton h1 { font-size: clamp(2.2rem, 6vw, 4.6rem); margin: .2em 0; color: #fff; }
+.demo-carton p, .demo-depart p { font-size: clamp(1rem, 2vw, 1.4rem); opacity: .9; max-width: 34ch; margin: 0 auto 1.2em; }
+.demo-carton .etiquette { color: #ffd27a; }
+.demo-carton.sort { animation: demo-fondu .7s ease reverse both; }
+@keyframes demo-fondu { from { opacity: 0; } to { opacity: 1; } }
 /* Mode diapositives (Genially) */
 .hors-partie { text-align: center; justify-items: center; padding-block: clamp(30px, 6vw, 60px); }
 .hp-icone { width: 74px; height: 74px; border-radius: 50%; display: grid; place-items: center; font-size: 2rem; color: #fff; background: linear-gradient(135deg, var(--turquoise), var(--cobalt)); box-shadow: 0 10px 22px -10px rgba(16, 34, 77, .6); }
@@ -2156,6 +2171,9 @@ const ESCALES = [
     chezToi: "Quelle célébration familiale engage toute la communauté chez vous ? Quel rôle social joue-t-elle ?",
   },
 ];
+// Mode démo (?demo) : chiffres fictifs, pour que la vidéo ne montre jamais le vrai code du coffre
+const DEMO = (() => { try { return new URLSearchParams(location.search).has("demo"); } catch (e) { return false; } })();
+if (DEMO) ESCALES.forEach((e, i) => { e.chiffre = [3, 1, 4, 1, 5, 9, 2, 6][i % 8]; });
 const CODE_COFFRE = ESCALES.map((e) => e.chiffre).join("");
 const NB = ESCALES.length;
 const NB_LETTRES = ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix"][NB];
@@ -2203,7 +2221,10 @@ const TEXTE_FIN = `À l'intérieur, une clé USB. Grâce aux informations qu'ell
 /* =====================================================================
    ÉTAT ET SAUVEGARDE (compatible avec schema.sql de la version en ligne)
    ===================================================================== */
-const CLE_SAUVEGARDE = "passeport-francophone-v3";
+// Mode démo (?demo) : le jeu se joue tout seul, pour filmer une vidéo de présentation.
+// Sauvegarde à part, aucun envoi de données, chiffres fictifs : le vrai code du coffre n'apparaît jamais.
+const CLE_SAUVEGARDE = DEMO ? "passeport-francophone-demo" : "passeport-francophone-v3";
+if (DEMO) try { localStorage.removeItem(CLE_SAUVEGARDE); } catch (e) {}
 
 function nouvelId() {
   try { if (crypto.randomUUID) return crypto.randomUUID(); } catch (e) {}
@@ -2290,7 +2311,7 @@ const ui = {
 /* =====================================================================
    ENVOI SUPABASE (optionnel, identique à la version en ligne)
    ===================================================================== */
-const supabaseActif = Boolean(REGLAGES.SUPABASE_URL && REGLAGES.SUPABASE_CLE);
+const supabaseActif = !DEMO && Boolean(REGLAGES.SUPABASE_URL && REGLAGES.SUPABASE_CLE);
 if (supabaseActif) ui.envoi.statut = "en attente";
 let minuteurEnvoi = null, dernierEnvoye = "";
 function donneesAEnvoyer() { const { ecran, escaleActive, son, ...d } = etat; return d; }
@@ -5251,7 +5272,7 @@ function resumeEquipe() {
 }
 function lireRegistre() { try { return JSON.parse(localStorage.getItem(CLE_REGISTRE)) || []; } catch (e) { return []; } }
 function majRegistre() {
-  if (!etat.debutJeu) return;
+  if (!etat.debutJeu || DEMO) return;
   try { const r = lireRegistre().filter((x) => x.id !== etat.partieId); r.unshift(resumeEquipe()); localStorage.setItem(CLE_REGISTRE, JSON.stringify(r.slice(0, 300))); } catch (e) {}
 }
 /* Grille d'évaluation de l'exposé comparatif (production orale en continu, B1-B2 du CECRL) */
@@ -5881,6 +5902,182 @@ if (!PARTIE && etat.debutJeu && etat.ecran !== "accueil" && etat.ecran !== "ense
 if ((!PARTIE || PARTIE === "accueil") && etat.ecran === "accueil" && !etat.introVue && !etat.debutJeu && !matchMedia("(prefers-reduced-motion: reduce)").matches) ui.intro = true;
 entrerDansLaPartie();
 afficher();
+
+/* =====================================================================
+   MODE DÉMO : ?demo à la fin de l'adresse. Un écran « Lancer la démo » attend un clic
+   (le temps de lancer l'enregistrement de l'écran), puis le jeu se joue tout seul (environ 5 minutes) :
+   un curseur clique sur les vrais boutons, un bandeau nomme chaque étape.
+   ===================================================================== */
+if (DEMO) (() => {
+  const att = (ms) => new Promise((r) => setTimeout(r, ms));
+  const visible = (el) => el && (el.offsetParent !== null || getComputedStyle(el).position === "fixed");
+  async function trouver(sel, delai = 8000) {
+    const t0 = Date.now();
+    while (Date.now() - t0 < delai) {
+      const el = typeof sel === "function" ? sel() : [...document.querySelectorAll(sel)].filter(visible).pop();
+      if (el) return el;
+      await att(150);
+    }
+    console.warn("Démo : élément introuvable", sel); return null;
+  }
+  // Le curseur et le bandeau
+  const curseur = document.createElement("div"); curseur.className = "demo-curseur"; curseur.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 2l15 11-6.5 1.2L16 21l-3 1.4-3.4-6.6L4 20z"/></svg>`;
+  const bandeau = document.createElement("div"); bandeau.className = "demo-bandeau";
+  function titre(t) { bandeau.innerHTML = t; bandeau.classList.remove("montre"); void bandeau.offsetWidth; bandeau.classList.add("montre"); }
+  async function viser(el) {
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" }); await att(650);
+    const r = el.getBoundingClientRect();
+    curseur.style.left = r.left + r.width / 2 + "px"; curseur.style.top = r.top + r.height / 2 + "px";
+    await att(700);
+  }
+  async function cliquer(sel, apres = 900) {
+    const el = await trouver(sel); if (!el) return false;
+    await viser(el); curseur.classList.remove("clic"); void curseur.offsetWidth; curseur.classList.add("clic");
+    el.click(); await att(apres); return true;
+  }
+  async function taper(sel, texte) {
+    const el = await trouver(sel); if (!el) return;
+    await viser(el); el.focus({ preventScroll: true }); el.value = "";
+    for (const c of texte) { el.value += c; el.dispatchEvent(new Event("input", { bubbles: true })); await att(28); }
+    el.dispatchEvent(new Event("change", { bubbles: true })); el.blur(); await att(300);
+  }
+  // Les pop-ups du jeu (cartes d'étape, hôtesse) : on les laisse lire, puis « Compris ! »
+  async function pops(lecture = 2600) {
+    await att(1400);
+    for (let k = 0; k < 3; k++) {
+      const b = [...document.querySelectorAll(".etape-pop:not(.sort) .ep-ok, .capitaine-pop:not(.sort) .cp-ok")].pop();
+      if (!b) break;
+      await att(lecture); await cliquer(() => b, 700);
+    }
+  }
+  const nav = (ecran) => `main [data-action="aller"][data-ecran="${ecran}"]`;
+  const action = (a, extra = "") => `[data-action="${a}"]${extra}`;
+
+  async function scenario() {
+    // 0. Titre
+    const carton = document.createElement("div"); carton.className = "demo-carton";
+    carton.innerHTML = `<span class="etiquette">Escape game de FLE · B1-B2</span><h1>Le Passeport francophone</h1><p>Démonstration du jeu</p>`;
+    document.body.appendChild(carton); await att(3800); carton.classList.add("sort"); await att(700); carton.remove();
+
+    // 1. L'embarquement
+    titre("1 · L'embarquement <small>Les consignes de vol</small>");
+    await cliquer(action("ouvrir-affiche"), 3500);
+    await cliquer(action("lire-video"), 3500);
+    titre("1 · L'embarquement <small>L'hôtesse accueille les voyageurs</small>");
+    const t0 = Date.now();
+    while (Date.now() - t0 < 22000) { const v = document.getElementById("intro-video"); if (v && v.currentTime >= 13.4) break; await att(200); }
+    await cliquer(action("passer-intro"), 1500);
+    titre("1 · L'embarquement <small>Le passeport s'ouvre</small>");
+    await cliquer(action("embarquer"), 4200);
+    await cliquer(action("apres-bienvenue"), 600);
+
+    // 2. La préparation
+    titre("2 · La préparation <small>Le briefing de la mission</small>");
+    await pops(); await att(1200);
+    await cliquer(nav("equipage"), 600);
+    titre("2 · La préparation <small>L'équipage : 4 voyageurs, 4 rôles</small>");
+    await pops(1800);
+    await taper("#equipe-nom", "Les Baobabs");
+    for (const [i, n] of ["Inès", "Yanis", "Sofia", "Malik"].entries()) await taper("#membre-" + i, n);
+    await cliquer(action("tirer-roles"), 3200);
+    await cliquer(nav("guide"), 600);
+    titre("2 · La préparation <small>Un guide tiré au sort</small>");
+    await pops(1800);
+    await cliquer(action("tirer-guide"), 6500);
+    await cliquer(action("decoller"), 3500);
+
+    // 3. Chez nous
+    titre("3 · Chez nous <small>Notre culture, première escale</small>");
+    await pops(1800);
+    await taper("#cn-fete", "Chez nous, l'Aïd réunit toute la famille.");
+    await taper("#cn-plat", "Le couscous du vendredi, partagé avec les voisins.");
+    await taper("#cn-accueil", "On offre toujours du thé à un invité.");
+    await taper("#cn-famille", "Les grands-parents vivent souvent avec nous.");
+    await cliquer(action("tamponner-cheznous"), 3200);
+    await cliquer(nav("carte"), 600);
+
+    // 4. Une escale complète : le Québec
+    titre("4 · Les escales <small>8 communautés francophones</small>");
+    await pops(1800); await att(800);
+    await cliquer(action("choisir-escale", '[data-id="quebec"]'), 1800);
+    await cliquer(action("ouvrir-escale", '[data-id="quebec"]'), 600);
+    titre("4 · Les escales <small>Le vol, puis l'album du pays</small>");
+    await att(9000);
+    await cliquer(action("fin-transit"), 600);
+    titre("Escale au Québec <small>Lire le document, comprendre, répondre</small>");
+    await pops(2600);
+    const E = escaleParId("quebec");
+    await cliquer(".document, .doc, main article", 2500);
+    for (let q = 0; q < E.questions.length; q++) {
+      await cliquer(action("repondre", `[data-q="${q}"][data-o="${E.questions[q].correcte}"]`), 1900);
+      if (q < E.questions.length - 1) await cliquer(action("question-suivante"), 900);
+    }
+    titre("Escale au Québec <small>Le lexique culturel</small>");
+    for (let i = 0; i < E.lexique.length; i++) {
+      await cliquer(action("lex-mot", `[data-i="${i}"]`), 500);
+      await cliquer(action("lex-def", `[data-i="${i}"]`), 900);
+    }
+    titre("Escale au Québec <small>« Et chez vous ? » : décrire, puis expliquer</small>");
+    await taper("#cheztoi", "Chez nous, l'Aïd réunit la famille autour d'un grand repas. Comme au Québec, ce moment montre l'importance du partage.");
+    await cliquer(action("tamponner"), 600);
+    titre("Escale au Québec <small>Le tampon et un chiffre du code</small>");
+    await att(5500);
+    await cliquer(".victoire-pop .vp-ok", 3500);
+
+    // Montage : les sept autres escales
+    titre("… et ainsi de suite <small>pour les 8 escales</small>");
+    document.querySelector(".embarquement")?.remove();
+    const esc = { ...etat.escales };
+    ESCALES.forEach((e, i) => { if (!esc[e.id].tamponne) esc[e.id] = { ...esc[e.id], tamponne: true, reponses: e.questions.map((q) => q.correcte), lexique: e.lexique.map((_, k) => k), debut: Date.now() - 240000 + i * 1000, fin: Date.now() - 20000 }; });
+    etat.capitaine = [...new Set([...(etat.capitaine || []), ...ESCALES.map((e) => e.id), "coffre"])];
+    maj({ escales: esc, miles: (etat.miles || 0) + 2400 }, { rendu: false });
+    aller("carte"); await att(4500);
+    window.scrollTo({ top: 0, behavior: "smooth" }); await att(1500);
+
+    // 5. Le coffre
+    titre("5 · Le coffre <small>Les 8 chiffres ouvrent le passeport de Raoul</small>");
+    await cliquer('[data-action="aller"][data-ecran="coffre"]', 600);
+    await pops(1500);
+    for (let i = 0; i < NB; i++) { await taper("#chiffre-" + i, String(ESCALES[i].chiffre)); }
+    await cliquer(action("valider-coffre"), 6000);
+
+    // 6. La dernière mission
+    titre("6 · La dernière mission <small>Un exposé oral comparatif de 3 minutes</small>");
+    await cliquer(nav("mission"), 600);
+    await pops(2000);
+    await cliquer(action("tirer-sujet"), 3500);
+    for (const k of [1, 2]) { await cliquer(action("outil-mission", `[data-k="${k}"]`), 3200); }
+    titre("6 · La dernière mission <small>Préparer, s'enregistrer, s'auto-évaluer</small>");
+    await cliquer(action("outil-mission", '[data-k="5"]'), 1500);
+    await cliquer(action("terminer"), 600);
+
+    // 7. Le bilan
+    titre("7 · Le bilan <small>Débriefing interculturel et attestation</small>");
+    await pops(2600);
+    await cliquer(action("brevet-pour", '[data-i="0"]'), 4500);
+    const b = document.querySelector(".brevet"); if (b) { await viser(b); await att(3500); }
+
+    // Fin
+    const fin = document.createElement("div"); fin.className = "demo-carton";
+    fin.innerHTML = `<span class="etiquette">Escape game de FLE · B1-B2</span><h1>Le Passeport francophone</h1><p>trennouhanae-beep.github.io/passeport-francophone</p>`;
+    bandeau.classList.remove("montre"); curseur.style.opacity = "0";
+    document.body.appendChild(fin);
+  }
+
+  // Écran de départ : un clic lance la démo (et autorise le son)
+  const depart = document.createElement("div"); depart.className = "demo-depart";
+  depart.innerHTML = `<div><h2>Mode démo</h2><p>Lancez d'abord l'enregistrement de l'écran, puis cliquez ici. Le jeu se joue tout seul (environ 5 minutes).</p>
+    <button class="btn or" type="button">▶ Lancer la démo</button></div>`;
+  document.body.appendChild(depart);
+  depart.querySelector("button").addEventListener("click", () => {
+    depart.remove(); document.body.classList.add("demo");
+    document.body.append(curseur, bandeau);
+    curseur.style.left = innerWidth / 2 + "px"; curseur.style.top = innerHeight / 2 + "px";
+    document.documentElement.requestFullscreen?.().catch(() => {});
+    setTimeout(() => scenario().catch((e) => console.error("Démo", e)), 900);
+  });
+})();
 </script>
 </body>
 </html>
